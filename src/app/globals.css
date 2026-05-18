@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  --background: #05070d;
+  --foreground: #edf7ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(15, 244, 255, 0.15), transparent 30%),
+    radial-gradient(circle at 88% 4%, rgba(115, 70, 255, 0.16), transparent 32%),
+    linear-gradient(145deg, #05070d 0%, #09101c 45%, #05070d 100%);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.glass {
+  border: 1px solid rgba(138, 199, 255, 0.14);
+  background: linear-gradient(145deg, rgba(15, 25, 44, 0.8), rgba(8, 13, 24, 0.6));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.terminal-grid {
+  background-image:
+    linear-gradient(rgba(73, 222, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(73, 222, 255, 0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.neon-text {
+  text-shadow: 0 0 22px rgba(34, 211, 238, 0.36);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(103, 232, 249, 0.28);
+}

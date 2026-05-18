@@ -1,0 +1,36 @@
+"use client";
+
+import { create } from "zustand";
+import { watchlist } from "@/lib/mock-data";
+import type { StockQuote } from "@/lib/types";
+
+type MarketStore = {
+  quotes: StockQuote[];
+  selectedTicker: string;
+  timeframe: string;
+  setSelectedTicker: (ticker: string) => void;
+  setTimeframe: (timeframe: string) => void;
+  tick: () => void;
+};
+
+export const useMarketStore = create<MarketStore>((set) => ({
+  quotes: watchlist,
+  selectedTicker: "NVDA",
+  timeframe: "1D",
+  setSelectedTicker: (selectedTicker) => set({ selectedTicker }),
+  setTimeframe: (timeframe) => set({ timeframe }),
+  tick: () =>
+    set((state) => ({
+      quotes: state.quotes.map((quote) => {
+        const move = (Math.random() - 0.48) * 0.7;
+        const price = Number(Math.max(1, quote.price + move).toFixed(2));
+        const change = Number((quote.change + move).toFixed(2));
+        return {
+          ...quote,
+          price,
+          change,
+          changePercent: Number(((change / (price - change)) * 100).toFixed(2))
+        };
+      })
+    }))
+}));
