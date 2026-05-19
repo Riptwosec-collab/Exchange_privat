@@ -4,6 +4,7 @@ export type StockQuote = {
   ticker: string;
   name: string;
   price: number;
+  previousClose: number;
   change: number;
   changePercent: number;
   volume: string;
