@@ -2,29 +2,28 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { watchlist } from "@/lib/mock-data";
+import { allStockSymbols } from "@/lib/market-utils";
 import { useMarketStore } from "@/store/market-store";
 
-const quoteSymbols = watchlist.map((quote) => quote.ticker).join(",");
+const quoteSymbols = allStockSymbols.join(",");
 
 export function MarketTicker() {
   const { quotes, tick, setQuotes, setSelectedTicker, liveMode, lastUpdated } = useMarketStore();
 
   useEffect(() => {
     let cancelled = false;
-
     async function refreshQuotes() {
       try {
         const response = await fetch(`/api/quotes?symbols=${encodeURIComponent(quoteSymbols)}`, {
           cache: "no-store"
         });
         const data = (await response.json()) as {
-          provider: "mock" | "finnhub";
+          provider: string;
           quotes?: typeof quotes;
         };
 
         if (!cancelled && data.quotes?.length) {
-          setQuotes(data.quotes, data.provider === "finnhub" ? "provider" : "mock");
+          setQuotes(data.quotes, data.provider.includes("yahoo") ? "provider" : "mock");
         }
       } catch {
         tick();
@@ -32,7 +31,7 @@ export function MarketTicker() {
     }
 
     refreshQuotes();
-    const timer = window.setInterval(refreshQuotes, 5000);
+    const timer = window.setInterval(refreshQuotes, 15000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
@@ -42,7 +41,7 @@ export function MarketTicker() {
   return (
     <div className="overflow-hidden border-y border-white/10 bg-black/30 lg:ml-[102px]">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-1 text-xs text-slate-500">
-        <span>{liveMode === "provider" ? "Live provider quotes" : "Mock live quotes - add FINNHUB_API_KEY for real US prices"}</span>
+        <span>{liveMode === "provider" ? "Live Yahoo Finance quotes for 100+ symbols" : "Mock live quotes - provider unavailable"}</span>
         <span>{lastUpdated ? `Updated ${lastUpdated}` : "Connecting..."}</span>
       </div>
       <motion.div
