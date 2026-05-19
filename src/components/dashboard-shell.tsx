@@ -6,7 +6,6 @@ import {
   AllocationDonut,
   MarketOverview,
   MoversPanel,
-  NewsFeed,
   ScreenerPanel,
   WatchlistPanel
 } from "@/components/dashboard-widgets";
@@ -46,14 +45,17 @@ function DashboardView() {
           </div>
         </div>
         <EnhancedHeatmapPanel />
-        <div className="grid gap-4 xl:grid-cols-2">
-          <ScreenerPanel />
-          <EnhancedMultiChartPage />
+        <div className="grid min-w-0 items-start gap-4 2xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="min-w-0 max-h-[620px] overflow-auto">
+            <ScreenerPanel />
+          </div>
+          <div className="min-w-0">
+            <EnhancedMultiChartPage />
+          </div>
         </div>
       </div>
       <aside className="space-y-4">
         <WatchlistPanel />
-        <NewsFeed />
         <AllocationDonut />
       </aside>
     </div>
