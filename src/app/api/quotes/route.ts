@@ -1,75 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
+import { quoteFromCandle, quoteNameMap } from "@/lib/market-utils";
 import { watchlist } from "@/lib/mock-data";
 import type { StockQuote } from "@/lib/types";
 
-type FinnhubQuote = {
-  c?: number;
-  d?: number;
-  dp?: number;
-};
+type YahooChart = { chart?: { result?: Array<{ meta?: { regularMarketPrice?: number; previousClose?: number; regularMarketVolume?: number }; indicators?: { quote?: Array<{ close?: Array<number | null>; volume?: Array<number | null> }> } }> } };
 
 function mockQuotes(tickers: string[]) {
-  return watchlist
-    .filter((quote) => tickers.includes(quote.ticker))
-    .map((quote, index) => {
-      const wave = Math.sin(Date.now() / 12000 + index) * 0.9;
-      const price = Number(Math.max(1, quote.price + wave).toFixed(2));
-      const change = Number((quote.change + wave).toFixed(2));
-      return {
-        ...quote,
-        price,
-        change,
-        changePercent: Number(((change / (price - change)) * 100).toFixed(2))
-      };
-    });
+  return tickers.map((ticker) => {
+    const base = watchlist.find((quote) => quote.ticker === ticker);
+    const wave = Math.sin(Date.now() / 12000 + ticker.length) * 0.9;
+    if (!base) return quoteFromCandle(ticker, [
+      { time: "2026-01-01", open: 100, high: 103, low: 98, close: 101, volume: 1_000_000 },
+      { time: "2026-01-02", open: 101, high: 104, low: 99, close: 102, volume: 1_200_000 }
+    ]);
+    const price = Number(Math.max(1, base.price + wave).toFixed(2));
+    const change = Number((base.change + wave).toFixed(2));
+    return { ...base, price, change, changePercent: Number(((change / (price - change)) * 100).toFixed(2)) };
+  });
+}
+
+async function fetchYahooQuote(symbol: string): Promise<StockQuote | null> {
+  const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1m`, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" });
+  if (!response.ok) return null;
+  const data = (await response.json()) as YahooChart;
+  const result = data.chart?.result?.[0];
+  const meta = result?.meta;
+  const closes = result?.indicators?.quote?.[0]?.close?.filter((value): value is number => typeof value === "number") ?? [];
+  const volumes = result?.indicators?.quote?.[0]?.volume?.filter((value): value is number => typeof value === "number") ?? [];
+  const price = meta?.regularMarketPrice ?? closes.at(-1);
+  const previous = meta?.previousClose ?? closes.at(-2) ?? price;
+  if (!price || !previous) return null;
+  const change = price - previous;
+  const info = quoteNameMap[symbol] ?? { name: symbol, sector: "Watchlist", marketCap: "-" };
+  return { ticker: symbol, name: info.name, price: Number(price.toFixed(2)), change: Number(change.toFixed(2)), changePercent: Number(((change / previous) * 100).toFixed(2)), volume: `${Math.round((meta?.regularMarketVolume ?? volumes.at(-1) ?? 0) / 1_000_000)}M`, marketCap: info.marketCap, sector: info.sector, rsi: Math.max(20, Math.min(85, Math.round(50 + change * 4))) };
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const tickers =
-    searchParams
-      .get("symbols")
-      ?.split(",")
-      .map((symbol) => symbol.trim().toUpperCase())
-      .filter(Boolean) ?? watchlist.map((quote) => quote.ticker);
-
-  const token = process.env.FINNHUB_API_KEY;
-
-  if (!token) {
-    return NextResponse.json({
-      provider: "mock",
-      message: "Set FINNHUB_API_KEY to enable live US stock quote polling.",
-      quotes: mockQuotes(tickers)
-    });
+  const tickers = searchParams.get("symbols")?.split(",").map((symbol) => symbol.trim().toUpperCase()).filter(Boolean) ?? watchlist.map((quote) => quote.ticker);
+  const quotes = await Promise.all(tickers.map((ticker) => fetchYahooQuote(ticker)));
+  const liveQuotes = quotes.filter(Boolean) as StockQuote[];
+  if (liveQuotes.length > 0) {
+    const liveTickers = new Set(liveQuotes.map((quote) => quote.ticker));
+    const fallbackQuotes = mockQuotes(tickers.filter((ticker) => !liveTickers.has(ticker)));
+    return NextResponse.json({ provider: fallbackQuotes.length ? "yahoo+mock" : "yahoo", quotes: [...liveQuotes, ...fallbackQuotes], updatedAt: new Date().toISOString() });
   }
-
-  const quotes = await Promise.all(
-    tickers.map(async (ticker): Promise<StockQuote | null> => {
-      const base = watchlist.find((quote) => quote.ticker === ticker);
-      if (!base || ticker.endsWith(".BK")) return base ?? null;
-
-      const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${token}`, {
-        next: { revalidate: 5 }
-      });
-
-      if (!response.ok) return base;
-
-      const data = (await response.json()) as FinnhubQuote;
-      const price = data.c && data.c > 0 ? data.c : base.price;
-      const change = data.d ?? price - base.price;
-      const changePercent = data.dp ?? (change / Math.max(price - change, 1)) * 100;
-
-      return {
-        ...base,
-        price: Number(price.toFixed(2)),
-        change: Number(change.toFixed(2)),
-        changePercent: Number(changePercent.toFixed(2))
-      };
-    })
-  );
-
-  return NextResponse.json({
-    provider: "finnhub",
-    quotes: quotes.filter(Boolean)
-  });
+  return NextResponse.json({ provider: "mock", message: "Live quote provider is unavailable. Showing generated fallback data.", quotes: mockQuotes(tickers), updatedAt: new Date().toISOString() });
 }
