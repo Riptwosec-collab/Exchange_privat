@@ -24,11 +24,11 @@ export function Metric({
   const color = tone === "up" ? "text-emerald-300" : tone === "down" ? "text-rose-300" : "text-cyan-100";
 
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</p>
-      <div className="mt-2 flex items-end justify-between gap-3">
-        <strong className="font-mono text-xl text-white">{value}</strong>
-        {delta ? <span className={`font-mono text-sm ${color}`}>{delta}</span> : null}
+    <div className="metric-card min-w-0 rounded-md border border-white/10 bg-white/[0.035] p-3">
+      <p className="truncate text-xs uppercase tracking-[0.16em] text-slate-500">{label}</p>
+      <div className="mt-2 flex min-w-0 flex-wrap items-end justify-between gap-2">
+        <strong className="metric-value min-w-0 max-w-full font-mono text-white">{value}</strong>
+        {delta ? <span className={`metric-delta min-w-0 max-w-full font-mono ${color}`}>{delta}</span> : null}
       </div>
     </div>
   );
@@ -48,5 +48,5 @@ export function StatusPill({
     info: "border-cyan-300/30 bg-cyan-400/10 text-cyan-100"
   };
 
-  return <span className={`rounded-full border px-2 py-1 text-xs ${styles[tone]}`}>{children}</span>;
+  return <span className={`inline-flex max-w-full items-center rounded-full border px-2 py-1 text-xs leading-tight ${styles[tone]}`}>{children}</span>;
 }
