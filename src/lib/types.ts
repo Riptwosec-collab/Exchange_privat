@@ -18,10 +18,12 @@ export type NewsArticle = {
   title: string;
   source: string;
   category: string;
+  date: string;
   time: string;
   impact: number;
   sentiment: Sentiment;
   summaryTh: string;
+  url?: string;
   saved: boolean;
 };
 
@@ -37,7 +39,7 @@ export type PortfolioHolding = {
 };
 
 export type Candle = {
-  time: string;
+  time: string | number;
   open: number;
   high: number;
   low: number;
