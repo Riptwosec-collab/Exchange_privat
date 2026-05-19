@@ -1,38 +1,131 @@
 "use client";
 
 import { AdvancedChart } from "@/components/advanced-chart";
-import { AIBriefing, AllocationDonut, CopilotWidget, HeatmapPanel, MarketOverview, MoversPanel, NewsFeed, PortfolioPanel, WatchlistPanel } from "@/components/dashboard-widgets";
+import {
+  AIBriefing,
+  AllocationDonut,
+  CopilotWidget,
+  HeatmapPanel,
+  MarketOverview,
+  MoversPanel,
+  NewsFeed,
+  PortfolioPanel,
+  ScreenerPanel,
+  WatchlistPanel
+} from "@/components/dashboard-widgets";
 import { Header } from "@/components/header";
 import { MarketTicker } from "@/components/market-ticker";
 import { Sidebar } from "@/components/sidebar";
-import { CalendarPage, CopilotPageFull, HeatmapPage, MultiChartPage, NewsPage, PortfolioPage, ScreenerPage, SettingsPageFull, WhalesPage } from "@/components/section-pages";
+import {
+  CalendarPage,
+  CopilotPageFull,
+  HeatmapPage,
+  MultiChartPage,
+  NineChartPage,
+  NewsPage,
+  PortfolioPage,
+  ScreenerPage,
+  SettingsPageFull,
+  WhalesPage
+} from "@/components/section-pages";
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
-const mobileSections = ["Dashboard", "Charts", "News AI", "Portfolio", "Screener", "Heatmap", "Calendar", "Copilot"];
+const mobileSections = ["Dashboard", "Charts", "Multi Chart", "9 Charts", "News AI", "Portfolio", "Screener", "Heatmap", "Calendar", "Copilot"];
 
 function DashboardView() {
-  return <div className="grid gap-4 xl:grid-cols-[1fr_360px]"><div className="space-y-4"><MarketOverview /><div className="grid gap-4 2xl:grid-cols-[1.7fr_1fr]"><AdvancedChart /><div className="space-y-4"><AIBriefing /><MoversPanel /></div></div><div className="grid gap-4 xl:grid-cols-2"><PortfolioPanel /><HeatmapPanel /></div><MultiChartPage /></div><aside className="space-y-4"><WatchlistPanel /><NewsFeed /><AllocationDonut /></aside></div>;
+  return (
+    <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
+      <div className="space-y-4">
+        <MarketOverview />
+        <div className="grid gap-4 2xl:grid-cols-[1.7fr_1fr]">
+          <AdvancedChart />
+          <div className="space-y-4">
+            <AIBriefing />
+            <MoversPanel />
+          </div>
+        </div>
+        <div className="grid gap-4 xl:grid-cols-2">
+          <PortfolioPanel />
+          <HeatmapPanel />
+        </div>
+        <div className="grid gap-4 xl:grid-cols-2">
+          <ScreenerPanel />
+          <MultiChartPage />
+        </div>
+      </div>
+      <aside className="space-y-4">
+        <WatchlistPanel />
+        <NewsFeed />
+        <AllocationDonut />
+      </aside>
+    </div>
+  );
 }
 
 function SectionView() {
   const activeSection = useMarketStore((state) => state.activeSection);
+
   switch (activeSection) {
-    case "Charts": return <AdvancedChart />;
-    case "Multi Chart": return <MultiChartPage />;
-    case "News AI": return <NewsPage />;
-    case "Portfolio": return <PortfolioPage />;
-    case "Screener": return <ScreenerPage />;
-    case "Heatmap": return <HeatmapPage />;
-    case "Calendar": return <CalendarPage />;
-    case "Whales": return <WhalesPage />;
-    case "Copilot": return <CopilotPageFull />;
-    case "Settings": return <SettingsPageFull />;
-    default: return <DashboardView />;
+    case "Charts":
+      return <AdvancedChart />;
+    case "Multi Chart":
+      return <MultiChartPage />;
+    case "9 Charts":
+      return <NineChartPage />;
+    case "News AI":
+      return <NewsPage />;
+    case "Portfolio":
+      return <PortfolioPage />;
+    case "Screener":
+      return <ScreenerPage />;
+    case "Heatmap":
+      return <HeatmapPage />;
+    case "Calendar":
+      return <CalendarPage />;
+    case "Whales":
+      return <WhalesPage />;
+    case "Copilot":
+      return <CopilotPageFull />;
+    case "Settings":
+      return <SettingsPageFull />;
+    default:
+      return <DashboardView />;
   }
 }
 
 export function DashboardShell() {
   const { activeSection, setActiveSection, liveMode, lastUpdated } = useMarketStore();
-  return <main className="terminal-grid min-h-screen pb-8"><Sidebar /><Header /><MarketTicker /><div className="px-4 py-4 lg:ml-[102px] lg:px-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs uppercase tracking-[0.2em] text-slate-500">Active workspace</p><h2 className="mt-1 text-xl font-semibold text-white">{activeSection}</h2></div><div className="flex gap-2"><Metric label="Feed" value={liveMode === "provider" ? "Real" : "Mock"} delta={lastUpdated ?? "syncing"} tone={liveMode === "provider" ? "up" : "neutral"} /></div></div><div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">{mobileSections.map((section) => <button key={section} onClick={() => setActiveSection(section)} className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeSection === section ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}>{section}</button>)}</div><SectionView /></div><CopilotWidget /></main>;
+
+  return (
+    <main className="terminal-grid min-h-screen pb-8">
+      <Sidebar />
+      <Header />
+      <MarketTicker />
+      <div className="px-4 py-4 lg:ml-[102px] lg:px-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Active workspace</p>
+            <h2 className="mt-1 text-xl font-semibold text-white">{activeSection}</h2>
+          </div>
+          <div className="flex gap-2">
+            <Metric label="Feed" value={liveMode === "provider" ? "Real" : "Mock"} delta={lastUpdated ?? "syncing"} tone={liveMode === "provider" ? "up" : "neutral"} />
+          </div>
+        </div>
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+          {mobileSections.map((section) => (
+            <button
+              key={section}
+              onClick={() => setActiveSection(section)}
+              className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeSection === section ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}
+            >
+              {section}
+            </button>
+          ))}
+        </div>
+        <SectionView />
+      </div>
+      <CopilotWidget />
+    </main>
+  );
 }
