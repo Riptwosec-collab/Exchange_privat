@@ -6,7 +6,9 @@ import {
   CalendarDays,
   ChartCandlestick,
   Flame,
+  Gauge,
   Globe2,
+  Grid3X3,
   LayoutDashboard,
   LineChart,
   Lock,
@@ -23,6 +25,7 @@ const nav = [
   { label: "Dashboard", icon: LayoutDashboard },
   { label: "Charts", icon: ChartCandlestick },
   { label: "Multi Chart", icon: LineChart },
+  { label: "9 Charts", icon: Grid3X3 },
   { label: "News AI", icon: Newspaper },
   { label: "Portfolio", icon: WalletCards },
   { label: "Screener", icon: Radar },
@@ -45,19 +48,19 @@ export function Sidebar() {
         {nav.map((item, index) => {
           const active = activeSection === item.label;
           return (
-            <motion.button
-              key={item.label}
-              onClick={() => setActiveSection(item.label)}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.03 }}
-              title={item.label}
-              className={`flex h-11 items-center justify-center rounded-md border text-slate-400 transition hover:border-cyan-300/30 hover:bg-cyan-300/10 hover:text-cyan-100 ${
-                active ? "border-cyan-300/35 bg-cyan-300/12 text-cyan-100" : "border-transparent"
-              }`}
-            >
-              <item.icon size={20} />
-            </motion.button>
+          <motion.button
+            key={item.label}
+            onClick={() => setActiveSection(item.label)}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.03 }}
+            title={item.label}
+            className={`flex h-11 items-center justify-center rounded-md border text-slate-400 transition hover:border-cyan-300/30 hover:bg-cyan-300/10 hover:text-cyan-100 ${
+              active ? "border-cyan-300/35 bg-cyan-300/12 text-cyan-100" : "border-transparent"
+            }`}
+          >
+            <item.icon size={20} />
+          </motion.button>
           );
         })}
       </nav>
