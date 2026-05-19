@@ -45,6 +45,88 @@ textarea {
   backdrop-filter: blur(18px);
 }
 
+.glass,
+.glass * {
+  min-width: 0;
+}
+
+.glass .font-mono {
+  font-size: clamp(0.68rem, 0.82vw, 0.875rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.glass strong.font-mono,
+.glass .text-xl.font-mono {
+  font-size: clamp(0.9rem, 1.05vw, 1.125rem);
+}
+
+.metric-value {
+  display: block;
+  font-size: clamp(0.95rem, 1.35vw, 1.2rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.metric-delta {
+  display: block;
+  font-size: clamp(0.68rem, 0.86vw, 0.82rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.glass table {
+  table-layout: auto;
+}
+
+.glass th,
+.glass td {
+  max-width: 16ch;
+  white-space: nowrap;
+  font-size: clamp(0.68rem, 0.78vw, 0.82rem);
+}
+
+.glass td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.glass button .font-mono,
+.glass button span,
+.glass button p {
+  min-width: 0;
+}
+
+.glass span[class*="bg-black/25"],
+.glass span[class*="bg-black/20"],
+.glass span[class*="bg-emerald"],
+.glass span[class*="bg-rose"],
+.glass span[class*="bg-cyan"],
+.glass span[class*="bg-amber"],
+.glass span[class*="bg-purple"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+@media (max-width: 640px) {
+  .glass {
+    overflow-wrap: anywhere;
+  }
+
+  .glass th,
+  .glass td {
+    max-width: 12ch;
+    font-size: 0.68rem;
+  }
+
+  .metric-card {
+    padding: 0.65rem;
+  }
+}
+
 .terminal-grid {
   background-image:
     linear-gradient(rgba(73, 222, 255, 0.055) 1px, transparent 1px),
