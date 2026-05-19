@@ -4,8 +4,6 @@ import { AdvancedChart } from "@/components/advanced-chart";
 import {
   AIBriefing,
   AllocationDonut,
-  CopilotWidget,
-  HeatmapPanel,
   MarketOverview,
   MoversPanel,
   NewsFeed,
@@ -15,19 +13,18 @@ import {
 } from "@/components/dashboard-widgets";
 import { Header } from "@/components/header";
 import { MarketTicker } from "@/components/market-ticker";
+import {
+  EnhancedCopilotPageFull,
+  EnhancedHeatmapPage,
+  EnhancedHeatmapPanel,
+  EnhancedMultiChartPage,
+  EnhancedPortfolioPage,
+  EnhancedScreenerPage,
+  EnhancedWhalesPage
+} from "@/components/enhanced-market-pages";
 import { NineChartGridPage } from "@/components/nine-chart-grid";
 import { Sidebar } from "@/components/sidebar";
-import {
-  CalendarPage,
-  CopilotPageFull,
-  HeatmapPage,
-  MultiChartPage,
-  NewsPage,
-  PortfolioPage,
-  ScreenerPage,
-  SettingsPageFull,
-  WhalesPage
-} from "@/components/section-pages";
+import { CalendarPage, NewsPage, SettingsPageFull } from "@/components/section-pages";
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
@@ -47,11 +44,11 @@ function DashboardView() {
         </div>
         <div className="grid gap-4 xl:grid-cols-2">
           <PortfolioPanel />
-          <HeatmapPanel />
+          <EnhancedHeatmapPanel />
         </div>
         <div className="grid gap-4 xl:grid-cols-2">
           <ScreenerPanel />
-          <MultiChartPage />
+          <EnhancedMultiChartPage />
         </div>
       </div>
       <aside className="space-y-4">
@@ -70,23 +67,23 @@ function SectionView() {
     case "Charts":
       return <AdvancedChart />;
     case "Multi Chart":
-      return <MultiChartPage />;
+      return <EnhancedMultiChartPage />;
     case "9 Charts":
       return <NineChartGridPage />;
     case "News AI":
       return <NewsPage />;
     case "Portfolio":
-      return <PortfolioPage />;
+      return <EnhancedPortfolioPage />;
     case "Screener":
-      return <ScreenerPage />;
+      return <EnhancedScreenerPage />;
     case "Heatmap":
-      return <HeatmapPage />;
+      return <EnhancedHeatmapPage />;
     case "Calendar":
       return <CalendarPage />;
     case "Whales":
-      return <WhalesPage />;
+      return <EnhancedWhalesPage />;
     case "Copilot":
-      return <CopilotPageFull />;
+      return <EnhancedCopilotPageFull />;
     case "Settings":
       return <SettingsPageFull />;
     default:
@@ -114,18 +111,13 @@ export function DashboardShell() {
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
           {mobileSections.map((section) => (
-            <button
-              key={section}
-              onClick={() => setActiveSection(section)}
-              className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeSection === section ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}
-            >
+            <button key={section} onClick={() => setActiveSection(section)} className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeSection === section ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}>
               {section}
             </button>
           ))}
         </div>
         <SectionView />
       </div>
-      <CopilotWidget />
     </main>
   );
 }
