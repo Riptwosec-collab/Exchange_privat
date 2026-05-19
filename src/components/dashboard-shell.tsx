@@ -7,7 +7,6 @@ import {
   MarketOverview,
   MoversPanel,
   NewsFeed,
-  PortfolioPanel,
   ScreenerPanel,
   WatchlistPanel
 } from "@/components/dashboard-widgets";
@@ -24,7 +23,11 @@ import {
 } from "@/components/enhanced-market-pages";
 import { NineChartGridPage } from "@/components/nine-chart-grid";
 import { Sidebar } from "@/components/sidebar";
-import { CalendarPage, NewsPage, SettingsPageFull } from "@/components/section-pages";
+import {
+  CalendarPage,
+  NewsPage,
+  SettingsPageFull,
+} from "@/components/section-pages";
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
@@ -42,10 +45,7 @@ function DashboardView() {
             <MoversPanel />
           </div>
         </div>
-        <div className="grid gap-4 xl:grid-cols-2">
-          <PortfolioPanel />
-          <EnhancedHeatmapPanel />
-        </div>
+        <EnhancedHeatmapPanel />
         <div className="grid gap-4 xl:grid-cols-2">
           <ScreenerPanel />
           <EnhancedMultiChartPage />
@@ -111,7 +111,11 @@ export function DashboardShell() {
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
           {mobileSections.map((section) => (
-            <button key={section} onClick={() => setActiveSection(section)} className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeSection === section ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}>
+            <button
+              key={section}
+              onClick={() => setActiveSection(section)}
+              className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeSection === section ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}
+            >
               {section}
             </button>
           ))}
