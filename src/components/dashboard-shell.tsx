@@ -15,13 +15,13 @@ import {
 } from "@/components/dashboard-widgets";
 import { Header } from "@/components/header";
 import { MarketTicker } from "@/components/market-ticker";
+import { NineChartGridPage } from "@/components/nine-chart-grid";
 import { Sidebar } from "@/components/sidebar";
 import {
   CalendarPage,
   CopilotPageFull,
   HeatmapPage,
   MultiChartPage,
-  NineChartPage,
   NewsPage,
   PortfolioPage,
   ScreenerPage,
@@ -72,7 +72,7 @@ function SectionView() {
     case "Multi Chart":
       return <MultiChartPage />;
     case "9 Charts":
-      return <NineChartPage />;
+      return <NineChartGridPage />;
     case "News AI":
       return <NewsPage />;
     case "Portfolio":
