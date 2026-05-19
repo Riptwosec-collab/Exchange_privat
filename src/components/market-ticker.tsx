@@ -58,7 +58,7 @@ export function MarketTicker() {
       </div>
       <motion.div
         animate={paused ? { x: "0%" } : { x: ["0%", "-45%"] }}
-        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
         className="flex w-max gap-3 px-4 py-2"
       >
         {[...quotes, ...quotes, ...quotes].map((quote, index) => {
