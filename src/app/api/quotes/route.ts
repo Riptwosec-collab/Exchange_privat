@@ -9,13 +9,10 @@ function mockQuotes(tickers: string[]) {
   return tickers.map((ticker) => {
     const base = watchlist.find((quote) => quote.ticker === ticker);
     const wave = Math.sin(Date.now() / 12000 + ticker.length) * 0.9;
-    if (!base) return quoteFromCandle(ticker, [
-      { time: "2026-01-01", open: 100, high: 103, low: 98, close: 101, volume: 1_000_000 },
-      { time: "2026-01-02", open: 101, high: 104, low: 99, close: 102, volume: 1_200_000 }
-    ]);
+    if (!base) return quoteFromCandle(ticker, [{ time: "2026-01-01", open: 100, high: 103, low: 98, close: 101, volume: 1_000_000 }, { time: "2026-01-02", open: 101, high: 104, low: 99, close: 102, volume: 1_200_000 }]);
     const price = Number(Math.max(1, base.price + wave).toFixed(2));
     const change = Number((base.change + wave).toFixed(2));
-    return { ...base, price, change, changePercent: Number(((change / (price - change)) * 100).toFixed(2)) };
+    return { ...base, price, previousClose: Number((price - change).toFixed(2)), change, changePercent: Number(((change / (price - change)) * 100).toFixed(2)) };
   });
 }
 
@@ -32,7 +29,7 @@ async function fetchYahooQuote(symbol: string): Promise<StockQuote | null> {
   if (!price || !previous) return null;
   const change = price - previous;
   const info = quoteNameMap[symbol] ?? { name: symbol, sector: "Watchlist", marketCap: "-" };
-  return { ticker: symbol, name: info.name, price: Number(price.toFixed(2)), change: Number(change.toFixed(2)), changePercent: Number(((change / previous) * 100).toFixed(2)), volume: `${Math.round((meta?.regularMarketVolume ?? volumes.at(-1) ?? 0) / 1_000_000)}M`, marketCap: info.marketCap, sector: info.sector, rsi: Math.max(20, Math.min(85, Math.round(50 + change * 4))) };
+  return { ticker: symbol, name: info.name, price: Number(price.toFixed(2)), previousClose: Number(previous.toFixed(2)), change: Number(change.toFixed(2)), changePercent: Number(((change / previous) * 100).toFixed(2)), volume: `${Math.round((meta?.regularMarketVolume ?? volumes.at(-1) ?? 0) / 1_000_000)}M`, marketCap: info.marketCap, sector: info.sector, rsi: Math.max(20, Math.min(85, Math.round(50 + change * 4))) };
 }
 
 export async function GET(request: NextRequest) {
