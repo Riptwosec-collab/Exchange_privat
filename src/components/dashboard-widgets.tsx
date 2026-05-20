@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, ArrowDownRight, ArrowUpRight, Bookmark, Bot, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, SlidersHorizontal, Sparkles, Volume2 } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, SlidersHorizontal, Sparkles, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { economicEvents, gainers, indices, losers, news, portfolio } from "@/lib/mock-data";
@@ -69,7 +69,18 @@ export function AIBriefing() {
 export function WatchlistPanel() {
   const { quotes, setSelectedTicker, selectedTicker, requestRefresh } = useMarketStore();
   const [query, setQuery] = useState("");
-  const rows = quotes.filter((quote) => `${quote.ticker} ${quote.name} ${quote.sector}`.toLowerCase().includes(query.toLowerCase())).slice(0, 24);
+  const [sector, setSector] = useState("All");
+  const [page, setPage] = useState(0);
+  const sectors = ["All", ...Array.from(new Set(quotes.map((quote) => quote.sector)))];
+  const filteredRows = quotes.filter((quote) => {
+    const matchesQuery = `${quote.ticker} ${quote.name} ${quote.sector}`.toLowerCase().includes(query.toLowerCase());
+    const matchesSector = sector === "All" || quote.sector === sector;
+    return matchesQuery && matchesSector;
+  });
+  const pageSize = 8;
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const safePage = Math.min(page, pageCount - 1);
+  const rows = filteredRows.slice(safePage * pageSize, safePage * pageSize + pageSize);
 
   return (
     <Panel className="flex max-h-[720px] flex-col p-4">
@@ -79,7 +90,42 @@ export function WatchlistPanel() {
       </div>
       <div className="mb-3 flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3">
         <Search size={15} className="text-slate-500" />
-        <input value={query} onChange={(event) => setQuery(event.target.value)} className="h-9 w-full bg-transparent text-sm text-slate-100 outline-none" placeholder="Search ticker..." />
+        <input value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }} className="h-9 w-full bg-transparent text-sm text-slate-100 outline-none" placeholder="Search ticker..." />
+      </div>
+      <div className="mb-3 flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+        {sectors.map((item) => (
+          <button
+            key={item}
+            onClick={() => { setSector(item); setPage(0); }}
+            className={`shrink-0 rounded-md border px-2.5 py-1.5 text-xs transition ${
+              sector === item ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-400 hover:border-cyan-300/30"
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+      <div className="mb-3 flex items-center justify-between gap-2 text-xs text-slate-500">
+        <span>{filteredRows.length} stocks</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage((value) => Math.max(0, value - 1))}
+            disabled={safePage === 0}
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 text-slate-300 disabled:cursor-not-allowed disabled:opacity-35"
+            title="Previous stocks"
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <span className="font-mono text-slate-400">{safePage + 1}/{pageCount}</span>
+          <button
+            onClick={() => setPage((value) => Math.min(pageCount - 1, value + 1))}
+            disabled={safePage >= pageCount - 1}
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 text-slate-300 disabled:cursor-not-allowed disabled:opacity-35"
+            title="Next stocks"
+          >
+            <ChevronRight size={14} />
+          </button>
+        </div>
       </div>
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-thin">
         {rows.map((quote) => {
