@@ -35,15 +35,11 @@ const mobileSections = ["Dashboard", "Charts", "Multi Chart", "9 Charts", "News 
 function DashboardView() {
   return (
     <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
-      <div className="space-y-4">
+      <div className="space-y-4 xl:col-span-2">
         <MarketOverview />
-        <div className="grid gap-4 2xl:grid-cols-[1.7fr_1fr]">
-          <AdvancedChart />
-          <div className="space-y-4">
-            <AIBriefing />
-            <MoversPanel />
-          </div>
-        </div>
+        <AdvancedChart />
+      </div>
+      <div className="space-y-4">
         <EnhancedHeatmapPanel />
         <div className="grid min-w-0 items-start gap-4 2xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="min-w-0 max-h-[620px] overflow-auto">
@@ -55,6 +51,8 @@ function DashboardView() {
         </div>
       </div>
       <aside className="space-y-4">
+        <AIBriefing />
+        <MoversPanel />
         <WatchlistPanel />
         <AllocationDonut />
       </aside>
