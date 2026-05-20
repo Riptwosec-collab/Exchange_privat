@@ -21,6 +21,10 @@ const allocation = portfolio.map((holding) => ({
   value: holding.quantity * holding.currentPrice
 }));
 
+const aiSummaryTitle = "\u0e2a\u0e23\u0e38\u0e1b\u0e15\u0e25\u0e32\u0e14\u0e27\u0e31\u0e19\u0e19\u0e35\u0e49";
+const aiSummaryBody =
+  "\u0e15\u0e25\u0e32\u0e14\u0e22\u0e31\u0e07\u0e43\u0e2b\u0e49\u0e19\u0e49\u0e33\u0e2b\u0e19\u0e31\u0e01\u0e2b\u0e38\u0e49\u0e19 AI, semiconductor \u0e41\u0e25\u0e30 space infrastructure \u0e2b\u0e25\u0e31\u0e07 volume \u0e01\u0e25\u0e31\u0e1a\u0e40\u0e02\u0e49\u0e32\u0e01\u0e25\u0e38\u0e48\u0e21 growth. \u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e2b\u0e25\u0e31\u0e01\u0e04\u0e37\u0e2d CPI/FED minutes \u0e41\u0e25\u0e30 valuation \u0e17\u0e35\u0e48\u0e15\u0e36\u0e07\u0e43\u0e19 megacap AI.";
+
 export function MarketOverview() {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -41,22 +45,19 @@ export function AIBriefing() {
   return (
     <Panel className="relative overflow-hidden p-4">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300 to-transparent" />
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-cyan-300/12 text-cyan-100">
             <Bot size={20} />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">AI Market Summary</p>
-            <h3 className="font-semibold text-white">à¸ªà¸£à¸¸à¸›à¸•à¸¥à¸²à¸”à¸§à¸±à¸™à¸™à¸µà¹‰</h3>
+            <h3 className="font-semibold text-white">{aiSummaryTitle}</h3>
           </div>
         </div>
         <StatusPill tone="up">Bullish bias</StatusPill>
       </div>
-      <p className="mt-4 text-sm leading-6 text-slate-300">
-        à¸•à¸¥à¸²à¸”à¸¢à¸±à¸‡à¹ƒà¸«à¹‰à¸™à¹‰à¸³à¸«à¸™à¸±à¸à¸«à¸¸à¹‰à¸™ AI, semiconductor à¹à¸¥à¸° space infrastructure à¸«à¸¥à¸±à¸‡ volume à¸à¸¥à¸±à¸šà¹€à¸‚à¹‰à¸²à¸à¸¥à¸¸à¹ˆà¸¡ growth.
-        à¸„à¸§à¸²à¸¡à¹€à¸ªà¸µà¹ˆà¸¢à¸‡à¸«à¸¥à¸±à¸à¸„à¸·à¸­ CPI/FED minutes à¹à¸¥à¸° valuation à¸—à¸µà¹ˆà¸•à¸¶à¸‡à¹ƒà¸™ megacap AI.
-      </p>
+      <p className="mt-4 text-sm leading-6 text-slate-300">{aiSummaryBody}</p>
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         <Metric label="Fear & Greed" value="72" delta="Greed" tone="up" />
         <Metric label="AI Impact" value="8.6/10" delta="+0.4" tone="up" />
