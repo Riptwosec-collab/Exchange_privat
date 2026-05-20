@@ -93,6 +93,14 @@ textarea {
   text-overflow: ellipsis;
 }
 
+.advanced-chart-host .tv-lightweight-charts table,
+.advanced-chart-host .tv-lightweight-charts tr,
+.advanced-chart-host .tv-lightweight-charts td {
+  max-width: none;
+  text-overflow: clip;
+  white-space: normal;
+}
+
 .glass button .font-mono,
 .glass button span,
 .glass button p {
