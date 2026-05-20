@@ -67,7 +67,7 @@ function SectionView() {
 
   switch (activeSection) {
     case "Charts":
-      return <AdvancedChart />;
+      return <AdvancedChart fillViewport />;
     case "Multi Chart":
       return <EnhancedMultiChartPage />;
     case "9 Charts":
