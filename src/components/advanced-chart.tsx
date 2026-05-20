@@ -10,6 +10,12 @@ import { useMarketStore } from "@/store/market-store";
 
 const timeframes = ["1D", "5D", "1M", "6M", "YTD", "1Y", "5Y"];
 
+function visibleRangePadding(pointCount: number) {
+  if (pointCount <= 8) return 0.5;
+  if (pointCount <= 24) return 1;
+  return Math.min(8, Math.max(2, pointCount * 0.03));
+}
+
 export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { selectedTicker, setSelectedTicker, timeframe, setTimeframe, requestRefresh } = useMarketStore();
@@ -66,7 +72,13 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
         horzLines: { color: "rgba(148, 163, 184, 0.08)" }
       },
       rightPriceScale: { borderColor: "rgba(148, 163, 184, 0.16)" },
-      timeScale: { borderColor: "rgba(148, 163, 184, 0.16)" },
+      timeScale: {
+        borderColor: "rgba(148, 163, 184, 0.16)",
+        fixRightEdge: true,
+        lockVisibleTimeRangeOnResize: true,
+        rightBarStaysOnScroll: true,
+        rightOffset: 0
+      },
       width: chartElement.clientWidth,
       height: chartElement.clientHeight
     });
@@ -87,7 +99,19 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
     candleSeries.setData(normalizedCandles);
     volumeSeries.setData(chartData.map((candle) => ({ time: candle.time as Time, value: candle.volume, color: candle.close >= candle.open ? "rgba(34,197,94,.28)" : "rgba(244,63,94,.28)" })));
     maSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
-    chart.timeScale().fitContent();
+
+    const fitChartToFullWidth = () => {
+      if (normalizedCandles.length > 1) {
+        const padding = visibleRangePadding(normalizedCandles.length);
+        chart.timeScale().setVisibleLogicalRange({
+          from: -padding,
+          to: normalizedCandles.length - 1 + padding
+        });
+      } else {
+        chart.timeScale().fitContent();
+      }
+    };
+    fitChartToFullWidth();
 
     const resizeObserver = new ResizeObserver(([entry]) => {
       if (!entry) return;
@@ -96,6 +120,7 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
         width: Math.floor(width),
         height: Math.floor(height)
       });
+      fitChartToFullWidth();
     });
     resizeObserver.observe(chartElement);
 
@@ -152,7 +177,7 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
           ))}
         </div>
       ) : null}
-      <div ref={containerRef} className={`mt-4 w-full flex-1 ${fillViewport && !isFullscreen ? "min-h-[calc(100vh-300px)]" : "min-h-[390px]"}`} />
+      <div ref={containerRef} className={`advanced-chart-host mt-4 w-full flex-1 ${fillViewport && !isFullscreen ? "min-h-[calc(100vh-300px)]" : "min-h-[390px]"}`} />
       <div className="mt-3 grid gap-2 text-xs text-slate-400 sm:grid-cols-4">
         {["MA20", "MA50", "RSI", "MACD", "Bollinger", "VWAP", "Support", "Resistance"].map((item) => (
           <span key={item} className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">{item}</span>
