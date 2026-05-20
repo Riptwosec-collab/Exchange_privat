@@ -51,9 +51,9 @@ function DashboardView() {
         </div>
       </div>
       <aside className="space-y-4">
+        <WatchlistPanel />
         <AIBriefing />
         <MoversPanel />
-        <WatchlistPanel />
         <AllocationDonut />
       </aside>
     </div>
