@@ -25,6 +25,11 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
   const [symbolSearch, setSymbolSearch] = useState("");
   const [showTools, setShowTools] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const chartHeightClass = isFullscreen
+    ? "h-[calc(100vh-190px)] min-h-[390px]"
+    : fillViewport
+      ? "h-[calc(100vh-300px)] min-h-[390px]"
+      : "h-[420px]";
 
   const symbolOptions = useMemo(
     () =>
@@ -177,7 +182,7 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
           ))}
         </div>
       ) : null}
-      <div ref={containerRef} className={`advanced-chart-host mt-4 w-full flex-1 ${fillViewport && !isFullscreen ? "min-h-[calc(100vh-300px)]" : "min-h-[390px]"}`} />
+      <div ref={containerRef} className={`advanced-chart-host mt-4 w-full shrink-0 overflow-hidden ${chartHeightClass}`} />
       <div className="mt-3 grid gap-2 text-xs text-slate-400 sm:grid-cols-4">
         {["MA20", "MA50", "RSI", "MACD", "Bollinger", "VWAP", "Support", "Resistance"].map((item) => (
           <span key={item} className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">{item}</span>
