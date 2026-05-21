@@ -35,7 +35,7 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
     () =>
       stockUniverse
         .filter((stock) => `${stock.ticker} ${stock.name} ${stock.sector}`.toLowerCase().includes(symbolSearch.toLowerCase()))
-        .slice(0, 300),
+        .slice(0, stockUniverse.length),
     [symbolSearch]
   );
 
@@ -147,7 +147,7 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
             value={symbolSearch}
             onChange={(event) => setSymbolSearch(event.target.value)}
             className="h-8 w-36 rounded-md border border-white/10 bg-slate-950 px-2 text-sm text-slate-100 outline-none"
-            placeholder="Search 300"
+            placeholder="Search watchlist"
           />
           <select
             value={selectedTicker}

@@ -23,10 +23,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(15, 244, 255, 0.15), transparent 30%),
-    radial-gradient(circle at 88% 4%, rgba(115, 70, 255, 0.16), transparent 32%),
-    linear-gradient(145deg, #05070d 0%, #09101c 45%, #05070d 100%);
+  background: #050607;
   color: var(--foreground);
   font-family: var(--font-sans);
 }
@@ -39,10 +36,10 @@ textarea {
 }
 
 .glass {
-  border: 1px solid rgba(138, 199, 255, 0.14);
-  background: linear-gradient(145deg, rgba(15, 25, 44, 0.8), rgba(8, 13, 24, 0.6));
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(11, 13, 16, 0.92);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
 }
 
 .glass,
@@ -136,10 +133,7 @@ textarea {
 }
 
 .terminal-grid {
-  background-image:
-    linear-gradient(rgba(73, 222, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(73, 222, 255, 0.055) 1px, transparent 1px);
-  background-size: 44px 44px;
+  background: linear-gradient(180deg, #050607 0%, #090b0f 48%, #050607 100%);
 }
 
 .neon-text {

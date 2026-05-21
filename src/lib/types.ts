@@ -3,6 +3,9 @@ export type Sentiment = "Bullish" | "Neutral" | "Bearish";
 export type StockQuote = {
   ticker: string;
   name: string;
+  logoUrl?: string;
+  logoFallback: string;
+  brandColor: string;
   price: number;
   previousClose: number;
   change: number;

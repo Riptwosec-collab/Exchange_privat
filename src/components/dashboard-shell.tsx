@@ -6,6 +6,7 @@ import {
   AllocationDonut,
   MarketOverview,
   MoversPanel,
+  NewsFeed,
   ScreenerPanel,
   WatchlistPanel
 } from "@/components/dashboard-widgets";
@@ -34,25 +35,21 @@ const mobileSections = ["Dashboard", "Charts", "Multi Chart", "9 Charts", "News 
 
 function DashboardView() {
   return (
-    <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
-      <div className="space-y-4 xl:col-span-2">
+    <div className="grid gap-4 2xl:grid-cols-[390px_minmax(0,1fr)_360px]">
+      <aside className="space-y-4 2xl:sticky 2xl:top-4 2xl:self-start">
+        <WatchlistPanel />
+      </aside>
+      <section className="min-w-0 space-y-4">
         <MarketOverview />
         <AdvancedChart />
-      </div>
-      <div className="space-y-4">
-        <EnhancedHeatmapPanel />
-        <div className="grid min-w-0 items-start gap-4 2xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <div className="min-w-0 max-h-[620px] overflow-auto">
-            <ScreenerPanel />
-          </div>
-          <div className="min-w-0">
-            <EnhancedMultiChartPage />
-          </div>
+        <div className="grid min-w-0 gap-4 xl:grid-cols-2">
+          <EnhancedHeatmapPanel />
+          <ScreenerPanel />
         </div>
-      </div>
-      <aside className="space-y-4">
-        <WatchlistPanel />
+      </section>
+      <aside className="min-w-0 space-y-4">
         <AIBriefing />
+        <NewsFeed />
         <MoversPanel />
         <AllocationDonut />
       </aside>

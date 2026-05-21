@@ -7,13 +7,18 @@ function stripTags(value: string) {
 }
 
 async function fetchYahooNews(tickers: string[]) {
-  const symbols = tickers.slice(0, 12).join(",");
+  const metas = tickers
+    .map((ticker) => stockUniverse.find((stock) => stock.ticker === ticker))
+    .filter(Boolean);
+  const symbols = metas.slice(0, 12).map((meta) => meta?.yahooSymbol ?? meta?.ticker).join(",");
   if (!symbols) return [];
+
   const response = await fetch(`https://feeds.finance.yahoo.com/rss/2.0/headline?s=${encodeURIComponent(symbols)}&region=US&lang=en-US`, {
     headers: { "User-Agent": "Mozilla/5.0" },
     cache: "no-store"
   });
   if (!response.ok) return [];
+
   const xml = await response.text();
   return Array.from(xml.matchAll(/<item>([\s\S]*?)<\/item>/g)).slice(0, 40).map((match, index) => {
     const block = match[1];
@@ -22,8 +27,9 @@ async function fetchYahooNews(tickers: string[]) {
     const pubDate = new Date(stripTags(block.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1] ?? new Date().toISOString()));
     const ticker = tickers[index % tickers.length] ?? "NVDA";
     const meta = stockUniverse.find((stock) => stock.ticker === ticker);
-    const category = meta?.ticker.endsWith(".BK") ? "Thai Stocks" : meta?.sector.includes("Crypto") ? "Crypto" : meta?.sector.includes("Space") ? "Space" : meta?.sector.includes("Semi") ? "Semiconductor" : meta?.sector.includes("Energy") ? "Energy" : "US Stocks";
+    const category = meta?.sector ?? "Watchlist";
     const sentiment = index % 5 === 0 ? "Bearish" : index % 3 === 0 ? "Neutral" : "Bullish";
+
     return {
       id: `live-${ticker}-${pubDate.getTime()}-${index}`,
       ticker,
@@ -34,7 +40,7 @@ async function fetchYahooNews(tickers: string[]) {
       time: pubDate.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
       impact: 55 + (index % 41),
       sentiment,
-      summaryTh: `ข่าวล่าสุดของ ${ticker}: ระบบจัดหมวดหมู่และประเมิน sentiment อัตโนมัติ ควรดูร่วมกับราคา realtime, volume และแนวโน้ม sector ก่อนตัดสินใจ`,
+      summaryTh: `ข่าวล่าสุดของ ${ticker}: ${title} ระบบจัดเข้ากลุ่ม ${category} และประเมิน sentiment เบื้องต้นเป็น ${sentiment} ควรดูร่วมกับราคา realtime, volume และแนวโน้ม sector`,
       url: link,
       saved: false
     };
@@ -48,22 +54,25 @@ export async function GET(request: NextRequest) {
   const date = searchParams.get("date");
   const query = searchParams.get("q")?.toLowerCase();
   const refresh = searchParams.get("refresh") === "1";
-  const requestedTickers = ticker ? [ticker.toUpperCase()] : stockUniverse.slice(0, 40).map((stock) => stock.ticker);
+  const allowedTickers = new Set(stockUniverse.map((stock) => stock.ticker));
+  const requestedTickers = ticker && allowedTickers.has(ticker.toUpperCase())
+    ? [ticker.toUpperCase()]
+    : stockUniverse.map((stock) => stock.ticker);
 
   const liveItems = refresh ? await fetchYahooNews(requestedTickers).catch(() => []) : [];
-
-  const filtered = [...liveItems, ...news, ...generatedNews].filter((article) => {
+  const allItems = [...liveItems, ...news, ...generatedNews].filter((article) => allowedTickers.has(article.ticker));
+  const filtered = allItems.filter((article) => {
     if (ticker && article.ticker !== ticker.toUpperCase()) return false;
     if (category && article.category !== category) return false;
     if (date && article.date !== date) return false;
-    if (query && !`${article.title} ${article.summaryTh}`.toLowerCase().includes(query)) return false;
+    if (query && !`${article.ticker} ${article.title} ${article.summaryTh}`.toLowerCase().includes(query)) return false;
     return true;
   });
 
   return NextResponse.json({
     items: filtered.slice(0, 140),
-    provider: liveItems.length ? "yahoo-rss+mock" : "mock",
-    dates: Array.from(new Set([...liveItems, ...news, ...generatedNews].map((article) => article.date))).sort().reverse(),
-    categories: ["AI", "Space", "Semiconductor", "Energy", "Crypto", "Thai Stocks", "US Stocks"]
+    provider: liveItems.length ? "yahoo-rss+watchlist" : "watchlist-mock",
+    dates: Array.from(new Set(filtered.map((article) => article.date))).sort().reverse(),
+    categories: Array.from(new Set(stockUniverse.map((stock) => stock.sector))).sort()
   });
 }

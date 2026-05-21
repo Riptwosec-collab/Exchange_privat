@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Activity, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, SlidersHorizontal, Sparkles, Volume2 } from "lucide-react";
@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { economicEvents, gainers, indices, losers, news, portfolio } from "@/lib/mock-data";
 import { useMarketStore } from "@/store/market-store";
+import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
 
 const growth = [
@@ -24,6 +25,22 @@ const allocation = portfolio.map((holding) => ({
 const aiSummaryTitle = "\u0e2a\u0e23\u0e38\u0e1b\u0e15\u0e25\u0e32\u0e14\u0e27\u0e31\u0e19\u0e19\u0e35\u0e49";
 const aiSummaryBody =
   "\u0e15\u0e25\u0e32\u0e14\u0e22\u0e31\u0e07\u0e43\u0e2b\u0e49\u0e19\u0e49\u0e33\u0e2b\u0e19\u0e31\u0e01\u0e2b\u0e38\u0e49\u0e19 AI, semiconductor \u0e41\u0e25\u0e30 space infrastructure \u0e2b\u0e25\u0e31\u0e07 volume \u0e01\u0e25\u0e31\u0e1a\u0e40\u0e02\u0e49\u0e32\u0e01\u0e25\u0e38\u0e48\u0e21 growth. \u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e2b\u0e25\u0e31\u0e01\u0e04\u0e37\u0e2d CPI/FED minutes \u0e41\u0e25\u0e30 valuation \u0e17\u0e35\u0e48\u0e15\u0e36\u0e07\u0e43\u0e19 megacap AI.";
+const sectorLabels: Record<string, string> = {
+  All: "All",
+  AI: "AI",
+  Semiconductor: "Chip",
+  Space: "Space",
+  Energy: "Energy",
+  Crypto: "Crypto",
+  "Thai Stocks": "Thai",
+  "US Stocks": "US",
+  Finance: "Finance",
+  Healthcare: "Health",
+  ETF: "ETF"
+};
+const copilotPrompts = ["วิเคราะห์ NVDA ตอนนี้", "พอร์ตเสี่ยงไหม", "หุ้นไหนกำลัง breakout", "สรุปข่าว RKLB ภาษาไทย"];
+const copilotInsight =
+  "NVDA ยังเป็น leader กลุ่ม AI แต่ควรจับตา RSI และ earnings guidance. แนวรับใกล้ 136-138, แนวต้าน 151-154.";
 
 export function MarketOverview() {
   return (
@@ -84,16 +101,21 @@ export function WatchlistPanel() {
   const rows = filteredRows.slice(safePage * pageSize, safePage * pageSize + pageSize);
 
   return (
-    <Panel className="flex max-h-[720px] flex-col p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-semibold text-white">Watchlist</h3>
-        <button onClick={requestRefresh} className="rounded-md border border-white/10 px-2 py-1 text-xs text-slate-300">Refresh</button>
+    <Panel className="flex max-h-[760px] flex-col overflow-hidden p-0">
+      <div className="border-b border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-white">Watchlist</h3>
+            <p className="text-xs text-slate-500">{quotes.length} tracked symbols</p>
+          </div>
+          <button onClick={requestRefresh} className="rounded-md border border-white/10 px-2.5 py-1.5 text-xs text-slate-300 hover:border-cyan-300/30">Refresh</button>
+        </div>
       </div>
-      <div className="mb-3 flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3">
+      <div className="mx-4 mt-3 flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3">
         <Search size={15} className="text-slate-500" />
         <input value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }} className="h-9 w-full bg-transparent text-sm text-slate-100 outline-none" placeholder="Search ticker..." />
       </div>
-      <div className="mb-3 flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+      <div className="mx-4 mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
         {sectors.map((item) => (
           <button
             key={item}
@@ -102,11 +124,11 @@ export function WatchlistPanel() {
               sector === item ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-400 hover:border-cyan-300/30"
             }`}
           >
-            {item}
+            {sectorLabels[item] ?? item}
           </button>
         ))}
       </div>
-      <div className="mb-3 flex items-center justify-between gap-2 text-xs text-slate-500">
+      <div className="mx-4 mt-3 flex items-center justify-between gap-2 text-xs text-slate-500">
         <span>{filteredRows.length} stocks</span>
         <div className="flex items-center gap-2">
           <button
@@ -128,28 +150,33 @@ export function WatchlistPanel() {
           </button>
         </div>
       </div>
-      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-thin">
-        {rows.map((quote) => {
+      <div className="mt-2 min-h-0 flex-1 divide-y divide-white/[0.06] overflow-y-auto scrollbar-thin">
+        {rows.length === 0 ? (
+          <div className="m-4 rounded-md border border-dashed border-white/10 bg-white/[0.025] p-4 text-center text-sm text-slate-400">
+            ไม่พบหุ้นตามตัวกรองนี้
+          </div>
+        ) : rows.map((quote) => {
           const up = quote.changePercent >= 0;
           return (
             <button
               key={quote.ticker}
               onClick={() => setSelectedTicker(quote.ticker)}
-              className={`w-full rounded-md border p-3 text-left transition ${
-                selectedTicker === quote.ticker ? "border-cyan-300/40 bg-cyan-300/10" : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+              className={`w-full px-4 py-3 text-left transition ${
+                selectedTicker === quote.ticker ? "bg-cyan-300/10" : "hover:bg-white/[0.045]"
               }`}
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <strong className="block truncate font-mono text-white">{quote.ticker}</strong>
-                  <p className="truncate text-xs text-slate-500">{quote.name}</p>
+              <div className="flex items-center gap-3">
+                <StockLogo quote={quote} />
+                <div className="min-w-0 flex-1">
+                  <strong className="block truncate text-base font-semibold text-slate-100">{quote.ticker}</strong>
+                  <p className="truncate text-sm text-slate-500">{quote.name}</p>
                 </div>
                 <div className="shrink-0 text-right font-mono">
-                  <p className="text-white">${quote.price.toFixed(2)}</p>
-                  <p className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "+" : ""}{quote.changePercent.toFixed(2)}%</p>
+                  <p className="text-base text-slate-100">{quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}</p>
+                  <p className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "+" : ""}{quote.change.toFixed(2)} {up ? "+" : ""}{quote.changePercent.toFixed(2)}%</p>
                 </div>
               </div>
-              <div className="mt-2 flex items-center justify-between gap-2 text-xs text-slate-500">
+              <div className="mt-2 ml-[52px] flex items-center justify-between gap-2 text-xs text-slate-500">
                 <span className="truncate">{quote.sector}</span>
                 <span className="shrink-0">RSI {quote.rsi}</span>
               </div>
@@ -191,6 +218,7 @@ export function MoversPanel() {
 }
 
 export function NewsFeed() {
+  const quotes = useMarketStore((state) => state.quotes);
   return (
     <Panel className="p-4">
       <div className="flex items-center justify-between gap-3">
@@ -204,12 +232,15 @@ export function NewsFeed() {
         </button>
       </div>
       <div className="mt-4 space-y-3">
-        {news.map((article) => (
+        {news.map((article) => {
+          const quote = quotes.find((item) => item.ticker === article.ticker);
+          return (
           <article key={article.id} className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="flex flex-wrap items-center gap-2">
+              {quote ? <StockLogo quote={quote} size="sm" /> : null}
               <StatusPill tone={article.sentiment === "Bullish" ? "up" : article.sentiment === "Bearish" ? "down" : "neutral"}>{article.sentiment}</StatusPill>
               <StatusPill tone="info">{article.category}</StatusPill>
-              <span className="font-mono text-xs text-slate-500">{article.ticker} Â· {article.source} Â· {article.time}</span>
+              <span className="font-mono text-xs text-slate-500">{article.ticker} · {article.source} · {article.time}</span>
               <button title="Bookmark article" className="ml-auto text-slate-400"><Bookmark size={16} fill={article.saved ? "currentColor" : "none"} /></button>
             </div>
             <h4 className="mt-3 text-sm font-semibold text-white">{article.title}</h4>
@@ -218,7 +249,7 @@ export function NewsFeed() {
               <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} />
             </div>
           </article>
-        ))}
+        );})}
       </div>
     </Panel>
   );
@@ -383,14 +414,14 @@ export function CalendarAndFlows() {
     <Panel className="p-4">
       <div className="flex items-center gap-2">
         <Gauge size={18} className="text-purple-300" />
-        <h3 className="font-semibold text-white">Macro Â· Insider Â· Social</h3>
+        <h3 className="font-semibold text-white">Macro · Insider · Social</h3>
       </div>
       <div className="mt-4 space-y-3">
         {economicEvents.map((event) => (
           <div key={event.event} className="grid grid-cols-[1fr_auto] gap-3 rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div>
               <p className="text-sm font-medium text-white">{event.event}</p>
-              <p className="text-xs text-slate-500">{event.date} Â· Forecast {event.forecast}</p>
+              <p className="text-xs text-slate-500">{event.date} · Forecast {event.forecast}</p>
             </div>
             <StatusPill tone={event.impact === "High" ? "down" : "neutral"}>{event.impact}</StatusPill>
           </div>
@@ -438,8 +469,6 @@ export function AllocationDonut() {
 }
 
 export function CopilotWidget() {
-  const prompts = ["à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œ NVDA à¸•à¸­à¸™à¸™à¸µà¹‰", "à¸žà¸­à¸£à¹Œà¸•à¹€à¸ªà¸µà¹ˆà¸¢à¸‡à¹„à¸«à¸¡", "à¸«à¸¸à¹‰à¸™à¹„à¸«à¸™à¸à¸³à¸¥à¸±à¸‡ breakout", "à¸ªà¸£à¸¸à¸›à¸‚à¹ˆà¸²à¸§ RKLB à¸ à¸²à¸©à¸²à¹„à¸—à¸¢"];
-
   return (
     <Panel className="fixed bottom-4 right-4 z-50 hidden w-[360px] p-4 xl:block">
       <div className="flex items-center gap-2">
@@ -448,14 +477,14 @@ export function CopilotWidget() {
         </div>
         <div>
           <h3 className="text-sm font-semibold text-white">AI Stock Copilot</h3>
-          <p className="text-xs text-slate-500">Thai explanation Â· trader memory</p>
+          <p className="text-xs text-slate-500">Thai explanation · trader memory</p>
         </div>
       </div>
       <div className="mt-4 rounded-md border border-white/10 bg-black/30 p-3 text-sm leading-6 text-slate-300">
-        NVDA à¸¢à¸±à¸‡à¹€à¸›à¹‡à¸™ leader à¸à¸¥à¸¸à¹ˆà¸¡ AI à¹à¸•à¹ˆà¸„à¸§à¸£à¸ˆà¸±à¸šà¸•à¸² RSI à¹à¸¥à¸° earnings guidance. à¹à¸™à¸§à¸£à¸±à¸šà¹ƒà¸à¸¥à¹‰ 136-138, à¹à¸™à¸§à¸•à¹‰à¸²à¸™ 151-154.
+        {copilotInsight}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {prompts.map((prompt) => (
+        {copilotPrompts.map((prompt) => (
           <button key={prompt} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:border-purple-300/40">{prompt}</button>
         ))}
       </div>
