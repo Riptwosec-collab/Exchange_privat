@@ -166,7 +166,7 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
   }, [chartData, isFullscreen, ma20]);
 
   return (
-    <div className={`glass flex h-full ${fillViewport ? "min-h-[calc(100vh-190px)]" : "min-h-[560px]"} flex-col rounded-lg p-4 ${isFullscreen ? "fixed inset-3 z-50 min-h-0 overflow-hidden" : ""}`}>
+    <div className={`glass flex ${fillViewport || isFullscreen ? "h-full min-h-[calc(100vh-190px)]" : ""} flex-col rounded-lg p-4 ${isFullscreen ? "fixed inset-3 z-50 min-h-0 overflow-hidden" : ""}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Advanced Chart · {provider.toUpperCase()}</p>

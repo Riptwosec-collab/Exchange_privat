@@ -39,8 +39,10 @@ function DashboardView() {
       <aside className="space-y-4 2xl:sticky 2xl:top-4 2xl:self-start">
         <WatchlistPanel />
       </aside>
-      <section className="min-w-0 space-y-4">
-        <MarketOverview />
+      <section className="min-w-0">
+        <div className="mb-4">
+          <MarketOverview />
+        </div>
         <AdvancedChart />
         <div className="min-w-0 space-y-4">
           <EnhancedHeatmapPanel />
