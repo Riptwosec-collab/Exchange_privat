@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { generatedNews, portfolio as starterPortfolio } from "@/lib/mock-data";
 import type { PortfolioHolding, StockQuote } from "@/lib/types";
 import { useMarketStore } from "@/store/market-store";
+import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
 
 const chartModes = ["Candles", "Bars", "Line", "Area", "Heikin", "Volume", "Range"] as const;
@@ -308,6 +309,14 @@ export function EnhancedPortfolioPage() {
   );
 }
 
+function formatPe(value: number | null) {
+  return value === null ? "-" : value.toFixed(1);
+}
+
+function formatSignedPercent(value: number) {
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
+}
+
 export function EnhancedScreenerPage() {
   const { quotes, requestRefresh } = useMarketStore();
   const [sector, setSector] = useState("All");
@@ -315,13 +324,13 @@ export function EnhancedScreenerPage() {
   const [search, setSearch] = useState("");
   const [onlyBreakout, setOnlyBreakout] = useState(false);
   const sectors = ["All", ...Array.from(new Set(quotes.map((quote) => quote.sector)))];
-  const rows = quotes.filter((quote) => (sector === "All" || quote.sector === sector) && quote.rsi >= minRsi && (!onlyBreakout || quote.rsi > 65 || quote.changePercent > 2) && `${quote.ticker} ${quote.name}`.toLowerCase().includes(search.toLowerCase()));
+  const rows = quotes.filter((quote) => (sector === "All" || quote.sector === sector) && quote.rsi >= minRsi && (!onlyBreakout || quote.breakoutScore >= 70 || quote.rsi > 65 || quote.changePercent > 2) && `${quote.ticker} ${quote.name}`.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <Panel className="p-4">
       <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold text-white">Stock Screener watchlist realtime</h2><div className="flex gap-2"><button onClick={requestRefresh} className="rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300">Refresh</button><StatusPill tone="info">{rows.length} matches</StatusPill></div></div>
       <div className="mt-4 grid gap-3 md:grid-cols-4"><input value={search} onChange={(event) => setSearch(event.target.value)} className="h-10 rounded-md border border-white/10 bg-white/[0.03] px-3 text-slate-100 outline-none" placeholder="Search ticker..." /><select value={sector} onChange={(event) => setSector(event.target.value)} className="h-10 rounded-md border border-white/10 bg-slate-950 px-3 text-slate-100">{sectors.map((item) => <option key={item}>{item}</option>)}</select><label className="rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-300">Min RSI {minRsi}<input type="range" min="0" max="80" value={minRsi} onChange={(event) => setMinRsi(Number(event.target.value))} className="ml-3 align-middle" /></label><button onClick={() => setOnlyBreakout((value) => !value)} className={`rounded-md border px-3 py-2 text-sm ${onlyBreakout ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}>Breakout only</button></div>
-      <div className="mt-4 max-h-[680px] overflow-auto"><table className="w-full min-w-[760px] text-sm"><thead className="text-left text-xs uppercase tracking-[0.16em] text-slate-500"><tr><th className="py-2">Ticker</th><th>Sector</th><th>Price</th><th>Prev</th><th>%</th><th>RSI</th><th>Volume</th><th>Signal</th></tr></thead><tbody>{rows.map((quote) => <tr key={quote.ticker} className="border-t border-white/10"><td className="py-3 font-mono text-white">{quote.ticker}</td><td className="text-slate-400">{quote.sector}</td><td className="font-mono text-slate-200">${quote.price.toFixed(2)}</td><td className="font-mono text-slate-400">${quote.previousClose.toFixed(2)}</td><td className={quote.changePercent >= 0 ? "text-emerald-300" : "text-rose-300"}>{quote.changePercent.toFixed(2)}%</td><td>{quote.rsi}</td><td>{quote.volume}</td><td><StatusPill tone={quote.rsi > 65 ? "up" : quote.rsi < 35 ? "down" : "neutral"}>{quote.rsi > 65 ? "Breakout" : quote.rsi < 35 ? "Oversold" : "Watch"}</StatusPill></td></tr>)}</tbody></table></div>
+      <div className="mt-4 max-h-[680px] overflow-auto"><table className="w-full min-w-[1020px] text-sm"><thead className="text-left text-xs uppercase tracking-[0.16em] text-slate-500"><tr><th className="py-2">หุ้น</th><th>Market Cap</th><th>P/E</th><th>Revenue Growth</th><th>RSI</th><th>Breakout</th><th>AI Stocks</th><th>Dividend</th><th>Momentum</th></tr></thead><tbody>{rows.map((quote) => <tr key={quote.ticker} className="border-t border-white/10"><td className="py-3"><div className="flex items-center gap-2"><StockLogo quote={quote} size="sm" /><div><p className="font-mono text-white">{quote.ticker}</p><p className="text-xs text-slate-500">{quote.sector}</p></div></div></td><td className="font-mono text-slate-200">{quote.marketCap}</td><td className="font-mono text-slate-200">{formatPe(quote.peRatio)}</td><td className={quote.revenueGrowth >= 0 ? "font-mono text-emerald-300" : "font-mono text-rose-300"}>{formatSignedPercent(quote.revenueGrowth)}</td><td className="font-mono text-slate-200">{quote.rsi}</td><td><StatusPill tone={quote.breakoutScore >= 70 ? "up" : quote.breakoutScore <= 35 ? "down" : "neutral"}>{quote.breakoutScore}/100</StatusPill></td><td className="text-slate-300">{quote.isAiStock ? "ใช่" : "ไม่ใช่"}</td><td className="font-mono text-slate-300">{quote.dividendYield.toFixed(2)}%</td><td><StatusPill tone={quote.momentumScore >= 70 ? "up" : quote.momentumScore <= 35 ? "down" : "neutral"}>{quote.momentumScore}/100</StatusPill></td></tr>)}</tbody></table></div>
     </Panel>
   );
 }

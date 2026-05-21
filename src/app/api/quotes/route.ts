@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { quoteFromCandle, quoteNameMap } from "@/lib/market-utils";
+import { getFundamentals, quoteFromCandle, quoteNameMap } from "@/lib/market-utils";
 import { watchlist } from "@/lib/mock-data";
 import type { Candle, StockQuote } from "@/lib/types";
 
@@ -62,6 +62,10 @@ async function fetchYahooQuote(symbol: string): Promise<StockQuote | null> {
   if (!price || !previous) return null;
 
   const change = price - previous;
+  const rsi = Math.max(20, Math.min(85, Math.round(50 + change * 4)));
+  const fundamental = getFundamentals(symbol);
+  const breakoutScore = Math.max(0, Math.min(100, 55 + Number(((change / previous) * 100).toFixed(2)) * 7 + (rsi - 50) * 0.45));
+  const momentumScore = Math.max(0, Math.min(100, 40 + rsi * 0.5 + Number(((change / previous) * 100).toFixed(2)) * 4));
   return {
     ticker: symbol,
     name: info.name,
@@ -75,7 +79,13 @@ async function fetchYahooQuote(symbol: string): Promise<StockQuote | null> {
     volume: `${Math.round((meta?.regularMarketVolume ?? volumes.at(-1) ?? 0) / 1_000_000)}M`,
     marketCap: info.marketCap,
     sector: info.sector,
-    rsi: Math.max(20, Math.min(85, Math.round(50 + change * 4)))
+    rsi,
+    peRatio: fundamental.peRatio,
+    revenueGrowth: fundamental.revenueGrowth,
+    dividendYield: fundamental.dividendYield,
+    isAiStock: fundamental.isAiStock,
+    breakoutScore: Number(breakoutScore.toFixed(0)),
+    momentumScore: Number(momentumScore.toFixed(0))
   };
 }
 

@@ -1,4 +1,5 @@
 import type { Candle, StockQuote } from "./types";
+import { calculateRsi, calculateSupportResistance } from "./technical-indicators";
 
 export type StockMeta = {
   ticker: string;
@@ -9,6 +10,13 @@ export type StockMeta = {
   logoFallback: string;
   brandColor: string;
   yahooSymbol?: string;
+};
+
+type FundamentalMeta = {
+  peRatio: number | null;
+  revenueGrowth: number;
+  dividendYield: number;
+  isAiStock: boolean;
 };
 
 function logo(domain: string) {
@@ -49,6 +57,38 @@ export const quoteNameMap: Record<string, StockMeta> = Object.fromEntries(
   stockUniverse.map((stock) => [stock.ticker, stock])
 );
 
+const fundamentals: Record<string, FundamentalMeta> = {
+  AAPL: { peRatio: 32.4, revenueGrowth: 2.1, dividendYield: 0.5, isAiStock: true },
+  BTCTHB: { peRatio: null, revenueGrowth: 0, dividendYield: 0, isAiStock: false },
+  NVDA: { peRatio: 56.8, revenueGrowth: 122.4, dividendYield: 0.03, isAiStock: true },
+  CRWD: { peRatio: null, revenueGrowth: 29.8, dividendYield: 0, isAiStock: true },
+  CRWV: { peRatio: null, revenueGrowth: 64.2, dividendYield: 0, isAiStock: true },
+  INTU: { peRatio: 54.1, revenueGrowth: 12.7, dividendYield: 0.6, isAiStock: true },
+  RKLB: { peRatio: null, revenueGrowth: 16.2, dividendYield: 0, isAiStock: false },
+  TSLA: { peRatio: 78.5, revenueGrowth: 1.4, dividendYield: 0, isAiStock: true },
+  AMZN: { peRatio: 44.9, revenueGrowth: 11.9, dividendYield: 0, isAiStock: true },
+  GOOG: { peRatio: 27.6, revenueGrowth: 14.0, dividendYield: 0.4, isAiStock: true },
+  MU: { peRatio: 14.8, revenueGrowth: 61.6, dividendYield: 0.3, isAiStock: true },
+  OSK: { peRatio: 11.6, revenueGrowth: 12.4, dividendYield: 1.5, isAiStock: false },
+  ASTS: { peRatio: null, revenueGrowth: 0.8, dividendYield: 0, isAiStock: false },
+  LUNR: { peRatio: null, revenueGrowth: 48.1, dividendYield: 0, isAiStock: false },
+  SOFI: { peRatio: 42.5, revenueGrowth: 23.9, dividendYield: 0, isAiStock: false },
+  NBIS: { peRatio: null, revenueGrowth: 38.5, dividendYield: 0, isAiStock: true },
+  NET: { peRatio: null, revenueGrowth: 28.6, dividendYield: 0, isAiStock: true },
+  V: { peRatio: 30.2, revenueGrowth: 9.8, dividendYield: 0.7, isAiStock: false },
+  INTC: { peRatio: null, revenueGrowth: -2.1, dividendYield: 1.1, isAiStock: true },
+  SNDK: { peRatio: 18.9, revenueGrowth: 7.4, dividendYield: 0.9, isAiStock: false },
+  AMD: { peRatio: 47.3, revenueGrowth: 13.6, dividendYield: 0, isAiStock: true },
+  PLTR: { peRatio: 86.7, revenueGrowth: 20.8, dividendYield: 0, isAiStock: true },
+  QCOM: { peRatio: 18.2, revenueGrowth: 8.9, dividendYield: 1.8, isAiStock: true },
+  IBM: { peRatio: 23.1, revenueGrowth: 3.5, dividendYield: 3.1, isAiStock: true },
+  STK: { peRatio: null, revenueGrowth: 0, dividendYield: 6.4, isAiStock: true }
+};
+
+export function getFundamentals(symbol: string): FundamentalMeta {
+  return fundamentals[symbol] ?? { peRatio: null, revenueGrowth: 0, dividendYield: 0, isAiStock: false };
+}
+
 export function generateCandles(symbol: string, points = 120): Candle[] {
   const seed = symbol.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
   return Array.from({ length: points }, (_, index) => {
@@ -69,9 +109,16 @@ export function generateCandles(symbol: string, points = 120): Candle[] {
 
 export function quoteFromCandle(symbol: string, candles: Candle[]): StockQuote {
   const meta = quoteNameMap[symbol] ?? { name: symbol, sector: "Watchlist", marketCap: "-", logoFallback: symbol.slice(0, 2), brandColor: "#334155" };
+  const fundamental = fundamentals[symbol] ?? { peRatio: null, revenueGrowth: 0, dividendYield: 0, isAiStock: false };
   const last = candles[candles.length - 1];
   const previous = candles[candles.length - 2] ?? last;
   const change = last.close - previous.close;
+  const rsi = Math.round(calculateRsi(candles) ?? Math.max(25, Math.min(82, 50 + change * 5 + Math.sin(last.close) * 10)));
+  const { resistance } = calculateSupportResistance(candles, 20);
+  const breakoutScore = resistance
+    ? Math.max(0, Math.min(100, 100 - ((resistance - last.close) / Math.max(0.01, resistance)) * 450))
+    : Math.max(0, Math.min(100, 50 + change * 8));
+  const momentumScore = Math.max(0, Math.min(100, 45 + rsi * 0.45 + (change / Math.max(0.01, previous.close)) * 700));
   return {
     ticker: symbol,
     name: meta.name,
@@ -85,6 +132,12 @@ export function quoteFromCandle(symbol: string, candles: Candle[]): StockQuote {
     volume: `${Math.round(last.volume / 1_000_000)}M`,
     marketCap: meta.marketCap,
     sector: meta.sector,
-    rsi: Math.max(25, Math.min(82, Math.round(50 + change * 5 + Math.sin(last.close) * 10)))
+    rsi,
+    peRatio: fundamental.peRatio,
+    revenueGrowth: fundamental.revenueGrowth,
+    dividendYield: fundamental.dividendYield,
+    isAiStock: fundamental.isAiStock,
+    breakoutScore: Number(breakoutScore.toFixed(0)),
+    momentumScore: Number(momentumScore.toFixed(0))
   };
 }

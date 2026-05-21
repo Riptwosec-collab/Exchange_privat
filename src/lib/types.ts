@@ -14,6 +14,12 @@ export type StockQuote = {
   marketCap: string;
   sector: string;
   rsi: number;
+  peRatio: number | null;
+  revenueGrowth: number;
+  dividendYield: number;
+  isAiStock: boolean;
+  breakoutScore: number;
+  momentumScore: number;
 };
 
 export type NewsArticle = {

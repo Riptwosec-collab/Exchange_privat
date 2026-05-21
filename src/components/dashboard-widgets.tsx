@@ -339,8 +339,19 @@ export function HeatmapPanel() {
     </Panel>
   );
 }
+
+function formatPe(value: number | null) {
+  return value === null ? "-" : value.toFixed(1);
+}
+
+function formatSignedPercent(value: number) {
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
+}
+
 export function ScreenerPanel() {
   const { quotes, requestRefresh } = useMarketStore();
+  const aiCount = quotes.filter((quote) => quote.isAiStock).length;
+  const dividendCount = quotes.filter((quote) => quote.dividendYield > 0).length;
 
   return (
     <Panel className="p-4">
@@ -349,31 +360,57 @@ export function ScreenerPanel() {
         <button onClick={requestRefresh} className="flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-slate-300"><RefreshCw size={14} />Refresh</button>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {["Market Cap", "P/E", "Revenue Growth", "RSI", "Breakout", "AI Stocks", "Dividend", "Momentum"].map((filter) => (
-          <button key={filter} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:border-cyan-300/40">{filter}</button>
+        {[
+          ["Market Cap", `${quotes.length} หุ้น`],
+          ["P/E", "ใส่ครบ"],
+          ["Revenue Growth", "YoY"],
+          ["RSI", "สดจากราคา"],
+          ["Breakout", "0-100"],
+          ["AI Stocks", `${aiCount} ตัว`],
+          ["Dividend", `${dividendCount} ตัว`],
+          ["Momentum", "0-100"]
+        ].map(([filter, value]) => (
+          <button key={filter} className="rounded-md border border-white/10 px-3 py-1.5 text-left text-xs text-slate-300 hover:border-cyan-300/40">
+            <span className="block text-slate-500">{filter}</span>
+            <strong className="font-mono text-slate-100">{value}</strong>
+          </button>
         ))}
       </div>
       <div className="mt-4 overflow-x-auto scrollbar-thin">
-        <table className="w-full min-w-[540px] text-sm">
+        <table className="w-full min-w-[980px] text-sm">
           <thead className="text-left text-xs uppercase tracking-[0.16em] text-slate-500">
             <tr>
-              <th className="py-2">Ticker</th>
-              <th>Sector</th>
-              <th>Price</th>
+              <th className="py-2">หุ้น</th>
+              <th>Market Cap</th>
+              <th>P/E</th>
+              <th>Revenue Growth</th>
               <th>RSI</th>
-              <th>Volume</th>
-              <th>Signal</th>
+              <th>Breakout</th>
+              <th>AI Stocks</th>
+              <th>Dividend</th>
+              <th>Momentum</th>
             </tr>
           </thead>
           <tbody>
             {quotes.map((quote) => (
               <tr key={quote.ticker} className="border-t border-white/10">
-                <td className="py-3 font-mono text-white">{quote.ticker}</td>
-                <td className="text-slate-400">{quote.sector}</td>
-                <td className="font-mono text-slate-200">${quote.price.toFixed(2)}</td>
+                <td className="py-3">
+                  <div className="flex items-center gap-2">
+                    <StockLogo quote={quote} size="sm" />
+                    <div>
+                      <p className="font-mono text-white">{quote.ticker}</p>
+                      <p className="text-xs text-slate-500">{quote.sector}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="font-mono text-slate-200">{quote.marketCap}</td>
+                <td className="font-mono text-slate-200">{formatPe(quote.peRatio)}</td>
+                <td className={quote.revenueGrowth >= 0 ? "font-mono text-emerald-300" : "font-mono text-rose-300"}>{formatSignedPercent(quote.revenueGrowth)}</td>
                 <td className="font-mono text-slate-200">{quote.rsi}</td>
-                <td className="font-mono text-slate-400">{quote.volume}</td>
-                <td><StatusPill tone={quote.rsi > 65 ? "up" : "neutral"}>{quote.rsi > 65 ? "Breakout" : "Watch"}</StatusPill></td>
+                <td><StatusPill tone={quote.breakoutScore >= 70 ? "up" : quote.breakoutScore <= 35 ? "down" : "neutral"}>{quote.breakoutScore}/100</StatusPill></td>
+                <td className="text-slate-300">{quote.isAiStock ? "ใช่" : "ไม่ใช่"}</td>
+                <td className="font-mono text-slate-300">{quote.dividendYield.toFixed(2)}%</td>
+                <td><StatusPill tone={quote.momentumScore >= 70 ? "up" : quote.momentumScore <= 35 ? "down" : "neutral"}>{quote.momentumScore}/100</StatusPill></td>
               </tr>
             ))}
           </tbody>

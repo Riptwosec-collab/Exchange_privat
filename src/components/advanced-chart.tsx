@@ -5,6 +5,7 @@ import { CandlestickSeries, ColorType, createChart, HistogramSeries, LineSeries,
 import { Maximize2, PenLine, RefreshCw, Share2 } from "lucide-react";
 import { allStockSymbols, stockUniverse } from "@/lib/market-utils";
 import { candles as fallbackCandles } from "@/lib/mock-data";
+import { calculateTechnicals, formatIndicator } from "@/lib/technical-indicators";
 import type { Candle } from "@/lib/types";
 import { useMarketStore } from "@/store/market-store";
 
@@ -25,6 +26,35 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
   const [symbolSearch, setSymbolSearch] = useState("");
   const [showTools, setShowTools] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const technicals = useMemo(() => calculateTechnicals(chartData), [chartData]);
+  const indicatorCards = useMemo(
+    () => [
+      { label: "MA20", title: "ค่าเฉลี่ย 20 วัน", value: formatIndicator(technicals.ma20), detail: "แนวโน้มระยะสั้น" },
+      { label: "MA50", title: "ค่าเฉลี่ย 50 วัน", value: formatIndicator(technicals.ma50), detail: "แนวโน้มหลัก" },
+      {
+        label: "RSI",
+        title: "แรงซื้อขาย",
+        value: formatIndicator(technicals.rsi, 1),
+        detail: technicals.rsi === null ? "รอข้อมูล" : technicals.rsi >= 70 ? "ซื้อมาก" : technicals.rsi <= 30 ? "ขายมาก" : "สมดุล"
+      },
+      {
+        label: "MACD",
+        title: "โมเมนตัม",
+        value: `${formatIndicator(technicals.macd, 2)} / ${formatIndicator(technicals.macdSignal, 2)}`,
+        detail: `Histogram ${formatIndicator(technicals.macdHistogram, 2)}`
+      },
+      {
+        label: "Bollinger",
+        title: "กรอบราคา",
+        value: `${formatIndicator(technicals.bollingerLower)} - ${formatIndicator(technicals.bollingerUpper)}`,
+        detail: `กลาง ${formatIndicator(technicals.bollingerMiddle)}`
+      },
+      { label: "VWAP", title: "ราคาเฉลี่ยถ่วงน้ำหนัก", value: formatIndicator(technicals.vwap), detail: "อิงราคาและวอลุ่ม" },
+      { label: "Support", title: "แนวรับ", value: formatIndicator(technicals.support), detail: "ต่ำสุดช่วงล่าสุด" },
+      { label: "Resistance", title: "แนวต้าน", value: formatIndicator(technicals.resistance), detail: "สูงสุดช่วงล่าสุด" }
+    ],
+    [technicals]
+  );
   const chartHeightClass = isFullscreen
     ? "h-[calc(100vh-190px)] min-h-[390px]"
     : fillViewport
@@ -183,9 +213,16 @@ export function AdvancedChart({ fillViewport = false }: { fillViewport?: boolean
         </div>
       ) : null}
       <div ref={containerRef} className={`advanced-chart-host mt-4 w-full shrink-0 overflow-hidden ${chartHeightClass}`} />
-      <div className="mt-3 grid gap-2 text-xs text-slate-400 sm:grid-cols-4">
-        {["MA20", "MA50", "RSI", "MACD", "Bollinger", "VWAP", "Support", "Resistance"].map((item) => (
-          <span key={item} className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">{item}</span>
+      <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2 xl:grid-cols-4">
+        {indicatorCards.map((item) => (
+          <div key={item.label} className="min-h-[82px] rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-cyan-200">{item.label}</span>
+              <span className="truncate text-[11px] text-slate-500">{item.title}</span>
+            </div>
+            <strong className="mt-2 block truncate font-mono text-sm text-slate-100">{item.value}</strong>
+            <span className="mt-1 block truncate text-slate-500">{item.detail}</span>
+          </div>
         ))}
       </div>
     </div>
