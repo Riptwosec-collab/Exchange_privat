@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Activity, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, SlidersHorizontal, Sparkles, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { economicEvents, gainers, indices, losers, news, portfolio } from "@/lib/mock-data";
+import { economicEvents, gainers, generatedNews, indices, losers, news, portfolio } from "@/lib/mock-data";
 import { useMarketStore } from "@/store/market-store";
 import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
@@ -88,20 +88,16 @@ export function WatchlistPanel() {
   const { quotes, setSelectedTicker, selectedTicker, requestRefresh } = useMarketStore();
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("All");
-  const [page, setPage] = useState(0);
   const sectors = ["All", ...Array.from(new Set(quotes.map((quote) => quote.sector)))];
   const filteredRows = quotes.filter((quote) => {
     const matchesQuery = `${quote.ticker} ${quote.name} ${quote.sector}`.toLowerCase().includes(query.toLowerCase());
     const matchesSector = sector === "All" || quote.sector === sector;
     return matchesQuery && matchesSector;
   });
-  const pageSize = 8;
-  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-  const safePage = Math.min(page, pageCount - 1);
-  const rows = filteredRows.slice(safePage * pageSize, safePage * pageSize + pageSize);
+  const rows = filteredRows;
 
   return (
-    <Panel className="flex max-h-[760px] flex-col overflow-hidden p-0">
+    <Panel className="flex max-h-[1250px] flex-col overflow-hidden p-0">
       <div className="border-b border-white/10 px-4 py-3">
         <div className="flex items-center justify-between">
           <div>
@@ -113,13 +109,13 @@ export function WatchlistPanel() {
       </div>
       <div className="mx-4 mt-3 flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3">
         <Search size={15} className="text-slate-500" />
-        <input value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }} className="h-9 w-full bg-transparent text-sm text-slate-100 outline-none" placeholder="Search ticker..." />
+        <input value={query} onChange={(event) => setQuery(event.target.value)} className="h-9 w-full bg-transparent text-sm text-slate-100 outline-none" placeholder="Search ticker..." />
       </div>
       <div className="mx-4 mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
         {sectors.map((item) => (
           <button
             key={item}
-            onClick={() => { setSector(item); setPage(0); }}
+            onClick={() => setSector(item)}
             className={`shrink-0 rounded-md border px-2.5 py-1.5 text-xs transition ${
               sector === item ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-400 hover:border-cyan-300/30"
             }`}
@@ -130,27 +126,9 @@ export function WatchlistPanel() {
       </div>
       <div className="mx-4 mt-3 flex items-center justify-between gap-2 text-xs text-slate-500">
         <span>{filteredRows.length} stocks</span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPage((value) => Math.max(0, value - 1))}
-            disabled={safePage === 0}
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 text-slate-300 disabled:cursor-not-allowed disabled:opacity-35"
-            title="Previous stocks"
-          >
-            <ChevronLeft size={14} />
-          </button>
-          <span className="font-mono text-slate-400">{safePage + 1}/{pageCount}</span>
-          <button
-            onClick={() => setPage((value) => Math.min(pageCount - 1, value + 1))}
-            disabled={safePage >= pageCount - 1}
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 text-slate-300 disabled:cursor-not-allowed disabled:opacity-35"
-            title="Next stocks"
-          >
-            <ChevronRight size={14} />
-          </button>
-        </div>
+        <span className="font-mono text-slate-400">แสดง 10 · เลื่อนดูต่อ</span>
       </div>
-      <div className="mt-2 min-h-0 flex-1 divide-y divide-white/[0.06] overflow-y-auto scrollbar-thin">
+      <div className="mt-2 min-h-0 max-h-[980px] divide-y divide-white/[0.06] overflow-y-auto scrollbar-thin">
         {rows.length === 0 ? (
           <div className="m-4 rounded-md border border-dashed border-white/10 bg-white/[0.025] p-4 text-center text-sm text-slate-400">
             ไม่พบหุ้นตามตัวกรองนี้
@@ -219,23 +197,28 @@ export function MoversPanel() {
 
 export function NewsFeed() {
   const quotes = useMarketStore((state) => state.quotes);
+  const dashboardNews = [...news, ...generatedNews];
   return (
     <Panel className="p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Newspaper size={18} className="text-cyan-300" />
-          <h3 className="font-semibold text-white">Stock News AI</h3>
+          <h3 className="font-semibold text-white">AI Market Summary</h3>
         </div>
         <button className="flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300">
           <Filter size={15} />
           Filter
         </button>
       </div>
-      <div className="mt-4 space-y-3">
-        {news.map((article) => {
+      <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+        <span>{dashboardNews.length} ข่าวที่เกี่ยวกับหุ้นใน watchlist</span>
+        <span className="font-mono text-slate-400">แสดง 10 · เลื่อนดูต่อ</span>
+      </div>
+      <div className="mt-4 max-h-[1260px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
+        {dashboardNews.map((article) => {
           const quote = quotes.find((item) => item.ticker === article.ticker);
           return (
-          <article key={article.id} className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+          <article key={article.id} className="rounded-md border border-white/10 bg-white/[0.035] p-2.5">
             <div className="flex flex-wrap items-center gap-2">
               {quote ? <StockLogo quote={quote} size="sm" /> : null}
               <StatusPill tone={article.sentiment === "Bullish" ? "up" : article.sentiment === "Bearish" ? "down" : "neutral"}>{article.sentiment}</StatusPill>
@@ -243,9 +226,9 @@ export function NewsFeed() {
               <span className="font-mono text-xs text-slate-500">{article.ticker} · {article.source} · {article.time}</span>
               <button title="Bookmark article" className="ml-auto text-slate-400"><Bookmark size={16} fill={article.saved ? "currentColor" : "none"} /></button>
             </div>
-            <h4 className="mt-3 text-sm font-semibold text-white">{article.title}</h4>
-            <p className="mt-2 text-sm leading-6 text-slate-400">{article.summaryTh}</p>
-            <div className="mt-3 h-1.5 rounded-full bg-slate-800">
+            <h4 className="mt-2 text-sm font-semibold leading-5 text-white">{article.title}</h4>
+            <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{article.summaryTh}</p>
+            <div className="mt-2 h-1 rounded-full bg-slate-800">
               <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} />
             </div>
           </article>
