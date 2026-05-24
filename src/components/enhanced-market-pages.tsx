@@ -119,8 +119,30 @@ function MiniSignalChart({ quote, timeframe, mode, strategy }: { quote: StockQuo
 export function EnhancedHeatmapPanel() {
   const { quotes, requestRefresh, setSelectedTicker } = useMarketStore();
   const [sector, setSector] = useState("All");
+  const [selected, setSelected] = useState<StockQuote | null>(null);
+  const [activeTool, setActiveTool] = useState<"compare" | "strategy" | "dcf" | "news">("news");
+  const [lineStatus, setLineStatus] = useState("");
   const sectors = ["All", ...Array.from(new Set(quotes.map((quote) => quote.sector)))];
   const rows = quotes.filter((quote) => sector === "All" || quote.sector === sector).slice(0, 12);
+  const detail = selected ? buildHeatmapInsight(selected) : null;
+
+  async function sendLine(ticker: string) {
+    setLineStatus("กำลังส่งเข้า LINE...");
+    const response = await fetch("/api/line-news", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker })
+    });
+    const data = (await response.json().catch(() => ({}))) as { message?: string };
+    setLineStatus(data.message ?? (response.ok ? "ส่งเข้า LINE แล้ว" : "ส่ง LINE ไม่สำเร็จ"));
+  }
+
+  function openDeepDive(stock: StockQuote) {
+    setSelectedTicker(stock.ticker);
+    setSelected(stock);
+    setActiveTool("news");
+    sendLine(stock.ticker).catch(() => setLineStatus("ส่ง LINE ไม่สำเร็จ"));
+  }
 
   return (
     <Panel className="p-4">
@@ -145,82 +167,97 @@ export function EnhancedHeatmapPanel() {
           const status = up ? "Buy" : stock.rsi > 68 ? "Hold" : "Watch";
           const score = Math.max(8, Math.min(100, Math.round(Math.abs(insight.upside))));
           return (
-            <motion.button
+            <motion.article
               key={stock.ticker}
-              onClick={() => setSelectedTicker(stock.ticker)}
               whileHover={{ y: -2 }}
               className="rounded-lg border border-white/10 bg-[#141414] p-4 text-left shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 items-start gap-3">
-                  <StockLogo quote={stock} size="lg" />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="truncate font-mono text-base font-bold text-white">{stock.ticker}</h4>
-                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-slate-300">{status}</span>
+              <button onClick={() => setSelectedTicker(stock.ticker)} className="block w-full text-left">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <StockLogo quote={stock} size="lg" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="truncate font-mono text-base font-bold text-white">{stock.ticker}</h4>
+                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-slate-300">{status}</span>
+                      </div>
+                      <p className="mt-0.5 truncate text-xs text-slate-500">{stock.name}</p>
                     </div>
-                    <p className="mt-0.5 truncate text-xs text-slate-500">{stock.name}</p>
+                  </div>
+                  <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold ${up ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>
+                    {up ? "+" : ""}{stock.changePercent.toFixed(2)}%
+                  </span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-sky-400/12 px-2 py-1 text-[11px] font-medium text-sky-200">{stock.sector}</span>
+                  <span className="text-xs text-slate-500">Market Cap <span className="font-mono text-slate-300">{stock.marketCap}</span></span>
+                </div>
+
+                <div className="mt-3 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-slate-500">ราคาปัจจุบัน</p>
+                    <strong className="font-mono text-2xl text-white">${stock.price.toFixed(2)}</strong>
+                  </div>
+                  <div className="text-right text-xs text-slate-500">
+                    <p>Prev ${stock.previousClose.toFixed(2)}</p>
+                    <p>P/E <span className="font-mono text-slate-300">{formatPe(stock.peRatio)}x</span></p>
                   </div>
                 </div>
-                <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold ${up ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>
-                  {up ? "+" : ""}{stock.changePercent.toFixed(2)}%
-                </span>
-              </div>
 
-              <div className="mt-3 flex items-center justify-between gap-3">
-                <span className="rounded-full bg-sky-400/12 px-2 py-1 text-[11px] font-medium text-sky-200">{stock.sector}</span>
-                <span className="text-xs text-slate-500">Market Cap <span className="font-mono text-slate-300">{stock.marketCap}</span></span>
-              </div>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="rounded-md bg-white/[0.055] p-2">
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Target</p>
+                    <strong className="font-mono text-sm text-white">${insight.target.toFixed(2)}</strong>
+                  </div>
+                  <div className="rounded-md bg-white/[0.055] p-2">
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Upside</p>
+                    <strong className={`font-mono text-sm ${insight.upside >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{insight.upside.toFixed(0)}%</strong>
+                  </div>
+                  <div className="rounded-md bg-white/[0.055] p-2">
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">RSI</p>
+                    <strong className="font-mono text-sm text-white">{stock.rsi}</strong>
+                  </div>
+                </div>
 
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-xs text-slate-500">ราคาปัจจุบัน</p>
-                  <strong className="font-mono text-2xl text-white">${stock.price.toFixed(2)}</strong>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-[11px] text-slate-500">
+                    <span>52W low ${insight.low52.toFixed(0)}</span>
+                    <span>high ${insight.high52.toFixed(0)}</span>
+                  </div>
+                  <div className="relative mt-1.5 h-2 rounded-full bg-gradient-to-r from-emerald-400/25 via-amber-300/25 to-rose-400/25">
+                    <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-[#141414] bg-cyan-200 shadow" style={{ left: `calc(${insight.position}% - 8px)` }} />
+                  </div>
                 </div>
-                <div className="text-right text-xs text-slate-500">
-                  <p>Prev ${stock.previousClose.toFixed(2)}</p>
-                  <p>P/E <span className="font-mono text-slate-300">{formatPe(stock.peRatio)}x</span></p>
-                </div>
-              </div>
 
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                <div className="rounded-md bg-white/[0.055] p-2">
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Target</p>
-                  <strong className="font-mono text-sm text-white">${insight.target.toFixed(2)}</strong>
+                <div className="mt-3 h-1.5 rounded-full bg-white/[0.08]">
+                  <div className={`h-full rounded-full ${insight.upside >= 0 ? "bg-emerald-400" : "bg-rose-400"}`} style={{ width: `${score}%` }} />
                 </div>
-                <div className="rounded-md bg-white/[0.055] p-2">
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Upside</p>
-                  <strong className={`font-mono text-sm ${insight.upside >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{insight.upside.toFixed(0)}%</strong>
-                </div>
-                <div className="rounded-md bg-white/[0.055] p-2">
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">RSI</p>
-                  <strong className="font-mono text-sm text-white">{stock.rsi}</strong>
-                </div>
-              </div>
 
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-[11px] text-slate-500">
-                  <span>52W low ${insight.low52.toFixed(0)}</span>
-                  <span>high ${insight.high52.toFixed(0)}</span>
+                <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-400">{insight.bull}</p>
+                <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-xs">
+                  <span className="text-slate-500">ความเสี่ยง: <span className="font-semibold text-slate-200">{insight.risk}</span></span>
+                  <span className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "แรงซื้อเด่น" : "รอจังหวะ"}</span>
                 </div>
-                <div className="relative mt-1.5 h-2 rounded-full bg-gradient-to-r from-emerald-400/25 via-amber-300/25 to-rose-400/25">
-                  <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-[#141414] bg-cyan-200 shadow" style={{ left: `calc(${insight.position}% - 8px)` }} />
-                </div>
-              </div>
-
-              <div className="mt-3 h-1.5 rounded-full bg-white/[0.08]">
-                <div className={`h-full rounded-full ${insight.upside >= 0 ? "bg-emerald-400" : "bg-rose-400"}`} style={{ width: `${score}%` }} />
-              </div>
-
-              <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-400">{insight.bull}</p>
-              <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-xs">
-                <span className="text-slate-500">ความเสี่ยง: <span className="font-semibold text-slate-200">{insight.risk}</span></span>
-                <span className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "แรงซื้อเด่น" : "รอจังหวะ"}</span>
-              </div>
-            </motion.button>
+              </button>
+              <button onClick={() => openDeepDive(stock)} className="mt-3 w-full rounded-md border border-cyan-300/25 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/16">
+                วิเคราะห์เชิงลึก + ข่าว real-time
+              </button>
+            </motion.article>
           );
         })}
       </div>
+      {selected && detail ? (
+        <HeatmapDeepDiveModal
+          selected={selected}
+          detail={detail}
+          activeTool={activeTool}
+          setActiveTool={setActiveTool}
+          lineStatus={lineStatus}
+          onClose={() => setSelected(null)}
+          onSendLine={sendLine}
+        />
+      ) : null}
     </Panel>
   );
 }
@@ -246,6 +283,145 @@ function buildHeatmapInsight(quote: StockQuote) {
     bear: `ความเสี่ยงหลักคือ valuation, RSI ${quote.rsi}, การแข่งขันในกลุ่ม ${quote.sector} และแรงขายถ้าหลุดแนวรับระยะสั้น`,
     fit: quote.isAiStock ? "เหมาะกับพอร์ต AI/growth ที่รับความผันผวนได้และรอจังหวะ pullback" : "เหมาะกับพอร์ตกระจายความเสี่ยง ใช้ขนาดสถานะพอดีและมีจุดตัดขาดทุน"
   };
+}
+
+function HeatmapDeepDiveModal({
+  selected,
+  detail,
+  activeTool,
+  setActiveTool,
+  lineStatus,
+  onClose,
+  onSendLine
+}: {
+  selected: StockQuote;
+  detail: ReturnType<typeof buildHeatmapInsight>;
+  activeTool: "compare" | "strategy" | "dcf" | "news";
+  setActiveTool: (tool: "compare" | "strategy" | "dcf" | "news") => void;
+  lineStatus: string;
+  onClose: () => void;
+  onSendLine: (ticker: string) => void;
+}) {
+  const toolLabels: Array<["compare" | "strategy" | "dcf" | "news", string]> = [
+    ["compare", "เปรียบเทียบ"],
+    ["strategy", "กลยุทธ์"],
+    ["dcf", "DCF"],
+    ["news", "ข่าว + LINE"]
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-white/10 bg-[#0f0f0f] p-5 text-slate-100 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <StockLogo quote={selected} size="lg" />
+            <div className="min-w-0">
+              <h3 className="truncate text-xl font-semibold">{selected.ticker} · {selected.name}</h3>
+              <div className="mt-1 flex flex-wrap gap-2">
+                <span className="rounded-full bg-white/10 px-2 py-1 text-[11px] text-slate-200">{selected.changePercent >= 0 ? "Buy" : "Watch"}</span>
+                <span className="rounded-full bg-violet-500/24 px-2 py-1 text-[11px] text-violet-100">{selected.sector}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="text-right">
+              <p className="font-mono text-2xl font-semibold">${selected.price.toFixed(2)}</p>
+              <span className={`mt-1 inline-block rounded-md px-2 py-1 text-xs font-semibold ${selected.changePercent >= 0 ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>
+                {selected.changePercent > 0 ? "+" : ""}{selected.changePercent.toFixed(2)}%
+              </span>
+            </div>
+            <button onClick={onClose} title="Close" className="rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white"><X size={20} /></button>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[["เป้าหมาย", `$${detail.target.toFixed(2)}`], ["Upside", `${detail.upside.toFixed(0)}%`], ["Market Cap", selected.marketCap], ["P/E (TTM)", `${formatPe(selected.peRatio)}x`], ["Forward P/E", detail.forwardPe === null ? "-" : `${detail.forwardPe.toFixed(0)}x`], ["ความเสี่ยง", detail.risk]].map(([label, value]) => (
+            <div key={label} className="rounded-md border border-white/10 bg-white/[0.055] p-3">
+              <p className="text-xs text-slate-400">{label}</p>
+              <strong className={`${label === "Upside" && detail.upside < 0 ? "text-rose-300" : "text-white"}`}>{value}</strong>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5">
+          <p className="text-sm font-semibold">ช่วงราคา 52 สัปดาห์</p>
+          <div className="relative mt-4 h-2 rounded-full bg-gradient-to-r from-emerald-400/30 via-amber-300/30 to-rose-400/30">
+            <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-[#0f0f0f] bg-cyan-200 shadow" style={{ left: `calc(${detail.position}% - 8px)` }} />
+          </div>
+          <div className="mt-2 flex justify-between gap-2 text-xs text-slate-400">
+            <span>ต่ำสุด ${detail.low52.toFixed(0)}</span>
+            <span>เป้า ${detail.target.toFixed(0)} · ปัจจุบัน ${selected.price.toFixed(2)}</span>
+            <span>สูงสุด ${detail.high52.toFixed(0)}</span>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-4 text-sm leading-6">
+          <section>
+            <h4 className="border-b border-white/10 pb-1 font-semibold text-emerald-200">Bull case</h4>
+            <p className="mt-2 text-slate-300">{detail.bull}</p>
+          </section>
+          <section>
+            <h4 className="border-b border-white/10 pb-1 font-semibold text-rose-200">Bear case</h4>
+            <p className="mt-2 text-slate-300">{detail.bear}</p>
+          </section>
+          <section>
+            <h4 className="border-b border-white/10 pb-1 font-semibold text-cyan-100">เหมาะกับใคร</h4>
+            <p className="mt-2 text-slate-300">{detail.fit}</p>
+          </section>
+        </div>
+
+        <div className="mt-5 grid gap-2 sm:grid-cols-4">
+          {toolLabels.map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => {
+                setActiveTool(key);
+                if (key === "news") onSendLine(selected.ticker);
+              }}
+              className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                activeTool === key ? "border-amber-300 bg-amber-300/14 text-amber-100" : "border-white/10 bg-white/[0.035] text-slate-200 hover:bg-white/[0.08]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 rounded-lg border border-white/10 bg-black/30 p-4 text-sm leading-6 text-slate-300">
+          {activeTool === "compare" ? (
+            <div>
+              <h4 className="font-bold text-white">เปรียบเทียบกับกลุ่ม {selected.sector}</h4>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <div className="rounded-md bg-white/[0.04] p-3"><p className="text-xs text-slate-400">Momentum</p><strong className="text-white">{selected.momentumScore}/100</strong></div>
+                <div className="rounded-md bg-white/[0.04] p-3"><p className="text-xs text-slate-400">Breakout</p><strong className="text-white">{selected.breakoutScore}/100</strong></div>
+                <div className="rounded-md bg-white/[0.04] p-3"><p className="text-xs text-slate-400">Revenue Growth</p><strong className={selected.revenueGrowth >= 0 ? "text-emerald-300" : "text-rose-300"}>{selected.revenueGrowth.toFixed(1)}%</strong></div>
+              </div>
+            </div>
+          ) : null}
+          {activeTool === "strategy" ? (
+            <div>
+              <h4 className="font-bold text-white">กลยุทธ์เทรด</h4>
+              <p className="mt-2">จุดเข้าใกล้ ${Math.max(detail.low52, selected.price * 0.985).toFixed(2)} · จุดคัต ${Math.max(detail.low52 * 0.97, selected.price * 0.94).toFixed(2)} · เป้าหมาย ${detail.target.toFixed(2)}</p>
+            </div>
+          ) : null}
+          {activeTool === "dcf" ? (
+            <div>
+              <h4 className="font-bold text-white">DCF แบบย่อ</h4>
+              <p className="mt-2">ใช้ revenue growth {selected.revenueGrowth.toFixed(1)}%, discount rate 10%, terminal growth 3% ได้ fair value เบื้องต้นประมาณ ${detail.target.toFixed(2)}</p>
+              <p className="mt-2">Margin of safety: <span className={detail.upside >= 0 ? "text-emerald-300" : "text-rose-300"}>{detail.upside.toFixed(0)}%</span></p>
+            </div>
+          ) : null}
+          {activeTool === "news" ? (
+            <div>
+              <h4 className="font-bold text-white">ข่าว real-time + LINE</h4>
+              <p className="mt-2">ระบบจะส่งสรุปข่าวเฉพาะ {selected.ticker} เข้า LINE พร้อมแปลไทยและสถานะราคา ถ้าตั้งค่า LINE token และ LINE_TO ถูกต้อง</p>
+              {lineStatus ? <p className="mt-2 text-amber-200">{lineStatus}</p> : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function EnhancedHeatmapPage() {
@@ -286,7 +462,7 @@ export function EnhancedHeatmapPage() {
           const insight = buildHeatmapInsight(stock);
           const status = stock.changePercent >= 0 ? "Buy" : stock.rsi > 68 ? "Hold" : "Watch";
           return (
-            <article key={stock.ticker} className="rounded-lg border border-slate-200 bg-white p-4 text-slate-950 shadow-sm">
+            <article key={stock.ticker} className="rounded-lg border border-white/10 bg-[#141414] p-4 text-slate-100 shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]">
               <button
                 onClick={() => { setSelectedTicker(stock.ticker); setSelected(stock); }}
                 className="block w-full text-left"
@@ -295,33 +471,40 @@ export function EnhancedHeatmapPage() {
                   <div className="flex min-w-0 items-start gap-3">
                     <StockLogo quote={stock} size="lg" />
                     <div className="min-w-0">
-                      <h3 className="truncate text-base font-semibold text-slate-950">{stock.ticker}</h3>
+                      <h3 className="truncate text-base font-semibold text-white">{stock.ticker}</h3>
                       <p className="truncate text-xs text-slate-500">{stock.name}</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600">{status}</span>
+                  <span className="rounded-full bg-white/10 px-2 py-1 text-[11px] text-slate-300">{status}</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-sky-100 px-2 py-1 text-[11px] font-medium text-sky-700">{stock.sector}</span>
-                  <span className={`rounded-md px-2 py-1 text-xs font-semibold ${stock.changePercent >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>{stock.changePercent.toFixed(2)}%</span>
+                  <span className="rounded-full bg-sky-400/12 px-2 py-1 text-[11px] font-medium text-sky-200">{stock.sector}</span>
+                  <span className={`rounded-md px-2 py-1 text-xs font-semibold ${stock.changePercent >= 0 ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>{stock.changePercent.toFixed(2)}%</span>
                 </div>
                 <div className="mt-3 flex items-end justify-between gap-3">
-                  <strong className="font-mono text-2xl text-slate-950">${stock.price.toFixed(2)}</strong>
+                  <strong className="font-mono text-2xl text-white">${stock.price.toFixed(2)}</strong>
                   <span className="text-xs text-slate-500">P/E {formatPe(stock.peRatio)}x</span>
                 </div>
-                <div className="mt-2 text-xs text-slate-600">
+                <div className="mt-2 text-xs text-slate-400">
                   เป้า ${insight.target.toFixed(2)} · Upside <span className={insight.upside >= 0 ? "text-emerald-600" : "text-rose-600"}>{insight.upside.toFixed(0)}%</span> · RSI {stock.rsi}
                 </div>
-                <div className="mt-2 h-1.5 rounded-full bg-slate-100">
+                <div className="mt-2 h-1.5 rounded-full bg-white/[0.08]">
                   <div className={`h-full rounded-full ${insight.risk === "สูง" ? "bg-rose-500" : insight.risk === "กลาง" ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${stock.momentumScore}%` }} />
                 </div>
-                <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-600">{insight.bull}</p>
-                <div className="mt-2 flex items-center gap-1 text-xs text-emerald-700">
+                <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-400">{insight.bull}</p>
+                <div className="mt-2 flex items-center gap-1 text-xs text-emerald-300">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   ความเสี่ยง: {insight.risk}
                 </div>
               </button>
-              <button onClick={() => setSelected(stock)} className="mt-3 w-full rounded-md border border-slate-200 px-3 py-2 text-xs text-slate-600 hover:bg-slate-50">
+              <button
+                onClick={() => {
+                  setSelected(stock);
+                  setActiveTool("news");
+                  sendLine(stock.ticker);
+                }}
+                className="mt-3 w-full rounded-md border border-cyan-300/25 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/16"
+              >
                 วิเคราะห์เชิงลึก + ข่าว real-time
               </button>
             </article>
