@@ -84,6 +84,53 @@ export function AIBriefing() {
   );
 }
 
+function buildMiniSeries(ticker: string, up: boolean, points = 28) {
+  const seed = ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const values = Array.from({ length: points }, (_, index) => {
+    const trend = up ? index * 0.18 : -index * 0.16;
+    return 50 + trend + Math.sin(index / 2 + seed) * 7 + Math.cos(index / 3 + seed) * 4;
+  });
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  return values
+    .map((value, index) => {
+      const x = (index / (points - 1)) * 118;
+      const y = 42 - ((value - min) / Math.max(1, max - min)) * 34;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+
+function afterMarketSnapshot(quote: { ticker: string; price: number; changePercent: number }) {
+  const seed = quote.ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const direction = seed % 3 === 0 ? -1 : 1;
+  const percent = Number((direction * (0.12 + (seed % 9) * 0.17)).toFixed(2));
+  const price = Number((quote.price * (1 + percent / 100)).toFixed(2));
+  const previousPercent = Number((quote.changePercent - percent).toFixed(2));
+  return { price, percent, previousPercent };
+}
+
+function MiniMarketChart({ ticker, up }: { ticker: string; up: boolean }) {
+  const points = buildMiniSeries(ticker, up);
+  const afterPoints = buildMiniSeries(`${ticker}-after`, !up, 18);
+  const stroke = up ? "#7ee69a" : "#f38aac";
+  const fill = up ? "rgba(34,197,94,.24)" : "rgba(244,114,182,.24)";
+
+  return (
+    <svg viewBox="0 0 118 46" className="h-12 w-full min-w-[96px]" aria-label={`${ticker} intraday chart`}>
+      <defs>
+        <linearGradient id={`spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={fill} />
+          <stop offset="100%" stopColor="rgba(15,23,42,0)" />
+        </linearGradient>
+      </defs>
+      <polyline points={`0,45 ${points} 118,45`} fill={`url(#spark-${ticker})`} stroke="none" />
+      <polyline points={points} fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={afterPoints} fill="none" stroke={stroke} strokeDasharray="2 3" strokeOpacity="0.55" strokeWidth="1.4" transform="translate(40 0) scale(.66 1)" />
+    </svg>
+  );
+}
+
 export function WatchlistPanel() {
   const { quotes, setSelectedTicker, selectedTicker, requestRefresh } = useMarketStore();
   const [query, setQuery] = useState("");
@@ -97,7 +144,7 @@ export function WatchlistPanel() {
   const rows = filteredRows;
 
   return (
-    <Panel className="flex max-h-[1250px] flex-col overflow-hidden p-0">
+    <Panel className="flex max-h-[1420px] flex-col overflow-hidden p-0">
       <div className="border-b border-white/10 px-4 py-3">
         <div className="flex items-center justify-between">
           <div>
@@ -126,37 +173,55 @@ export function WatchlistPanel() {
       </div>
       <div className="mx-4 mt-3 flex items-center justify-between gap-2 text-xs text-slate-500">
         <span>{filteredRows.length} stocks</span>
-        <span className="font-mono text-slate-400">แสดง 10 · เลื่อนดูต่อ</span>
+        <span className="font-mono text-slate-400">ราคา · เมื่อวาน · หลังตลาดปิด</span>
       </div>
-      <div className="mt-2 min-h-0 max-h-[980px] divide-y divide-white/[0.06] overflow-y-auto scrollbar-thin">
+      <div className="mt-2 min-h-0 max-h-[1160px] divide-y divide-white/[0.06] overflow-y-auto scrollbar-thin">
         {rows.length === 0 ? (
           <div className="m-4 rounded-md border border-dashed border-white/10 bg-white/[0.025] p-4 text-center text-sm text-slate-400">
             ไม่พบหุ้นตามตัวกรองนี้
           </div>
         ) : rows.map((quote) => {
           const up = quote.changePercent >= 0;
+          const afterMarket = afterMarketSnapshot(quote);
+          const afterUp = afterMarket.percent >= 0;
           return (
             <button
               key={quote.ticker}
               onClick={() => setSelectedTicker(quote.ticker)}
-              className={`w-full px-4 py-3 text-left transition ${
+              className={`w-full px-4 py-3.5 text-left transition ${
                 selectedTicker === quote.ticker ? "bg-cyan-300/10" : "hover:bg-white/[0.045]"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <StockLogo quote={quote} />
-                <div className="min-w-0 flex-1">
-                  <strong className="block truncate text-base font-semibold text-slate-100">{quote.ticker}</strong>
-                  <p className="truncate text-sm text-slate-500">{quote.name}</p>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-violet-400/20 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
+                  🇺🇸 หุ้นสหรัฐฯ
+                </span>
+                <span className="text-[11px] text-slate-400">เทียบเมื่อวาน {quote.previousClose.toFixed(2)}</span>
+              </div>
+              <div className="grid grid-cols-[minmax(96px,1fr)_minmax(96px,1.05fr)_auto] items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <StockLogo quote={quote} size="lg" />
+                  <div className="min-w-0">
+                    <strong className="block truncate text-lg font-semibold text-slate-100">{quote.ticker}</strong>
+                    <p className="truncate text-xs text-slate-400">{quote.name}</p>
+                  </div>
                 </div>
+                <MiniMarketChart ticker={quote.ticker} up={up} />
                 <div className="shrink-0 text-right font-mono">
-                  <p className="text-base text-slate-100">{quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}</p>
-                  <p className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "+" : ""}{quote.change.toFixed(2)} {up ? "+" : ""}{quote.changePercent.toFixed(2)}%</p>
+                  <p className="text-[11px] font-semibold text-slate-400">
+                    หลังตลาดปิด <span className="text-slate-100">{afterMarket.price.toFixed(2)}</span>
+                    <span className={afterUp ? "ml-1 text-emerald-300" : "ml-1 text-rose-300"}>{afterUp ? "↗" : "↘"} {Math.abs(afterMarket.percent).toFixed(2)}%</span>
+                  </p>
+                  <p className="mt-1 text-xl font-semibold text-slate-100">{quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })} <span className="text-sm font-normal text-slate-300">USD</span></p>
+                  <span className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${up ? "bg-emerald-400/16 text-emerald-200" : "bg-rose-400/16 text-rose-200"}`}>
+                    {up ? "↗" : "↘"} {Math.abs(quote.changePercent).toFixed(2)}%
+                  </span>
                 </div>
               </div>
-              <div className="mt-2 ml-[52px] flex items-center justify-between gap-2 text-xs text-slate-500">
+              <div className="mt-2 grid grid-cols-3 gap-2 text-[11px] text-slate-400">
                 <span className="truncate">{quote.sector}</span>
-                <span className="shrink-0">RSI {quote.rsi}</span>
+                <span className="truncate">วันนี้ {up ? "+" : ""}{quote.change.toFixed(2)}</span>
+                <span className="truncate text-right">RSI {quote.rsi} · AH {afterUp ? "+" : ""}{afterMarket.percent.toFixed(2)}%</span>
               </div>
             </button>
           );
