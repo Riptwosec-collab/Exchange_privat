@@ -19,36 +19,40 @@ type FundamentalMeta = {
   isAiStock: boolean;
 };
 
-function logo(domain: string) {
-  return `https://logo.clearbit.com/${domain}`;
+function favicon(domain: string) {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+}
+
+function simpleIcon(slug: string, color = "white") {
+  return `https://cdn.simpleicons.org/${slug}/${color.replace("#", "")}`;
 }
 
 export const stockUniverse: StockMeta[] = [
-  { ticker: "AAPL", name: "Apple Inc.", sector: "Consumer Tech", marketCap: "2.9T", logoUrl: logo("apple.com"), logoFallback: "A", brandColor: "#111827" },
+  { ticker: "AAPL", name: "Apple Inc.", sector: "Consumer Tech", marketCap: "2.9T", logoUrl: simpleIcon("apple", "ffffff"), logoFallback: "A", brandColor: "#111827" },
   { ticker: "BTCTHB", name: "Bitcoin / Thai Baht", sector: "Crypto", marketCap: "Crypto", logoUrl: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png", logoFallback: "B", brandColor: "#f7931a", yahooSymbol: "BTC-USD" },
-  { ticker: "NVDA", name: "NVIDIA Corporation", sector: "Semiconductor", marketCap: "3.5T", logoUrl: logo("nvidia.com"), logoFallback: "N", brandColor: "#76b900" },
-  { ticker: "CRWD", name: "CrowdStrike Holdings, Inc.", sector: "Cybersecurity", marketCap: "86B", logoUrl: logo("crowdstrike.com"), logoFallback: "C", brandColor: "#ef3124" },
-  { ticker: "CRWV", name: "CoreWeave, Inc.", sector: "AI Cloud", marketCap: "AI Cloud", logoUrl: logo("coreweave.com"), logoFallback: "CW", brandColor: "#4563ff" },
-  { ticker: "INTU", name: "Intuit Inc.", sector: "Software", marketCap: "180B", logoUrl: logo("intuit.com"), logoFallback: "I", brandColor: "#2f64d6" },
-  { ticker: "RKLB", name: "Rocket Lab Corporation", sector: "Space", marketCap: "12B", logoUrl: logo("rocketlabusa.com"), logoFallback: "R", brandColor: "#1f2937" },
-  { ticker: "TSLA", name: "Tesla, Inc.", sector: "EV", marketCap: "790B", logoUrl: logo("tesla.com"), logoFallback: "T", brandColor: "#e82127" },
-  { ticker: "AMZN", name: "Amazon.com, Inc.", sector: "Cloud/Retail", marketCap: "1.9T", logoUrl: logo("amazon.com"), logoFallback: "A", brandColor: "#ff9900" },
-  { ticker: "GOOG", name: "Alphabet Inc. (Google) Class C", sector: "AI/Search", marketCap: "2.1T", logoUrl: logo("google.com"), logoFallback: "G", brandColor: "#ffffff" },
-  { ticker: "MU", name: "Micron Technology, Inc.", sector: "Semiconductor", marketCap: "155B", logoUrl: logo("micron.com"), logoFallback: "M", brandColor: "#2d5ed3" },
-  { ticker: "OSK", name: "Oshkosh Corporation", sector: "Industrial", marketCap: "8B", logoUrl: logo("oshkoshcorp.com"), logoFallback: "O", brandColor: "#20242a" },
-  { ticker: "ASTS", name: "AST SpaceMobile, Inc.", sector: "Space", marketCap: "5B", logoUrl: logo("ast-science.com"), logoFallback: "AS", brandColor: "#111827" },
-  { ticker: "LUNR", name: "Intuitive Machines, Inc.", sector: "Space", marketCap: "1B", logoUrl: logo("intuitivemachines.com"), logoFallback: "L", brandColor: "#2157a4" },
-  { ticker: "SOFI", name: "SoFi Technologies, Inc.", sector: "Fintech", marketCap: "18B", logoUrl: logo("sofi.com"), logoFallback: "S", brandColor: "#45c3d3" },
-  { ticker: "NBIS", name: "Nebius Group N.V.", sector: "AI Cloud", marketCap: "AI Cloud", logoUrl: logo("nebius.com"), logoFallback: "N", brandColor: "#d9ff3f" },
-  { ticker: "NET", name: "Cloudflare, Inc.", sector: "Cloud/Security", marketCap: "35B", logoUrl: logo("cloudflare.com"), logoFallback: "CF", brandColor: "#f48120" },
-  { ticker: "V", name: "Visa Inc.", sector: "Payments", marketCap: "560B", logoUrl: logo("visa.com"), logoFallback: "V", brandColor: "#1a1f71" },
-  { ticker: "INTC", name: "Intel Corporation", sector: "Semiconductor", marketCap: "190B", logoUrl: logo("intel.com"), logoFallback: "I", brandColor: "#0071c5" },
-  { ticker: "SNDK", name: "Sandisk Corporation", sector: "Storage", marketCap: "Storage", logoUrl: logo("sandisk.com"), logoFallback: "S", brandColor: "#f8fafc" },
-  { ticker: "AMD", name: "Advanced Micro Devices, Inc.", sector: "Semiconductor", marketCap: "272B", logoUrl: logo("amd.com"), logoFallback: "AMD", brandColor: "#111827" },
-  { ticker: "PLTR", name: "Palantir Technologies Inc.", sector: "AI Software", marketCap: "180B", logoUrl: logo("palantir.com"), logoFallback: "P", brandColor: "#171717" },
-  { ticker: "QCOM", name: "QUALCOMM Incorporated", sector: "Semiconductor", marketCap: "210B", logoUrl: logo("qualcomm.com"), logoFallback: "Q", brandColor: "#3253dc" },
-  { ticker: "IBM", name: "International Business Machines Corporation", sector: "AI/Enterprise", marketCap: "220B", logoUrl: logo("ibm.com"), logoFallback: "IBM", brandColor: "#0f62fe" },
-  { ticker: "STK", name: "Columbia Seligman Premium Technology Growth Fund", sector: "Tech Fund", marketCap: "Fund", logoUrl: logo("columbiathreadneedleus.com"), logoFallback: "STK", brandColor: "#eef6ff" }
+  { ticker: "NVDA", name: "NVIDIA Corporation", sector: "Semiconductor", marketCap: "3.5T", logoUrl: simpleIcon("nvidia", "76b900"), logoFallback: "N", brandColor: "#76b900" },
+  { ticker: "CRWD", name: "CrowdStrike Holdings, Inc.", sector: "Cybersecurity", marketCap: "86B", logoUrl: favicon("crowdstrike.com"), logoFallback: "C", brandColor: "#ef3124" },
+  { ticker: "CRWV", name: "CoreWeave, Inc.", sector: "AI Cloud", marketCap: "AI Cloud", logoUrl: favicon("coreweave.com"), logoFallback: "CW", brandColor: "#4563ff" },
+  { ticker: "INTU", name: "Intuit Inc.", sector: "Software", marketCap: "180B", logoUrl: simpleIcon("intuit", "236cff"), logoFallback: "I", brandColor: "#2f64d6" },
+  { ticker: "RKLB", name: "Rocket Lab Corporation", sector: "Space", marketCap: "12B", logoUrl: favicon("rocketlabusa.com"), logoFallback: "R", brandColor: "#1f2937" },
+  { ticker: "TSLA", name: "Tesla, Inc.", sector: "EV", marketCap: "790B", logoUrl: simpleIcon("tesla", "e82127"), logoFallback: "T", brandColor: "#e82127" },
+  { ticker: "AMZN", name: "Amazon.com, Inc.", sector: "Cloud/Retail", marketCap: "1.9T", logoUrl: favicon("amazon.com"), logoFallback: "A", brandColor: "#ff9900" },
+  { ticker: "GOOG", name: "Alphabet Inc. (Google) Class C", sector: "AI/Search", marketCap: "2.1T", logoUrl: simpleIcon("google", "4285f4"), logoFallback: "G", brandColor: "#ffffff" },
+  { ticker: "MU", name: "Micron Technology, Inc.", sector: "Semiconductor", marketCap: "155B", logoUrl: favicon("micron.com"), logoFallback: "M", brandColor: "#2d5ed3" },
+  { ticker: "OSK", name: "Oshkosh Corporation", sector: "Industrial", marketCap: "8B", logoUrl: favicon("oshkosh.com"), logoFallback: "O", brandColor: "#20242a" },
+  { ticker: "ASTS", name: "AST SpaceMobile, Inc.", sector: "Space", marketCap: "5B", logoUrl: favicon("ast-science.com"), logoFallback: "AS", brandColor: "#111827" },
+  { ticker: "LUNR", name: "Intuitive Machines, Inc.", sector: "Space", marketCap: "1B", logoUrl: favicon("intuitivemachines.com"), logoFallback: "L", brandColor: "#2157a4" },
+  { ticker: "SOFI", name: "SoFi Technologies, Inc.", sector: "Fintech", marketCap: "18B", logoUrl: favicon("sofi.com"), logoFallback: "S", brandColor: "#45c3d3" },
+  { ticker: "NBIS", name: "Nebius Group N.V.", sector: "AI Cloud", marketCap: "AI Cloud", logoUrl: favicon("nebius.com"), logoFallback: "N", brandColor: "#d9ff3f" },
+  { ticker: "NET", name: "Cloudflare, Inc.", sector: "Cloud/Security", marketCap: "35B", logoUrl: simpleIcon("cloudflare", "f38020"), logoFallback: "CF", brandColor: "#f48120" },
+  { ticker: "V", name: "Visa Inc.", sector: "Payments", marketCap: "560B", logoUrl: simpleIcon("visa", "1a1f71"), logoFallback: "V", brandColor: "#1a1f71" },
+  { ticker: "INTC", name: "Intel Corporation", sector: "Semiconductor", marketCap: "190B", logoUrl: simpleIcon("intel", "0071c5"), logoFallback: "I", brandColor: "#0071c5" },
+  { ticker: "SNDK", name: "Sandisk Corporation", sector: "Storage", marketCap: "Storage", logoUrl: favicon("sandisk.com"), logoFallback: "S", brandColor: "#f8fafc" },
+  { ticker: "AMD", name: "Advanced Micro Devices, Inc.", sector: "Semiconductor", marketCap: "272B", logoUrl: simpleIcon("amd", "ed1c24"), logoFallback: "AMD", brandColor: "#111827" },
+  { ticker: "PLTR", name: "Palantir Technologies Inc.", sector: "AI Software", marketCap: "180B", logoUrl: simpleIcon("palantir", "f5f5f5"), logoFallback: "P", brandColor: "#171717" },
+  { ticker: "QCOM", name: "QUALCOMM Incorporated", sector: "Semiconductor", marketCap: "210B", logoUrl: simpleIcon("qualcomm", "3253dc"), logoFallback: "Q", brandColor: "#3253dc" },
+  { ticker: "IBM", name: "International Business Machines Corporation", sector: "AI/Enterprise", marketCap: "220B", logoUrl: favicon("ibm.com"), logoFallback: "IBM", brandColor: "#0f62fe" },
+  { ticker: "STK", name: "Columbia Seligman Premium Technology Growth Fund", sector: "Tech Fund", marketCap: "Fund", logoUrl: favicon("columbiathreadneedleus.com"), logoFallback: "STK", brandColor: "#eef6ff" }
 ];
 
 export const allStockSymbols = stockUniverse.map((stock) => stock.ticker);

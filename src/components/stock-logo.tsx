@@ -24,7 +24,7 @@ export function StockLogo({ quote, size = "md" }: StockLogoProps) {
     setFailed(false);
     setLoaded(false);
     if (!quote.logoUrl) return;
-    timeoutRef.current = window.setTimeout(() => setFailed(true), 2200);
+    timeoutRef.current = window.setTimeout(() => setFailed(true), 8000);
     return () => {
       if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
     };
@@ -49,7 +49,7 @@ export function StockLogo({ quote, size = "md" }: StockLogoProps) {
       <>
         <span className="absolute inset-x-1 top-1 h-px bg-white/35" />
         <span className="absolute -bottom-2 -right-2 h-6 w-6 rounded-full bg-white/10" />
-        <span className={`relative px-1 text-center leading-none text-white drop-shadow ${loaded && showImage ? "opacity-0" : "opacity-100"}`}>{quote.logoFallback}</span>
+        <span className={`relative px-1 text-center leading-none text-white drop-shadow ${showImage ? "opacity-0" : "opacity-100"}`}>{quote.logoFallback}</span>
       </>
       {showImage ? (
         <img
@@ -57,7 +57,7 @@ export function StockLogo({ quote, size = "md" }: StockLogoProps) {
           alt={`${quote.ticker} logo`}
           onError={() => setFailed(true)}
           onLoad={handleLoad}
-          className={`absolute inset-0 h-full w-full object-contain p-1 transition-opacity ${loaded ? "opacity-100" : "opacity-0"}`}
+          className="absolute inset-0 h-full w-full object-contain p-1 opacity-100 transition-opacity"
           referrerPolicy="no-referrer"
         />
       ) : null}
