@@ -186,6 +186,7 @@ export function EnhancedHeatmapPage() {
   const { quotes, setSelectedTicker, requestRefresh } = useMarketStore();
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState<StockQuote | null>(null);
+  const [activeTool, setActiveTool] = useState<"compare" | "strategy" | "dcf" | "news">("compare");
   const [lineStatus, setLineStatus] = useState("");
   const sectors = ["All", ...Array.from(new Set(quotes.map((item) => item.sector)))];
   const rows = quotes.filter((item) => filter === "All" || item.sector === filter);
@@ -263,15 +264,15 @@ export function EnhancedHeatmapPage() {
       </div>
       {selected && detail ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4">
-          <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-5 text-slate-950 shadow-2xl">
+          <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-white/10 bg-[#111111] p-5 text-slate-100 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
                 <StockLogo quote={selected} size="lg" />
                 <div className="min-w-0">
                   <h3 className="truncate text-xl font-semibold">{selected.ticker} · {selected.name}</h3>
                   <div className="mt-1 flex gap-2">
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600">Hold</span>
-                    <span className="rounded-full bg-sky-100 px-2 py-1 text-[11px] text-sky-700">{selected.sector}</span>
+                    <span className="rounded-full bg-white/10 px-2 py-1 text-[11px] text-slate-200">Hold</span>
+                    <span className="rounded-full bg-violet-500/24 px-2 py-1 text-[11px] text-violet-100">{selected.sector}</span>
                   </div>
                 </div>
               </div>
@@ -280,15 +281,15 @@ export function EnhancedHeatmapPage() {
                   <p className="font-mono text-2xl font-semibold">${selected.price.toFixed(2)}</p>
                   <span className={`mt-1 inline-block rounded-md px-2 py-1 text-xs font-semibold ${selected.changePercent >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>{selected.changePercent.toFixed(2)}%</span>
                 </div>
-                <button onClick={() => setSelected(null)} title="Close" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X size={20} /></button>
+                <button onClick={() => setSelected(null)} title="Close" className="rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white"><X size={20} /></button>
               </div>
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[["เป้าหมาย", `$${detail.target.toFixed(2)}`], ["Upside", `${detail.upside.toFixed(0)}%`], ["Market Cap", selected.marketCap], ["P/E (TTM)", `${formatPe(selected.peRatio)}x`], ["Forward P/E", detail.forwardPe === null ? "-" : `${detail.forwardPe.toFixed(0)}x`], ["ความเสี่ยง", detail.risk]].map(([label, value]) => (
-                <div key={label} className="rounded-md bg-slate-50 p-3">
-                  <p className="text-xs text-slate-500">{label}</p>
-                  <strong className={`${label === "Upside" && detail.upside < 0 ? "text-rose-600" : "text-slate-950"}`}>{value}</strong>
+                <div key={label} className="rounded-md bg-white/[0.055] p-3">
+                  <p className="text-xs text-slate-400">{label}</p>
+                  <strong className={`${label === "Upside" && detail.upside < 0 ? "text-rose-300" : "text-white"}`}>{value}</strong>
                 </div>
               ))}
             </div>
@@ -307,32 +308,79 @@ export function EnhancedHeatmapPage() {
 
             <div className="mt-5 space-y-4 text-sm leading-6">
               <section>
-                <h4 className="border-b border-slate-200 pb-1 font-semibold">📈 BULL CASE (จุดแข็ง)</h4>
-                <p className="mt-2 text-slate-600">{detail.bull}</p>
+                <h4 className="border-b border-white/10 pb-1 font-semibold">📈 BULL CASE (จุดแข็ง)</h4>
+                <p className="mt-2 text-slate-300">{detail.bull}</p>
               </section>
               <section>
-                <h4 className="border-b border-slate-200 pb-1 font-semibold">📉 BEAR CASE (ความเสี่ยง)</h4>
-                <p className="mt-2 text-slate-600">{detail.bear}</p>
+                <h4 className="border-b border-white/10 pb-1 font-semibold">📉 BEAR CASE (ความเสี่ยง)</h4>
+                <p className="mt-2 text-slate-300">{detail.bear}</p>
               </section>
               <section>
-                <h4 className="border-b border-slate-200 pb-1 font-semibold">ใครเหมาะกับใคร</h4>
-                <p className="mt-2 text-slate-600">{detail.fit}</p>
+                <h4 className="border-b border-white/10 pb-1 font-semibold">ใครเหมาะกับใคร</h4>
+                <p className="mt-2 text-slate-300">{detail.fit}</p>
               </section>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
               {[selected.sector, selected.isAiStock ? "AI" : "Core", selected.dividendYield > 0 ? "Dividend" : "Growth"].map((tag) => (
-                <span key={tag} className="rounded-full bg-sky-100 px-2 py-1 text-xs text-sky-700">{tag}</span>
+                <span key={tag} className="rounded-full bg-violet-500/24 px-2 py-1 text-xs text-violet-100">{tag}</span>
               ))}
             </div>
 
             <div className="mt-5 grid gap-2 sm:grid-cols-4">
-              <button className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600">📊 เปรียบเทียบ</button>
-              <button className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600">🎯 กลยุทธ์</button>
-              <button className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600">◺ DCF</button>
-              <button onClick={() => sendLine(selected.ticker)} className="rounded-md border border-amber-300 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50">📰 ข่าว + LINE</button>
+              {[
+                ["compare", "📊 เปรียบเทียบ"],
+                ["strategy", "🎯 กลยุทธ์"],
+                ["dcf", "◺ DCF"],
+                ["news", "📰 ข่าว + LINE"]
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setActiveTool(key as typeof activeTool);
+                    if (key === "news") sendLine(selected.ticker);
+                  }}
+                  className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                    activeTool === key ? "border-amber-300 bg-amber-300/14 text-amber-100" : "border-white/10 bg-white/[0.035] text-slate-200 hover:bg-white/[0.08]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
-            {lineStatus ? <p className="mt-3 text-sm text-slate-500">{lineStatus}</p> : null}
+            <div className="mt-4 rounded-lg border border-white/10 bg-black/25 p-4 text-sm leading-6 text-slate-300">
+              {activeTool === "compare" ? (
+                <div>
+                  <h4 className="font-bold text-white">เปรียบเทียบกับกลุ่ม {selected.sector}</h4>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                    <div className="rounded-md bg-white/[0.04] p-3"><p className="text-xs text-slate-400">Momentum</p><strong className="text-white">{selected.momentumScore}/100</strong></div>
+                    <div className="rounded-md bg-white/[0.04] p-3"><p className="text-xs text-slate-400">Breakout</p><strong className="text-white">{selected.breakoutScore}/100</strong></div>
+                    <div className="rounded-md bg-white/[0.04] p-3"><p className="text-xs text-slate-400">Revenue Growth</p><strong className={selected.revenueGrowth >= 0 ? "text-emerald-300" : "text-rose-300"}>{selected.revenueGrowth.toFixed(1)}%</strong></div>
+                  </div>
+                </div>
+              ) : null}
+              {activeTool === "strategy" ? (
+                <div>
+                  <h4 className="font-bold text-white">กลยุทธ์เทรด</h4>
+                  <p className="mt-2">จุดเข้าใกล้ ${Math.max(detail.low52, selected.price * 0.985).toFixed(2)} · จุดคัต ${Math.max(detail.low52 * 0.97, selected.price * 0.94).toFixed(2)} · เป้าหมาย ${detail.target.toFixed(2)}</p>
+                  <p className="mt-2">ถ้า RSI เกิน 70 ให้รอย่อก่อน ส่วนถ้า momentum มากกว่า 70 ให้ทยอยตามเมื่อราคายืนเหนือแนวต้านได้</p>
+                </div>
+              ) : null}
+              {activeTool === "dcf" ? (
+                <div>
+                  <h4 className="font-bold text-white">DCF แบบย่อ</h4>
+                  <p className="mt-2">ใช้ revenue growth {selected.revenueGrowth.toFixed(1)}%, discount rate 10%, terminal growth 3% ได้ fair value เบื้องต้นประมาณ ${detail.target.toFixed(2)}</p>
+                  <p className="mt-2">Margin of safety: <span className={detail.upside >= 0 ? "text-emerald-300" : "text-rose-300"}>{detail.upside.toFixed(0)}%</span></p>
+                </div>
+              ) : null}
+              {activeTool === "news" ? (
+                <div>
+                  <h4 className="font-bold text-white">ข่าว + LINE</h4>
+                  <p className="mt-2">ส่งสรุปข่าวเฉพาะ {selected.ticker} เข้า LINE แล้ว/กำลังส่ง พร้อมสรุปไทยและสถานะราคา</p>
+                  {lineStatus ? <p className="mt-2 text-amber-200">{lineStatus}</p> : null}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}
