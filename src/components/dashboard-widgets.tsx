@@ -84,19 +84,31 @@ export function AIBriefing() {
   );
 }
 
-function buildMiniSeries(ticker: string, up: boolean, points = 28) {
+function buildMiniSeries(ticker: string, up: boolean, points = 76) {
   const seed = ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  let value = 50 + (seed % 13);
   const values = Array.from({ length: points }, (_, index) => {
-    const trend = up ? index * 0.18 : -index * 0.16;
-    return 50 + trend + Math.sin(index / 2 + seed) * 7 + Math.cos(index / 3 + seed) * 4;
+    const drift = up ? 0.08 : -0.07;
+    const wave = Math.sin(index / 4.2 + seed) * 1.6 + Math.cos(index / 7.1 + seed / 3) * 1.1;
+    const noise = Math.sin(index * 1.9 + seed) * 1.8 + Math.cos(index * 0.73 + seed) * 0.9;
+    const pulse = index % 17 === 0 ? Math.sin(seed + index) * 5.2 : 0;
+    value = value * 0.985 + (50 + drift * index + wave + noise + pulse) * 0.015 + drift + noise * 0.08;
+    return value;
   });
   const min = Math.min(...values);
   const max = Math.max(...values);
-  return values
-    .map((value, index) => {
-      const x = (index / (points - 1)) * 118;
-      const y = 42 - ((value - min) / Math.max(1, max - min)) * 34;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
+  const normalized = values.map((row, index) => {
+    const x = (index / (points - 1)) * 132;
+    const y = 54 - ((row - min) / Math.max(1, max - min)) * 46;
+    return { x, y };
+  });
+
+  return normalized
+    .map((point, index) => {
+      if (index === 0) return `M ${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
+      const previous = normalized[index - 1];
+      const cx = (previous.x + point.x) / 2;
+      return `Q ${previous.x.toFixed(2)} ${previous.y.toFixed(2)} ${cx.toFixed(2)} ${((previous.y + point.y) / 2).toFixed(2)} T ${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
     })
     .join(" ");
 }
@@ -112,21 +124,32 @@ function afterMarketSnapshot(quote: { ticker: string; price: number; changePerce
 
 function MiniMarketChart({ ticker, up }: { ticker: string; up: boolean }) {
   const points = buildMiniSeries(ticker, up);
-  const afterPoints = buildMiniSeries(`${ticker}-after`, !up, 18);
-  const stroke = up ? "#7ee69a" : "#f38aac";
-  const fill = up ? "rgba(34,197,94,.24)" : "rgba(244,114,182,.24)";
+  const afterPoints = buildMiniSeries(`${ticker}-after`, !up, 34);
+  const areaPath = `${points} L 132 58 L 0 58 Z`;
+  const stroke = up ? "#80e59a" : "#f28caf";
+  const glow = up ? "#5fe27e" : "#ff78a6";
+  const fill = up ? "rgba(101,216,120,.34)" : "rgba(240,138,170,.34)";
 
   return (
-    <svg viewBox="0 0 118 46" className="h-12 w-full min-w-[96px]" aria-label={`${ticker} intraday chart`}>
+    <svg viewBox="0 0 132 60" className="h-[70px] w-full min-w-[118px]" aria-label={`${ticker} intraday chart`}>
       <defs>
         <linearGradient id={`spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor={fill} />
-          <stop offset="100%" stopColor="rgba(15,23,42,0)" />
+          <stop offset="55%" stopColor={fill} />
+          <stop offset="100%" stopColor="rgba(16,16,16,0)" />
         </linearGradient>
+        <filter id={`spark-glow-${ticker}`} x="-10%" y="-40%" width="120%" height="180%">
+          <feGaussianBlur stdDeviation="1.6" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
-      <polyline points={`0,45 ${points} 118,45`} fill={`url(#spark-${ticker})`} stroke="none" />
-      <polyline points={points} fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points={afterPoints} fill="none" stroke={stroke} strokeDasharray="2 3" strokeOpacity="0.55" strokeWidth="1.4" transform="translate(40 0) scale(.66 1)" />
+      <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
+      <path d={points} fill="none" stroke={glow} strokeOpacity="0.2" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
+      <path d={points} fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={afterPoints} fill="none" stroke={stroke} strokeDasharray="2 3" strokeOpacity="0.38" strokeWidth="1.2" transform="translate(82 0) scale(.38 1)" />
     </svg>
   );
 }
