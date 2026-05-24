@@ -10,6 +10,7 @@ import {
   Globe2,
   Grid3X3,
   LayoutDashboard,
+  ListChecks,
   LineChart,
   Lock,
   Network,
@@ -23,6 +24,7 @@ import { useMarketStore } from "@/store/market-store";
 
 const nav = [
   { label: "Dashboard", icon: LayoutDashboard },
+  { label: "Watchlist", icon: ListChecks },
   { label: "Charts", icon: ChartCandlestick },
   { label: "Multi Chart", icon: LineChart },
   { label: "9 Charts", icon: Grid3X3 },

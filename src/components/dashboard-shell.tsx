@@ -31,7 +31,7 @@ import {
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
-const mobileSections = ["Dashboard", "Charts", "Multi Chart", "9 Charts", "News AI", "Portfolio", "Screener", "Heatmap", "Calendar", "Copilot"];
+const mobileSections = ["Dashboard", "Watchlist", "Charts", "Multi Chart", "9 Charts", "News AI", "Portfolio", "Screener", "Heatmap", "Calendar", "Copilot"];
 
 function DashboardView() {
   return (
@@ -59,10 +59,24 @@ function DashboardView() {
   );
 }
 
+function WatchlistView() {
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <WatchlistPanel />
+      <aside className="space-y-4">
+        <MarketOverview />
+        <MoversPanel />
+      </aside>
+    </div>
+  );
+}
+
 function SectionView() {
   const activeSection = useMarketStore((state) => state.activeSection);
 
   switch (activeSection) {
+    case "Watchlist":
+      return <WatchlistView />;
     case "Charts":
       return <AdvancedChart fillViewport />;
     case "Multi Chart":
