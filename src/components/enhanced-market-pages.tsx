@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, Mic, RefreshCw } from "lucide-react";
+import { Bot, Mic, RefreshCw, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { generatedNews, portfolio as starterPortfolio } from "@/lib/mock-data";
 import type { PortfolioHolding, StockQuote } from "@/lib/types";
@@ -159,35 +159,183 @@ export function EnhancedHeatmapPanel() {
   );
 }
 
+function buildHeatmapInsight(quote: StockQuote) {
+  const targetMultiplier = quote.rsi >= 66 ? 0.8 : quote.rsi <= 35 ? 1.2 : quote.isAiStock ? 1.16 : 1.1;
+  const target = Number((quote.price * targetMultiplier).toFixed(2));
+  const upside = ((target - quote.price) / quote.price) * 100;
+  const low52 = Number((quote.price * (quote.rsi >= 66 ? 0.56 : 0.72)).toFixed(2));
+  const high52 = Number((quote.price * (quote.rsi >= 66 ? 1.08 : 1.28)).toFixed(2));
+  const risk = quote.rsi >= 70 || quote.breakoutScore >= 82 ? "สูง" : quote.rsi <= 42 && quote.momentumScore < 55 ? "กลาง" : "ต่ำ";
+  const position = Math.max(4, Math.min(96, ((quote.price - low52) / Math.max(0.01, high52 - low52)) * 100));
+
+  return {
+    target,
+    upside,
+    low52,
+    high52,
+    risk,
+    position,
+    forwardPe: quote.peRatio === null ? null : Math.max(1, quote.peRatio * 0.88),
+    bull: `${quote.sector} ยังมีแรงหนุนจาก revenue growth ${quote.revenueGrowth.toFixed(1)}% และ momentum ${quote.momentumScore}/100 ถ้า volume เข้าต่อมีโอกาสทดสอบแนวต้าน`,
+    bear: `ความเสี่ยงหลักคือ valuation, RSI ${quote.rsi}, การแข่งขันในกลุ่ม ${quote.sector} และแรงขายถ้าหลุดแนวรับระยะสั้น`,
+    fit: quote.isAiStock ? "เหมาะกับพอร์ต AI/growth ที่รับความผันผวนได้และรอจังหวะ pullback" : "เหมาะกับพอร์ตกระจายความเสี่ยง ใช้ขนาดสถานะพอดีและมีจุดตัดขาดทุน"
+  };
+}
+
 export function EnhancedHeatmapPage() {
   const { quotes, setSelectedTicker, requestRefresh } = useMarketStore();
   const [filter, setFilter] = useState("All");
+  const [selected, setSelected] = useState<StockQuote | null>(null);
+  const [lineStatus, setLineStatus] = useState("");
   const sectors = ["All", ...Array.from(new Set(quotes.map((item) => item.sector)))];
-  const rows = quotes.filter((item) => filter === "All" || item.sector === filter).slice(0, 100);
+  const rows = quotes.filter((item) => filter === "All" || item.sector === filter);
+  const detail = selected ? buildHeatmapInsight(selected) : null;
+
+  async function sendLine(ticker: string) {
+    setLineStatus("กำลังส่งเข้า LINE...");
+    const response = await fetch("/api/line-news", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker })
+    });
+    const data = (await response.json().catch(() => ({}))) as { message?: string };
+    setLineStatus(data.message ?? (response.ok ? "ส่งเข้า LINE แล้ว" : "ส่ง LINE ไม่สำเร็จ"));
+  }
+
   return (
     <Panel className="p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-white">Interactive Market Heatmap 100 symbols</h2>
-          <p className="mt-1 text-sm text-slate-400">แสดงราคาปัจจุบัน ราคาเมื่อวาน และ % change พร้อม filter ตามประเภทหุ้น</p>
+          <h2 className="text-xl font-semibold text-white">Market Heatmap</h2>
+          <p className="mt-1 text-sm text-slate-400">การ์ดวิเคราะห์รายหุ้น พร้อม target, upside, valuation, risk และข่าวสำหรับส่ง LINE</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <select value={filter} onChange={(event) => setFilter(event.target.value)} className="h-10 rounded-md border border-white/10 bg-slate-950 px-3 text-slate-100">{sectors.map((item) => <option key={item}>{item}</option>)}</select>
           <button onClick={requestRefresh} className="h-10 rounded-md border border-white/10 px-3 text-sm text-slate-300 hover:border-cyan-300/40">Refresh</button>
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-6">
-        {rows.map((stock, index) => {
-          const up = stock.changePercent >= 0;
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        {rows.map((stock) => {
+          const insight = buildHeatmapInsight(stock);
+          const status = stock.changePercent >= 0 ? "Buy" : stock.rsi > 68 ? "Hold" : "Watch";
           return (
-            <button key={stock.ticker} onClick={() => setSelectedTicker(stock.ticker)} className={`rounded-md border p-3 text-left transition hover:scale-[1.02] ${up ? "border-emerald-300/15 bg-emerald-400/15" : "border-rose-300/15 bg-rose-400/15"}`} style={{ minHeight: 108 + (index % 4) * 10 }}>
-              <div className="flex items-start justify-between gap-2"><div className="font-mono text-sm text-white">{stock.ticker}</div><div className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "+" : ""}{stock.changePercent.toFixed(2)}%</div></div>
-              <div className="mt-2 truncate text-xs text-slate-500">{stock.sector}</div>
-              <div className="mt-3 grid grid-cols-2 gap-2 font-mono text-[11px]"><span className="rounded bg-black/25 px-2 py-1 text-slate-300">Now ${stock.price.toFixed(2)}</span><span className="rounded bg-black/25 px-2 py-1 text-slate-400">Prev ${stock.previousClose.toFixed(2)}</span></div>
-            </button>
+            <article key={stock.ticker} className="rounded-lg border border-slate-200 bg-white p-4 text-slate-950 shadow-sm">
+              <button
+                onClick={() => { setSelectedTicker(stock.ticker); setSelected(stock); }}
+                className="block w-full text-left"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <StockLogo quote={stock} size="lg" />
+                    <div className="min-w-0">
+                      <h3 className="truncate text-base font-semibold text-slate-950">{stock.ticker}</h3>
+                      <p className="truncate text-xs text-slate-500">{stock.name}</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600">{status}</span>
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-sky-100 px-2 py-1 text-[11px] font-medium text-sky-700">{stock.sector}</span>
+                  <span className={`rounded-md px-2 py-1 text-xs font-semibold ${stock.changePercent >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>{stock.changePercent.toFixed(2)}%</span>
+                </div>
+                <div className="mt-3 flex items-end justify-between gap-3">
+                  <strong className="font-mono text-2xl text-slate-950">${stock.price.toFixed(2)}</strong>
+                  <span className="text-xs text-slate-500">P/E {formatPe(stock.peRatio)}x</span>
+                </div>
+                <div className="mt-2 text-xs text-slate-600">
+                  เป้า ${insight.target.toFixed(2)} · Upside <span className={insight.upside >= 0 ? "text-emerald-600" : "text-rose-600"}>{insight.upside.toFixed(0)}%</span> · RSI {stock.rsi}
+                </div>
+                <div className="mt-2 h-1.5 rounded-full bg-slate-100">
+                  <div className={`h-full rounded-full ${insight.risk === "สูง" ? "bg-rose-500" : insight.risk === "กลาง" ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${stock.momentumScore}%` }} />
+                </div>
+                <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-600">{insight.bull}</p>
+                <div className="mt-2 flex items-center gap-1 text-xs text-emerald-700">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  ความเสี่ยง: {insight.risk}
+                </div>
+              </button>
+              <button onClick={() => setSelected(stock)} className="mt-3 w-full rounded-md border border-slate-200 px-3 py-2 text-xs text-slate-600 hover:bg-slate-50">
+                วิเคราะห์เชิงลึก + ข่าว real-time
+              </button>
+            </article>
           );
         })}
       </div>
+      {selected && detail ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4">
+          <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-5 text-slate-950 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <StockLogo quote={selected} size="lg" />
+                <div className="min-w-0">
+                  <h3 className="truncate text-xl font-semibold">{selected.ticker} · {selected.name}</h3>
+                  <div className="mt-1 flex gap-2">
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600">Hold</span>
+                    <span className="rounded-full bg-sky-100 px-2 py-1 text-[11px] text-sky-700">{selected.sector}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="text-right">
+                  <p className="font-mono text-2xl font-semibold">${selected.price.toFixed(2)}</p>
+                  <span className={`mt-1 inline-block rounded-md px-2 py-1 text-xs font-semibold ${selected.changePercent >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>{selected.changePercent.toFixed(2)}%</span>
+                </div>
+                <button onClick={() => setSelected(null)} title="Close" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X size={20} /></button>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[["เป้าหมาย", `$${detail.target.toFixed(2)}`], ["Upside", `${detail.upside.toFixed(0)}%`], ["Market Cap", selected.marketCap], ["P/E (TTM)", `${formatPe(selected.peRatio)}x`], ["Forward P/E", detail.forwardPe === null ? "-" : `${detail.forwardPe.toFixed(0)}x`], ["ความเสี่ยง", detail.risk]].map(([label, value]) => (
+                <div key={label} className="rounded-md bg-slate-50 p-3">
+                  <p className="text-xs text-slate-500">{label}</p>
+                  <strong className={`${label === "Upside" && detail.upside < 0 ? "text-rose-600" : "text-slate-950"}`}>{value}</strong>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5">
+              <p className="text-sm font-semibold">ช่วงราคา 52 สัปดาห์</p>
+              <div className="relative mt-4 h-2 rounded-full bg-gradient-to-r from-emerald-100 via-amber-100 to-rose-200">
+                <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-white bg-rose-600 shadow" style={{ left: `calc(${detail.position}% - 8px)` }} />
+              </div>
+              <div className="mt-2 flex justify-between text-xs text-slate-400">
+                <span>ต่ำสุด ${detail.low52.toFixed(0)}</span>
+                <span>เป้า ${detail.target.toFixed(0)} · ปัจจุบัน ${selected.price.toFixed(2)}</span>
+                <span>สูงสุด ${detail.high52.toFixed(0)}</span>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-4 text-sm leading-6">
+              <section>
+                <h4 className="border-b border-slate-200 pb-1 font-semibold">📈 BULL CASE (จุดแข็ง)</h4>
+                <p className="mt-2 text-slate-600">{detail.bull}</p>
+              </section>
+              <section>
+                <h4 className="border-b border-slate-200 pb-1 font-semibold">📉 BEAR CASE (ความเสี่ยง)</h4>
+                <p className="mt-2 text-slate-600">{detail.bear}</p>
+              </section>
+              <section>
+                <h4 className="border-b border-slate-200 pb-1 font-semibold">ใครเหมาะกับใคร</h4>
+                <p className="mt-2 text-slate-600">{detail.fit}</p>
+              </section>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {[selected.sector, selected.isAiStock ? "AI" : "Core", selected.dividendYield > 0 ? "Dividend" : "Growth"].map((tag) => (
+                <span key={tag} className="rounded-full bg-sky-100 px-2 py-1 text-xs text-sky-700">{tag}</span>
+              ))}
+            </div>
+
+            <div className="mt-5 grid gap-2 sm:grid-cols-4">
+              <button className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600">📊 เปรียบเทียบ</button>
+              <button className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600">🎯 กลยุทธ์</button>
+              <button className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-600">◺ DCF</button>
+              <button onClick={() => sendLine(selected.ticker)} className="rounded-md border border-amber-300 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50">📰 ข่าว + LINE</button>
+            </div>
+            {lineStatus ? <p className="mt-3 text-sm text-slate-500">{lineStatus}</p> : null}
+          </div>
+        </div>
+      ) : null}
     </Panel>
   );
 }
