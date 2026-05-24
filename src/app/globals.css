@@ -301,6 +301,50 @@ textarea::placeholder {
   background-color: #1a1a1d;
 }
 
+.market-heatmap-surface,
+.market-heatmap-surface :where(.bg-white, .bg-slate-50, .bg-slate-100) {
+  background-color: #101010 !important;
+  color: #f8fafc !important;
+}
+
+.market-heatmap-surface :where(article, .market-heatmap-card) {
+  background: #141414 !important;
+  border-color: rgba(255, 255, 255, 0.11) !important;
+  color: #f8fafc !important;
+}
+
+.market-heatmap-surface :where(article, .market-heatmap-card):hover {
+  background: #181818 !important;
+  border-color: rgba(103, 232, 249, 0.36) !important;
+}
+
+.market-heatmap-surface :where(h3, h4, strong, .text-slate-950, .text-slate-900) {
+  color: #ffffff !important;
+}
+
+.market-heatmap-surface :where(.text-slate-600, .text-slate-500) {
+  color: #9ca3af !important;
+}
+
+.market-heatmap-surface :where(.border-slate-200, .border-slate-100) {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.market-heatmap-surface :where(.bg-sky-100) {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  color: #bae6fd !important;
+}
+
+.market-heatmap-surface :where(.bg-emerald-50) {
+  background-color: rgba(52, 211, 153, 0.12) !important;
+  color: #6ee7b7 !important;
+}
+
+.market-heatmap-surface :where(.bg-rose-50) {
+  background-color: rgba(251, 113, 133, 0.14) !important;
+  color: #fda4af !important;
+}
+
 .glass :where(.bg-black\/20, .bg-black\/25, .bg-black\/30) {
   background-color: #111113;
 }

@@ -145,7 +145,7 @@ export function EnhancedHeatmapPanel() {
   }
 
   return (
-    <Panel className="p-4">
+    <Panel className="market-heatmap-surface p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="font-semibold text-white">Market Heatmap</h3>
@@ -170,7 +170,7 @@ export function EnhancedHeatmapPanel() {
             <motion.article
               key={stock.ticker}
               whileHover={{ y: -2 }}
-              className="rounded-lg border border-white/10 bg-[#141414] p-4 text-left shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]"
+              className="market-heatmap-card rounded-lg border border-white/10 bg-[#141414] p-4 text-left shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]"
             >
               <button onClick={() => setSelectedTicker(stock.ticker)} className="block w-full text-left">
                 <div className="flex items-start justify-between gap-2">
@@ -446,7 +446,7 @@ export function EnhancedHeatmapPage() {
   }
 
   return (
-    <Panel className="p-4">
+    <Panel className="market-heatmap-surface p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold text-white">Market Heatmap</h2>
@@ -462,7 +462,7 @@ export function EnhancedHeatmapPage() {
           const insight = buildHeatmapInsight(stock);
           const status = stock.changePercent >= 0 ? "Buy" : stock.rsi > 68 ? "Hold" : "Watch";
           return (
-            <article key={stock.ticker} className="rounded-lg border border-white/10 bg-[#141414] p-4 text-slate-100 shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]">
+            <article key={stock.ticker} className="market-heatmap-card rounded-lg border border-white/10 bg-[#141414] p-4 text-slate-100 shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]">
               <button
                 onClick={() => { setSelectedTicker(stock.ticker); setSelected(stock); }}
                 className="block w-full text-left"
@@ -528,7 +528,7 @@ export function EnhancedHeatmapPage() {
               <div className="flex items-start gap-3">
                 <div className="text-right">
                   <p className="font-mono text-2xl font-semibold">${selected.price.toFixed(2)}</p>
-                  <span className={`mt-1 inline-block rounded-md px-2 py-1 text-xs font-semibold ${selected.changePercent >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>{selected.changePercent.toFixed(2)}%</span>
+                  <span className={`mt-1 inline-block rounded-md px-2 py-1 text-xs font-semibold ${selected.changePercent >= 0 ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>{selected.changePercent.toFixed(2)}%</span>
                 </div>
                 <button onClick={() => setSelected(null)} title="Close" className="rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white"><X size={20} /></button>
               </div>
