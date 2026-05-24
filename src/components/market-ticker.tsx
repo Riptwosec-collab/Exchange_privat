@@ -42,15 +42,15 @@ export function MarketTicker() {
   }, [setQuotes, tick, refreshNonce, paused]);
 
   return (
-    <div className="overflow-hidden border-y border-white/10 bg-black/30 lg:ml-[102px]">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-1 text-xs text-slate-500">
+    <div className="overflow-hidden border-y border-white/10 bg-[#111111] lg:ml-[102px]">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-1.5 text-xs font-semibold text-slate-400">
         <span>{liveMode === "provider" ? `Live Yahoo Finance quotes for ${quotes.length} symbols` : `Mock live quotes for ${quotes.length} symbols - provider unavailable`}</span>
         <div className="flex items-center gap-3">
           <span>{paused ? "Paused" : lastUpdated ? `Updated ${lastUpdated}` : "Connecting..."}</span>
           <button
             type="button"
             onClick={() => setPaused((value) => !value)}
-            className="rounded-md border border-white/10 px-2 py-1 text-[11px] font-medium text-slate-300 transition hover:border-cyan-300/40 hover:text-cyan-200"
+            className="rounded-lg border border-white/10 px-2 py-1 text-[11px] font-bold text-slate-300 transition hover:border-violet-300/40 hover:text-violet-100"
           >
             {paused ? "Play" : "Pause"}
           </button>
@@ -67,11 +67,11 @@ export function MarketTicker() {
             <button
               key={`${quote.ticker}-${index}`}
               onClick={() => setSelectedTicker(quote.ticker)}
-              className="flex min-w-[180px] items-center justify-between gap-4 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 font-mono text-sm"
+              className="flex min-w-[190px] items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#18181a] px-3 py-2.5 font-mono text-sm"
             >
-              <span className="text-slate-200">{quote.ticker}</span>
-              <span className="text-white">${quote.price.toFixed(2)}</span>
-              <span className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "+" : ""}{quote.changePercent.toFixed(2)}%</span>
+              <span className="font-black text-slate-100">{quote.ticker}</span>
+              <span className="font-black text-white">${quote.price.toFixed(2)}</span>
+              <span className={`font-black ${up ? "text-emerald-300" : "text-rose-300"}`}>{up ? "+" : ""}{quote.changePercent.toFixed(2)}%</span>
             </button>
           );
         })}

@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: Inter, "Segoe UI", "Noto Sans Thai", Tahoma, Arial, ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
+  --font-sans: "Inter", "Noto Sans Thai", "Sarabun", "Segoe UI", Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Inter", "Noto Sans Thai", "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
 }
 
 :root {
   color-scheme: dark;
-  --background: #070b12;
-  --foreground: #f4f8fb;
-  --panel: #0f1722;
-  --panel-soft: #141d2a;
-  --border-soft: rgba(203, 213, 225, 0.16);
-  --muted: #a9b7c9;
-  --muted-strong: #c3cfdd;
-  --accent: #67e8f9;
-  --accent-soft: rgba(103, 232, 249, 0.12);
-  --success: #6ee7b7;
-  --danger: #fda4af;
-  --warning: #fcd34d;
+  --background: #101010;
+  --foreground: #f6f7fb;
+  --panel: #151515;
+  --panel-soft: #1b1b1d;
+  --border-soft: rgba(255, 255, 255, 0.095);
+  --muted: #a7a8b0;
+  --muted-strong: #d6d7dc;
+  --accent: #8c6ff7;
+  --accent-soft: rgba(124, 89, 219, 0.28);
+  --success: #65d878;
+  --danger: #f08aaa;
+  --warning: #f0cf6a;
 }
 
 * {
@@ -39,10 +39,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 16px;
+  line-height: 1.5;
   letter-spacing: 0;
   font-synthesis-weight: none;
+  font-weight: 500;
 }
 
 button,
@@ -77,20 +78,20 @@ textarea::placeholder {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(103, 232, 249, 0.78);
+  outline: 2px solid rgba(140, 111, 247, 0.82);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: rgba(103, 232, 249, 0.28);
+  background: rgba(140, 111, 247, 0.34);
   color: #ffffff;
 }
 
 .glass {
   border: 1px solid var(--border-soft);
-  background: linear-gradient(180deg, rgba(16, 24, 35, 0.96), rgba(9, 14, 22, 0.96));
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(14px);
+  background: #151515;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .glass,
@@ -99,35 +100,38 @@ textarea::placeholder {
 }
 
 .glass .font-mono {
-  font-size: clamp(0.74rem, 0.84vw, 0.9rem);
+  font-size: clamp(0.78rem, 0.86vw, 0.94rem);
   font-variant-numeric: tabular-nums;
-  line-height: 1.35;
+  font-weight: 750;
+  line-height: 1.32;
   overflow-wrap: anywhere;
 }
 
 .glass strong.font-mono,
 .glass .text-xl.font-mono {
-  font-size: clamp(0.96rem, 1.05vw, 1.15rem);
+  font-size: clamp(1.02rem, 1.15vw, 1.28rem);
 }
 
 .metric-value {
   display: block;
-  font-size: clamp(1rem, 1.35vw, 1.24rem);
-  line-height: 1.2;
+  font-size: clamp(1.08rem, 1.48vw, 1.36rem);
+  font-weight: 850;
+  line-height: 1.14;
   overflow-wrap: anywhere;
 }
 
 .metric-delta {
   display: block;
-  font-size: clamp(0.72rem, 0.86vw, 0.84rem);
-  line-height: 1.2;
+  font-size: clamp(0.78rem, 0.94vw, 0.92rem);
+  font-weight: 850;
+  line-height: 1.16;
   overflow-wrap: anywhere;
   text-align: right;
 }
 
 .metric-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
-  border-color: rgba(203, 213, 225, 0.14);
+  background: #19191b;
+  border-color: rgba(255, 255, 255, 0.095);
 }
 
 .glass table {
@@ -140,7 +144,7 @@ textarea::placeholder {
 .glass td {
   max-width: 16ch;
   white-space: nowrap;
-  font-size: clamp(0.72rem, 0.8vw, 0.86rem);
+  font-size: clamp(0.78rem, 0.86vw, 0.94rem);
   line-height: 1.45;
 }
 
@@ -150,47 +154,47 @@ textarea::placeholder {
 }
 
 .glass th {
-  color: #a7b4c6;
-  font-weight: 700;
+  color: #b9bac2;
+  font-weight: 850;
 }
 
 .glass tr {
-  border-color: rgba(203, 213, 225, 0.12);
+  border-color: rgba(255, 255, 255, 0.095);
 }
 
 .glass tbody tr:hover {
-  background: rgba(103, 232, 249, 0.045);
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .glass :where(input, select, textarea) {
-  background-color: rgba(8, 13, 22, 0.86);
-  border-color: rgba(203, 213, 225, 0.18);
+  background-color: #111113;
+  border-color: rgba(255, 255, 255, 0.12);
   color: #f5f9ff;
 }
 
 .glass :where(input, select, textarea):focus {
-  border-color: rgba(103, 232, 249, 0.62);
-  box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.1);
+  border-color: rgba(140, 111, 247, 0.72);
+  box-shadow: 0 0 0 3px rgba(140, 111, 247, 0.14);
 }
 
 .glass :where(.text-white, .text-slate-100) {
-  color: #f7fbff;
+  color: #f7f7fb;
 }
 
 .glass :where(.text-slate-200) {
-  color: #e2eaf3;
+  color: #e6e7ed;
 }
 
 .glass :where(.text-slate-300) {
-  color: #c9d4e3;
+  color: #d0d1d8;
 }
 
 .glass :where(.text-slate-400) {
-  color: #aebccd;
+  color: #adaeb7;
 }
 
 .glass :where(.text-slate-500) {
-  color: #8fa0b6;
+  color: #898a93;
 }
 
 .glass :where(.text-emerald-300) {
@@ -206,7 +210,7 @@ textarea::placeholder {
 }
 
 .glass :where(.text-cyan-100, .text-cyan-200, .text-cyan-300) {
-  color: #8beeff;
+  color: #c8bbff;
 }
 
 .glass .bg-white :where(.text-slate-400) {
@@ -259,7 +263,7 @@ textarea::placeholder {
   .glass th,
   .glass td {
     max-width: 12ch;
-    font-size: 0.72rem;
+    font-size: 0.76rem;
   }
 
   .metric-card {
@@ -268,14 +272,11 @@ textarea::placeholder {
 }
 
 .terminal-grid {
-  background:
-    radial-gradient(circle at 15% 0%, rgba(34, 211, 238, 0.07), transparent 34rem),
-    radial-gradient(circle at 95% 10%, rgba(99, 102, 241, 0.08), transparent 28rem),
-    linear-gradient(180deg, #070b12 0%, #0a1019 48%, #060912 100%);
+  background: #101010;
 }
 
 .neon-text {
-  text-shadow: 0 0 18px rgba(34, 211, 238, 0.26);
+  text-shadow: none;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -285,9 +286,37 @@ textarea::placeholder {
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.44);
+  background: rgba(140, 111, 247, 0.54);
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.36);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.glass :where(.border-white\/10) {
+  border-color: rgba(255, 255, 255, 0.095);
+}
+
+.glass :where(.bg-white\/\[0\.035\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\]) {
+  background-color: #1a1a1d;
+}
+
+.glass :where(.bg-black\/20, .bg-black\/25, .bg-black\/30) {
+  background-color: #111113;
+}
+
+.glass :where(.rounded-lg) {
+  border-radius: 14px;
+}
+
+.glass :where(.rounded-md) {
+  border-radius: 10px;
+}
+
+.glass h1,
+.glass h2,
+.glass h3,
+.glass h4 {
+  font-weight: 850;
+  letter-spacing: -0.01em;
 }
