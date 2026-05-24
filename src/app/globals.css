@@ -1,14 +1,24 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: Inter, "Segoe UI", Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: Inter, "Segoe UI", "Noto Sans Thai", Tahoma, Arial, ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
 }
 
 :root {
   color-scheme: dark;
-  --background: #05070d;
-  --foreground: #edf7ff;
+  --background: #070b12;
+  --foreground: #f4f8fb;
+  --panel: #0f1722;
+  --panel-soft: #141d2a;
+  --border-soft: rgba(203, 213, 225, 0.16);
+  --muted: #a9b7c9;
+  --muted-strong: #c3cfdd;
+  --accent: #67e8f9;
+  --accent-soft: rgba(103, 232, 249, 0.12);
+  --success: #6ee7b7;
+  --danger: #fda4af;
+  --warning: #fcd34d;
 }
 
 * {
@@ -17,15 +27,22 @@
 
 html {
   background: var(--background);
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background: #050607;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  font-synthesis-weight: none;
 }
 
 button,
@@ -35,10 +52,44 @@ textarea {
   font: inherit;
 }
 
+button,
+select {
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  color: #eef6ff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #738196;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(103, 232, 249, 0.78);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(103, 232, 249, 0.28);
+  color: #ffffff;
+}
+
 .glass {
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: rgba(11, 13, 16, 0.92);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(16, 24, 35, 0.96), rgba(9, 14, 22, 0.96));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(14px);
 }
 
@@ -48,46 +99,130 @@ textarea {
 }
 
 .glass .font-mono {
-  font-size: clamp(0.68rem, 0.82vw, 0.875rem);
+  font-size: clamp(0.74rem, 0.84vw, 0.9rem);
   font-variant-numeric: tabular-nums;
-  line-height: 1.25;
+  line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
 .glass strong.font-mono,
 .glass .text-xl.font-mono {
-  font-size: clamp(0.9rem, 1.05vw, 1.125rem);
+  font-size: clamp(0.96rem, 1.05vw, 1.15rem);
 }
 
 .metric-value {
   display: block;
-  font-size: clamp(0.95rem, 1.35vw, 1.2rem);
-  line-height: 1.15;
+  font-size: clamp(1rem, 1.35vw, 1.24rem);
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
 .metric-delta {
   display: block;
-  font-size: clamp(0.68rem, 0.86vw, 0.82rem);
-  line-height: 1.15;
+  font-size: clamp(0.72rem, 0.86vw, 0.84rem);
+  line-height: 1.2;
   overflow-wrap: anywhere;
   text-align: right;
 }
 
+.metric-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+  border-color: rgba(203, 213, 225, 0.14);
+}
+
 .glass table {
   table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .glass th,
 .glass td {
   max-width: 16ch;
   white-space: nowrap;
-  font-size: clamp(0.68rem, 0.78vw, 0.82rem);
+  font-size: clamp(0.72rem, 0.8vw, 0.86rem);
+  line-height: 1.45;
 }
 
 .glass td {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.glass th {
+  color: #a7b4c6;
+  font-weight: 700;
+}
+
+.glass tr {
+  border-color: rgba(203, 213, 225, 0.12);
+}
+
+.glass tbody tr:hover {
+  background: rgba(103, 232, 249, 0.045);
+}
+
+.glass :where(input, select, textarea) {
+  background-color: rgba(8, 13, 22, 0.86);
+  border-color: rgba(203, 213, 225, 0.18);
+  color: #f5f9ff;
+}
+
+.glass :where(input, select, textarea):focus {
+  border-color: rgba(103, 232, 249, 0.62);
+  box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.1);
+}
+
+.glass :where(.text-white, .text-slate-100) {
+  color: #f7fbff;
+}
+
+.glass :where(.text-slate-200) {
+  color: #e2eaf3;
+}
+
+.glass :where(.text-slate-300) {
+  color: #c9d4e3;
+}
+
+.glass :where(.text-slate-400) {
+  color: #aebccd;
+}
+
+.glass :where(.text-slate-500) {
+  color: #8fa0b6;
+}
+
+.glass :where(.text-emerald-300) {
+  color: var(--success);
+}
+
+.glass :where(.text-rose-300) {
+  color: var(--danger);
+}
+
+.glass :where(.text-amber-300) {
+  color: var(--warning);
+}
+
+.glass :where(.text-cyan-100, .text-cyan-200, .text-cyan-300) {
+  color: #8beeff;
+}
+
+.glass .bg-white :where(.text-slate-400) {
+  color: #64748b;
+}
+
+.glass .bg-white :where(.text-slate-500) {
+  color: #667085;
+}
+
+.glass .bg-white :where(.text-slate-600) {
+  color: #475467;
+}
+
+.glass .bg-white :where(.text-slate-950) {
+  color: #101828;
 }
 
 .advanced-chart-host .tv-lightweight-charts table,
@@ -124,7 +259,7 @@ textarea {
   .glass th,
   .glass td {
     max-width: 12ch;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
   }
 
   .metric-card {
@@ -133,11 +268,14 @@ textarea {
 }
 
 .terminal-grid {
-  background: linear-gradient(180deg, #050607 0%, #090b0f 48%, #050607 100%);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(34, 211, 238, 0.07), transparent 34rem),
+    radial-gradient(circle at 95% 10%, rgba(99, 102, 241, 0.08), transparent 28rem),
+    linear-gradient(180deg, #070b12 0%, #0a1019 48%, #060912 100%);
 }
 
 .neon-text {
-  text-shadow: 0 0 22px rgba(34, 211, 238, 0.36);
+  text-shadow: 0 0 18px rgba(34, 211, 238, 0.26);
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -147,5 +285,9 @@ textarea {
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(103, 232, 249, 0.28);
+  background: rgba(148, 163, 184, 0.44);
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.36);
 }
