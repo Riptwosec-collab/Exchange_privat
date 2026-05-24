@@ -120,14 +120,14 @@ export function EnhancedHeatmapPanel() {
   const { quotes, requestRefresh, setSelectedTicker } = useMarketStore();
   const [sector, setSector] = useState("All");
   const sectors = ["All", ...Array.from(new Set(quotes.map((quote) => quote.sector)))];
-  const rows = quotes.filter((quote) => sector === "All" || quote.sector === sector).slice(0, 36);
+  const rows = quotes.filter((quote) => sector === "All" || quote.sector === sector).slice(0, 12);
 
   return (
     <Panel className="p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="font-semibold text-white">Market Heatmap</h3>
-          <p className="mt-1 text-xs text-slate-500">Live price, previous close and daily percent by sector</p>
+          <p className="mt-1 text-xs text-slate-500">การ์ดวิเคราะห์หุ้นพร้อม target, upside, valuation และ risk</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <select value={sector} onChange={(event) => setSector(event.target.value)} className="h-9 rounded-md border border-white/10 bg-slate-950 px-2 text-xs text-slate-100">
@@ -138,18 +138,84 @@ export function EnhancedHeatmapPanel() {
           </button>
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 2xl:grid-cols-4">
-        {rows.map((stock, index) => {
+      <div className="mt-4 grid max-h-[760px] gap-3 overflow-y-auto pr-1 scrollbar-thin sm:grid-cols-2 xl:grid-cols-3">
+        {rows.map((stock) => {
           const up = stock.changePercent >= 0;
+          const insight = buildHeatmapInsight(stock);
+          const status = up ? "Buy" : stock.rsi > 68 ? "Hold" : "Watch";
+          const score = Math.max(8, Math.min(100, Math.round(Math.abs(insight.upside))));
           return (
-            <motion.button key={stock.ticker} onClick={() => setSelectedTicker(stock.ticker)} whileHover={{ scale: 1.03 }} className={`rounded-md border p-3 text-left ${up ? "border-emerald-300/15 bg-emerald-400/15 hover:bg-emerald-400/25" : "border-rose-300/15 bg-rose-400/15 hover:bg-rose-400/25"}`} style={{ minHeight: `${92 + (index % 4) * 10}px` }}>
+            <motion.button
+              key={stock.ticker}
+              onClick={() => setSelectedTicker(stock.ticker)}
+              whileHover={{ y: -2 }}
+              className="rounded-lg border border-white/10 bg-[#141414] p-4 text-left shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]"
+            >
               <div className="flex items-start justify-between gap-2">
-                <div><div className="font-mono text-sm text-white">{stock.ticker}</div><div className="mt-1 max-w-28 truncate text-xs text-slate-500">{stock.sector}</div></div>
-                <div className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "+" : ""}{stock.changePercent.toFixed(2)}%</div>
+                <div className="flex min-w-0 items-start gap-3">
+                  <StockLogo quote={stock} size="lg" />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="truncate font-mono text-base font-bold text-white">{stock.ticker}</h4>
+                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-slate-300">{status}</span>
+                    </div>
+                    <p className="mt-0.5 truncate text-xs text-slate-500">{stock.name}</p>
+                  </div>
+                </div>
+                <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold ${up ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>
+                  {up ? "+" : ""}{stock.changePercent.toFixed(2)}%
+                </span>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 font-mono text-[11px]">
-                <span className="rounded bg-black/25 px-2 py-1 text-slate-300">Now ${stock.price.toFixed(2)}</span>
-                <span className="rounded bg-black/25 px-2 py-1 text-slate-400">Prev ${stock.previousClose.toFixed(2)}</span>
+
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <span className="rounded-full bg-sky-400/12 px-2 py-1 text-[11px] font-medium text-sky-200">{stock.sector}</span>
+                <span className="text-xs text-slate-500">Market Cap <span className="font-mono text-slate-300">{stock.marketCap}</span></span>
+              </div>
+
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-xs text-slate-500">ราคาปัจจุบัน</p>
+                  <strong className="font-mono text-2xl text-white">${stock.price.toFixed(2)}</strong>
+                </div>
+                <div className="text-right text-xs text-slate-500">
+                  <p>Prev ${stock.previousClose.toFixed(2)}</p>
+                  <p>P/E <span className="font-mono text-slate-300">{formatPe(stock.peRatio)}x</span></p>
+                </div>
+              </div>
+
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="rounded-md bg-white/[0.055] p-2">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Target</p>
+                  <strong className="font-mono text-sm text-white">${insight.target.toFixed(2)}</strong>
+                </div>
+                <div className="rounded-md bg-white/[0.055] p-2">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Upside</p>
+                  <strong className={`font-mono text-sm ${insight.upside >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{insight.upside.toFixed(0)}%</strong>
+                </div>
+                <div className="rounded-md bg-white/[0.055] p-2">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">RSI</p>
+                  <strong className="font-mono text-sm text-white">{stock.rsi}</strong>
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-[11px] text-slate-500">
+                  <span>52W low ${insight.low52.toFixed(0)}</span>
+                  <span>high ${insight.high52.toFixed(0)}</span>
+                </div>
+                <div className="relative mt-1.5 h-2 rounded-full bg-gradient-to-r from-emerald-400/25 via-amber-300/25 to-rose-400/25">
+                  <span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-[#141414] bg-cyan-200 shadow" style={{ left: `calc(${insight.position}% - 8px)` }} />
+                </div>
+              </div>
+
+              <div className="mt-3 h-1.5 rounded-full bg-white/[0.08]">
+                <div className={`h-full rounded-full ${insight.upside >= 0 ? "bg-emerald-400" : "bg-rose-400"}`} style={{ width: `${score}%` }} />
+              </div>
+
+              <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-400">{insight.bull}</p>
+              <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-xs">
+                <span className="text-slate-500">ความเสี่ยง: <span className="font-semibold text-slate-200">{insight.risk}</span></span>
+                <span className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "แรงซื้อเด่น" : "รอจังหวะ"}</span>
               </div>
             </motion.button>
           );
