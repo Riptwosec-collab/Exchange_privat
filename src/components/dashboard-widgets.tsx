@@ -87,23 +87,33 @@ export function AIBriefing() {
 
 function buildMiniSeries(ticker: string, up: boolean, points = 118) {
   const seed = ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  let value = 52 + (seed % 17);
-  let momentum = up ? 0.24 : -0.22;
-  const volatility = 1.6 + (seed % 9) * 0.22;
+  let value = 50 + (seed % 11);
+  let walk = 0;
+  const volatility = 2.5 + (seed % 9) * 0.32;
+  const pullbackEvery = 8 + (seed % 5);
+  const impulseEvery = 15 + (seed % 7);
+  const noiseAt = (index: number, salt: number) => {
+    const raw = Math.sin((index + 1) * (12.9898 + salt) + seed * (78.233 + salt)) * 43758.5453;
+    return raw - Math.floor(raw);
+  };
   const values = Array.from({ length: points }, (_, index) => {
     const progress = index / Math.max(1, points - 1);
-    const trend = (up ? 20 : -18) * progress;
+    const trend = (up ? 13 : -12) * progress;
+    const localStep = noiseAt(index, 0.17) - 0.5;
+    const localShock = noiseAt(index, 0.61) - 0.5;
+    const pullback = ((index % pullbackEvery) / pullbackEvery - 0.5) * volatility * (up ? -1 : 1);
+    const impulse = index % impulseEvery === 0 ? (noiseAt(index, 1.13) - 0.5) * volatility * 5.8 : 0;
     const wave =
-      Math.sin(index / 2.4 + seed * 0.13) * volatility +
-      Math.cos(index / 4.8 + seed * 0.07) * (volatility * 0.72) +
-      Math.sin(index / 8.2 + seed) * (volatility * 0.9);
+      Math.sin(index / 1.85 + seed * 0.13) * volatility +
+      Math.cos(index / 3.35 + seed * 0.07) * (volatility * 0.95) +
+      Math.sin(index / 6.25 + seed) * (volatility * 1.1);
     const micro =
-      Math.sin(index * 1.71 + seed) * (volatility * 0.62) +
-      Math.cos(index * 2.47 + seed / 5) * (volatility * 0.38);
-    const pulse = index % (13 + (seed % 5)) === 0 ? Math.sin(seed + index) * volatility * 2.8 : 0;
-    const reversal = Math.sin(progress * Math.PI * (2.2 + (seed % 4) * 0.35) + seed) * volatility * 1.35;
-    momentum = momentum * 0.72 + (up ? 0.12 : -0.11) + micro * 0.045 + pulse * 0.025;
-    value = 52 + trend + wave + reversal + value * 0.08 + momentum + micro * 0.32;
+      Math.sin(index * 1.93 + seed) * (volatility * 0.95) +
+      Math.cos(index * 2.71 + seed / 5) * (volatility * 0.68) +
+      localShock * volatility * 2.2;
+    const reversal = Math.sin(progress * Math.PI * (3.1 + (seed % 4) * 0.45) + seed) * volatility * 1.7;
+    walk = walk * 0.82 + localStep * volatility * 1.55 + (up ? 0.04 : -0.04);
+    value = 50 + trend + wave + reversal + pullback + impulse + walk + micro * 0.58;
     return value;
   });
   const min = Math.min(...values);
