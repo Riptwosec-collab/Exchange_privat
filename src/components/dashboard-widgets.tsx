@@ -1,10 +1,11 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { Activity, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, SlidersHorizontal, Sparkles, Volume2 } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, ExternalLink, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, SlidersHorizontal, Sparkles, Volume2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { economicEvents, gainers, generatedNews, indices, losers, news, portfolio } from "@/lib/mock-data";
+import type { NewsArticle } from "@/lib/types";
 import { useMarketStore } from "@/store/market-store";
 import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
@@ -84,15 +85,25 @@ export function AIBriefing() {
   );
 }
 
-function buildMiniSeries(ticker: string, up: boolean, points = 76) {
+function buildMiniSeries(ticker: string, up: boolean, points = 118) {
   const seed = ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  let value = 50 + (seed % 13);
+  let value = 52 + (seed % 17);
+  let momentum = up ? 0.24 : -0.22;
+  const volatility = 1.6 + (seed % 9) * 0.22;
   const values = Array.from({ length: points }, (_, index) => {
-    const drift = up ? 0.08 : -0.07;
-    const wave = Math.sin(index / 4.2 + seed) * 1.6 + Math.cos(index / 7.1 + seed / 3) * 1.1;
-    const noise = Math.sin(index * 1.9 + seed) * 1.8 + Math.cos(index * 0.73 + seed) * 0.9;
-    const pulse = index % 17 === 0 ? Math.sin(seed + index) * 5.2 : 0;
-    value = value * 0.985 + (50 + drift * index + wave + noise + pulse) * 0.015 + drift + noise * 0.08;
+    const progress = index / Math.max(1, points - 1);
+    const trend = (up ? 20 : -18) * progress;
+    const wave =
+      Math.sin(index / 2.4 + seed * 0.13) * volatility +
+      Math.cos(index / 4.8 + seed * 0.07) * (volatility * 0.72) +
+      Math.sin(index / 8.2 + seed) * (volatility * 0.9);
+    const micro =
+      Math.sin(index * 1.71 + seed) * (volatility * 0.62) +
+      Math.cos(index * 2.47 + seed / 5) * (volatility * 0.38);
+    const pulse = index % (13 + (seed % 5)) === 0 ? Math.sin(seed + index) * volatility * 2.8 : 0;
+    const reversal = Math.sin(progress * Math.PI * (2.2 + (seed % 4) * 0.35) + seed) * volatility * 1.35;
+    momentum = momentum * 0.72 + (up ? 0.12 : -0.11) + micro * 0.045 + pulse * 0.025;
+    value = 52 + trend + wave + reversal + value * 0.08 + momentum + micro * 0.32;
     return value;
   });
   const min = Math.min(...values);
@@ -103,14 +114,7 @@ function buildMiniSeries(ticker: string, up: boolean, points = 76) {
     return { x, y };
   });
 
-  return normalized
-    .map((point, index) => {
-      if (index === 0) return `M ${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
-      const previous = normalized[index - 1];
-      const cx = (previous.x + point.x) / 2;
-      return `Q ${previous.x.toFixed(2)} ${previous.y.toFixed(2)} ${cx.toFixed(2)} ${((previous.y + point.y) / 2).toFixed(2)} T ${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
-    })
-    .join(" ");
+  return normalized.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
 }
 
 function afterMarketSnapshot(quote: { ticker: string; price: number; previousClose: number; change: number; changePercent: number }) {
@@ -318,6 +322,7 @@ export function MoversPanel() {
 export function NewsFeed() {
   const quotes = useMarketStore((state) => state.quotes);
   const dashboardNews = [...news, ...generatedNews];
+  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   return (
     <Panel className="p-4">
       <div className="flex items-center justify-between gap-3">
@@ -338,13 +343,17 @@ export function NewsFeed() {
         {dashboardNews.map((article) => {
           const quote = quotes.find((item) => item.ticker === article.ticker);
           return (
-          <article key={article.id} className="rounded-md border border-white/10 bg-white/[0.035] p-2.5">
+          <article
+            key={article.id}
+            onClick={() => setSelectedArticle(article)}
+            className="cursor-pointer rounded-md border border-white/10 bg-white/[0.035] p-2.5 transition hover:border-cyan-300/35 hover:bg-white/[0.055]"
+          >
             <div className="flex flex-wrap items-center gap-2">
               {quote ? <StockLogo quote={quote} size="sm" /> : null}
               <StatusPill tone={article.sentiment === "Bullish" ? "up" : article.sentiment === "Bearish" ? "down" : "neutral"}>{article.sentiment}</StatusPill>
               <StatusPill tone="info">{article.category}</StatusPill>
               <span className="font-mono text-xs text-slate-500">{article.ticker} · {article.source} · {article.time}</span>
-              <button title="Bookmark article" className="ml-auto text-slate-400"><Bookmark size={16} fill={article.saved ? "currentColor" : "none"} /></button>
+              <button onClick={(event) => event.stopPropagation()} title="Bookmark article" className="ml-auto text-slate-400"><Bookmark size={16} fill={article.saved ? "currentColor" : "none"} /></button>
             </div>
             <h4 className="mt-2 text-sm font-semibold leading-5 text-white">{article.title}</h4>
             <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{article.summaryTh}</p>
@@ -354,7 +363,55 @@ export function NewsFeed() {
           </article>
         );})}
       </div>
+      {selectedArticle ? <DashboardNewsDetailModal article={selectedArticle} onClose={() => setSelectedArticle(null)} /> : null}
     </Panel>
+  );
+}
+
+function DashboardNewsDetailModal({ article, onClose }: { article: NewsArticle; onClose: () => void }) {
+  const quote = useMarketStore((state) => state.quotes.find((item) => item.ticker === article.ticker));
+  const sentimentTone = article.sentiment === "Bullish" ? "text-emerald-300" : article.sentiment === "Bearish" ? "text-rose-300" : "text-slate-300";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-2xl rounded-xl border border-white/10 bg-[#101010] p-5 text-slate-100 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            {quote ? <StockLogo quote={quote} size="lg" /> : null}
+            <div className="min-w-0">
+              <p className="font-mono text-sm font-bold text-cyan-200">{article.ticker} · {article.source}</p>
+              <h3 className="mt-1 text-xl font-semibold leading-7 text-white">{article.title}</h3>
+            </div>
+          </div>
+          <button onClick={onClose} title="Close" className="rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white"><X size={20} /></button>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <StatusPill tone={article.sentiment === "Bullish" ? "up" : article.sentiment === "Bearish" ? "down" : "neutral"}>{article.sentiment}</StatusPill>
+          <StatusPill tone="info">{article.category}</StatusPill>
+          <span className="font-mono text-xs text-slate-500">{article.date} {article.time}</span>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-md border border-white/10 bg-white/[0.04] p-3"><p className="text-xs text-slate-500">Impact</p><strong className="font-mono text-white">{article.impact}/100</strong></div>
+          <div className="rounded-md border border-white/10 bg-white/[0.04] p-3"><p className="text-xs text-slate-500">Sentiment</p><strong className={sentimentTone}>{article.sentiment}</strong></div>
+          <div className="rounded-md border border-white/10 bg-white/[0.04] p-3"><p className="text-xs text-slate-500">Ticker</p><strong className="font-mono text-white">{article.ticker}</strong></div>
+        </div>
+        <div className="mt-5 rounded-lg border border-white/10 bg-black/30 p-4">
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">สรุปข่าวภาษาไทย</p>
+          <p className="mt-2 text-sm leading-7 text-slate-300">{article.summaryTh}</p>
+        </div>
+        <div className="mt-5 h-2 rounded-full bg-slate-800">
+          <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} />
+        </div>
+        <div className="mt-5 flex flex-wrap justify-end gap-2">
+          {article.url ? (
+            <a href={article.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-300/16">
+              <ExternalLink size={15} /> เปิดข่าวต้นทาง
+            </a>
+          ) : null}
+          <button onClick={onClose} className="rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300 hover:bg-white/[0.06]">ปิด</button>
+        </div>
+      </div>
+    </div>
   );
 }
 

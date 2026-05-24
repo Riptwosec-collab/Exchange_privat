@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Bookmark, CalendarDays, RefreshCw, Save, Search, Settings } from "lucide-react";
+import { Bell, Bookmark, CalendarDays, ExternalLink, RefreshCw, Save, Search, Settings, X } from "lucide-react";
 import { economicEvents, generatedNews, news, watchlist } from "@/lib/mock-data";
 import { allStockSymbols, stockUniverse } from "@/lib/market-utils";
 import type { NewsArticle } from "@/lib/types";
@@ -34,6 +34,7 @@ export function NewsPage() {
   const [dates, setDates] = useState<string[]>(Array.from(new Set([...news, ...generatedNews].map((item) => item.date))).sort().reverse());
   const [provider, setProvider] = useState("watchlist-mock");
   const [lineStatus, setLineStatus] = useState("");
+  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
 
   async function refreshNews(forceLive = false) {
     const params = new URLSearchParams();
@@ -106,14 +107,25 @@ export function NewsPage() {
           {filtered.slice(0, 60).map((article) => {
             const quote = watchlist.find((item) => item.ticker === article.ticker) ?? watchlist[0];
             return (
-              <article key={article.id} className="rounded-md border border-white/10 bg-white/[0.035] p-4">
+              <article
+                key={article.id}
+                onClick={() => setSelectedArticle(article)}
+                className="cursor-pointer rounded-md border border-white/10 bg-white/[0.035] p-4 transition hover:border-cyan-300/35 hover:bg-white/[0.055]"
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <StockLogo quote={quote} size="sm" />
                   <span className="font-mono text-sm font-semibold text-white">{article.ticker}</span>
                   <StatusPill tone={article.sentiment === "Bullish" ? "up" : article.sentiment === "Bearish" ? "down" : "neutral"}>{article.sentiment}</StatusPill>
                   <StatusPill tone="info">{article.category}</StatusPill>
                   <span className="font-mono text-xs text-slate-500">{article.source} · {article.date} {article.time}</span>
-                  <button onClick={() => setBookmarks((current) => current.includes(article.id) ? current.filter((id) => id !== article.id) : [...current, article.id])} title="Bookmark" className="ml-auto text-slate-400 hover:text-cyan-200">
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setBookmarks((current) => current.includes(article.id) ? current.filter((id) => id !== article.id) : [...current, article.id]);
+                    }}
+                    title="Bookmark"
+                    className="ml-auto text-slate-400 hover:text-cyan-200"
+                  >
                     <Bookmark size={16} fill={bookmarks.includes(article.id) ? "currentColor" : "none"} />
                   </button>
                 </div>
@@ -127,6 +139,7 @@ export function NewsPage() {
             );
           })}
         </div>
+        {selectedArticle ? <NewsDetailModal article={selectedArticle} onClose={() => setSelectedArticle(null)} /> : null}
       </Panel>
       <Panel className="p-4">
         <h3 className="font-semibold text-white">News Controls</h3>
@@ -136,6 +149,67 @@ export function NewsPage() {
           <Metric label="Provider" value={provider} delta="watchlist only" tone={provider.includes("yahoo") ? "up" : "neutral"} />
         </div>
       </Panel>
+    </div>
+  );
+}
+
+function NewsDetailModal({ article, onClose }: { article: NewsArticle; onClose: () => void }) {
+  const quote = watchlist.find((item) => item.ticker === article.ticker) ?? watchlist[0];
+  const sentimentTone = article.sentiment === "Bullish" ? "text-emerald-300" : article.sentiment === "Bearish" ? "text-rose-300" : "text-slate-300";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-2xl rounded-xl border border-white/10 bg-[#101010] p-5 text-slate-100 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <StockLogo quote={quote} size="lg" />
+            <div className="min-w-0">
+              <p className="font-mono text-sm font-bold text-cyan-200">{article.ticker} · {article.source}</p>
+              <h3 className="mt-1 text-xl font-semibold leading-7 text-white">{article.title}</h3>
+            </div>
+          </div>
+          <button onClick={onClose} title="Close" className="rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white"><X size={20} /></button>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <StatusPill tone={article.sentiment === "Bullish" ? "up" : article.sentiment === "Bearish" ? "down" : "neutral"}>{article.sentiment}</StatusPill>
+          <StatusPill tone="info">{article.category}</StatusPill>
+          <span className="font-mono text-xs text-slate-500">{article.date} {article.time}</span>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-md border border-white/10 bg-white/[0.04] p-3">
+            <p className="text-xs text-slate-500">Impact</p>
+            <strong className="font-mono text-white">{article.impact}/100</strong>
+          </div>
+          <div className="rounded-md border border-white/10 bg-white/[0.04] p-3">
+            <p className="text-xs text-slate-500">Sentiment</p>
+            <strong className={sentimentTone}>{article.sentiment}</strong>
+          </div>
+          <div className="rounded-md border border-white/10 bg-white/[0.04] p-3">
+            <p className="text-xs text-slate-500">Ticker</p>
+            <strong className="font-mono text-white">{article.ticker}</strong>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-lg border border-white/10 bg-black/30 p-4">
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">สรุปข่าวภาษาไทย</p>
+          <p className="mt-2 text-sm leading-7 text-slate-300">{article.summaryTh}</p>
+        </div>
+
+        <div className="mt-5 h-2 rounded-full bg-slate-800">
+          <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} />
+        </div>
+
+        <div className="mt-5 flex flex-wrap justify-end gap-2">
+          {article.url ? (
+            <a href={article.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-300/16">
+              <ExternalLink size={15} /> เปิดข่าวต้นทาง
+            </a>
+          ) : null}
+          <button onClick={onClose} className="rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300 hover:bg-white/[0.06]">ปิด</button>
+        </div>
+      </div>
     </div>
   );
 }
