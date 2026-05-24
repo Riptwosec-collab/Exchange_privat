@@ -162,10 +162,11 @@ export function EnhancedHeatmapPanel() {
       </div>
       <div className="mt-4 grid max-h-[760px] gap-3 overflow-y-auto pr-1 scrollbar-thin sm:grid-cols-2 xl:grid-cols-3">
         {rows.map((stock) => {
-          const up = stock.changePercent >= 0;
           const insight = buildHeatmapInsight(stock);
-          const status = up ? "Buy" : stock.rsi > 68 ? "Hold" : "Watch";
+          const afterMarket = heatmapAfterMarketSnapshot(stock);
+          const status = insight.upside > 8 && stock.rsi < 70 ? "Buy" : stock.rsi > 68 || insight.upside < 0 ? "Watch" : "Hold";
           const score = Math.max(8, Math.min(100, Math.round(Math.abs(insight.upside))));
+          const rsiTone = heatmapRsiTone(stock.rsi);
           return (
             <motion.article
               key={stock.ticker}
@@ -184,8 +185,8 @@ export function EnhancedHeatmapPanel() {
                       <p className="mt-0.5 truncate text-xs text-slate-500">{stock.name}</p>
                     </div>
                   </div>
-                  <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold ${up ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>
-                    {up ? "+" : ""}{stock.changePercent.toFixed(2)}%
+                  <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold ${heatmapBadge(afterMarket.closeVsPrev)}`}>
+                    {heatmapArrow(afterMarket.closeVsPrev)} {heatmapSigned(afterMarket.closeVsPrevPercent)}%
                   </span>
                 </div>
 
@@ -200,15 +201,16 @@ export function EnhancedHeatmapPanel() {
                     <strong className="font-mono text-2xl text-white">${stock.price.toFixed(2)}</strong>
                   </div>
                   <div className="text-right text-xs text-slate-500">
-                    <p>Prev ${stock.previousClose.toFixed(2)}</p>
+                    <p>Prev ${stock.previousClose.toFixed(2)} <span className={heatmapTone(afterMarket.closeVsPrev)}>{heatmapSigned(afterMarket.closeVsPrev)}</span></p>
+                    <p>AH ${afterMarket.price.toFixed(2)} <span className={heatmapTone(afterMarket.percent)}>{heatmapArrow(afterMarket.percent)} {heatmapSigned(afterMarket.percent)}%</span></p>
                     <p>P/E <span className="font-mono text-slate-300">{formatPe(stock.peRatio)}x</span></p>
                   </div>
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   <div className="rounded-md bg-white/[0.055] p-2">
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Target</p>
-                    <strong className="font-mono text-sm text-white">${insight.target.toFixed(2)}</strong>
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">วันนี้</p>
+                    <strong className={`font-mono text-sm ${heatmapTone(stock.change)}`}>{heatmapSigned(stock.change)}</strong>
                   </div>
                   <div className="rounded-md bg-white/[0.055] p-2">
                     <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Upside</p>
@@ -216,7 +218,7 @@ export function EnhancedHeatmapPanel() {
                   </div>
                   <div className="rounded-md bg-white/[0.055] p-2">
                     <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">RSI</p>
-                    <strong className="font-mono text-sm text-white">{stock.rsi}</strong>
+                    <strong className={`font-mono text-sm ${rsiTone}`}>{stock.rsi}</strong>
                   </div>
                 </div>
 
@@ -237,7 +239,7 @@ export function EnhancedHeatmapPanel() {
                 <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-400">{insight.bull}</p>
                 <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-xs">
                   <span className="text-slate-500">ความเสี่ยง: <span className="font-semibold text-slate-200">{insight.risk}</span></span>
-                  <span className={up ? "text-emerald-300" : "text-rose-300"}>{up ? "แรงซื้อเด่น" : "รอจังหวะ"}</span>
+                  <span className={heatmapTone(afterMarket.totalSessionPercent)}>รวมวัน+AH {heatmapArrow(afterMarket.totalSessionPercent)} {heatmapSigned(afterMarket.totalSessionPercent)}%</span>
                 </div>
               </button>
               <button onClick={() => openDeepDive(stock)} className="mt-3 w-full rounded-md border border-cyan-300/25 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-300/16">
@@ -283,6 +285,44 @@ function buildHeatmapInsight(quote: StockQuote) {
     bear: `ความเสี่ยงหลักคือ valuation, RSI ${quote.rsi}, การแข่งขันในกลุ่ม ${quote.sector} และแรงขายถ้าหลุดแนวรับระยะสั้น`,
     fit: quote.isAiStock ? "เหมาะกับพอร์ต AI/growth ที่รับความผันผวนได้และรอจังหวะ pullback" : "เหมาะกับพอร์ตกระจายความเสี่ยง ใช้ขนาดสถานะพอดีและมีจุดตัดขาดทุน"
   };
+}
+
+function heatmapAfterMarketSnapshot(quote: StockQuote) {
+  const seed = quote.ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const direction = seed % 3 === 0 ? -1 : 1;
+  const percent = Number((direction * (0.12 + (seed % 9) * 0.17)).toFixed(2));
+  const price = Number((quote.price * (1 + percent / 100)).toFixed(2));
+  const closeVsPrev = Number((quote.price - quote.previousClose).toFixed(2));
+  const closeVsPrevPercent = Number(((closeVsPrev / Math.max(0.01, quote.previousClose)) * 100).toFixed(2));
+  return { price, percent, closeVsPrev, closeVsPrevPercent, totalSessionPercent: Number((closeVsPrevPercent + percent).toFixed(2)) };
+}
+
+function heatmapSigned(value: number, digits = 2) {
+  return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
+}
+
+function heatmapTone(value: number) {
+  if (value > 0) return "text-emerald-300";
+  if (value < 0) return "text-rose-300";
+  return "text-slate-300";
+}
+
+function heatmapBadge(value: number) {
+  if (value > 0) return "bg-emerald-400/12 text-emerald-300";
+  if (value < 0) return "bg-rose-400/14 text-rose-300";
+  return "bg-slate-400/14 text-slate-200";
+}
+
+function heatmapArrow(value: number) {
+  if (value > 0) return "↗";
+  if (value < 0) return "↘";
+  return "→";
+}
+
+function heatmapRsiTone(value: number) {
+  if (value >= 70) return "text-rose-300";
+  if (value <= 30) return "text-emerald-300";
+  return "text-slate-300";
 }
 
 function HeatmapDeepDiveModal({
@@ -460,7 +500,8 @@ export function EnhancedHeatmapPage() {
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {rows.map((stock) => {
           const insight = buildHeatmapInsight(stock);
-          const status = stock.changePercent >= 0 ? "Buy" : stock.rsi > 68 ? "Hold" : "Watch";
+          const afterMarket = heatmapAfterMarketSnapshot(stock);
+          const status = insight.upside > 8 && stock.rsi < 70 ? "Buy" : stock.rsi > 68 || insight.upside < 0 ? "Watch" : "Hold";
           return (
             <article key={stock.ticker} className="market-heatmap-card rounded-lg border border-white/10 bg-[#141414] p-4 text-slate-100 shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]">
               <button
@@ -479,14 +520,22 @@ export function EnhancedHeatmapPage() {
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-3">
                   <span className="rounded-full bg-sky-400/12 px-2 py-1 text-[11px] font-medium text-sky-200">{stock.sector}</span>
-                  <span className={`rounded-md px-2 py-1 text-xs font-semibold ${stock.changePercent >= 0 ? "bg-emerald-400/12 text-emerald-300" : "bg-rose-400/14 text-rose-300"}`}>{stock.changePercent.toFixed(2)}%</span>
+                  <span className={`rounded-md px-2 py-1 text-xs font-semibold ${heatmapBadge(afterMarket.closeVsPrev)}`}>{heatmapArrow(afterMarket.closeVsPrev)} {heatmapSigned(afterMarket.closeVsPrevPercent)}%</span>
                 </div>
                 <div className="mt-3 flex items-end justify-between gap-3">
                   <strong className="font-mono text-2xl text-white">${stock.price.toFixed(2)}</strong>
-                  <span className="text-xs text-slate-500">P/E {formatPe(stock.peRatio)}x</span>
+                  <div className="text-right text-xs text-slate-500">
+                    <p>P/E {formatPe(stock.peRatio)}x</p>
+                    <p>AH <span className={heatmapTone(afterMarket.percent)}>{heatmapArrow(afterMarket.percent)} {heatmapSigned(afterMarket.percent)}%</span></p>
+                  </div>
                 </div>
                 <div className="mt-2 text-xs text-slate-400">
-                  เป้า ${insight.target.toFixed(2)} · Upside <span className={insight.upside >= 0 ? "text-emerald-600" : "text-rose-600"}>{insight.upside.toFixed(0)}%</span> · RSI {stock.rsi}
+                  เป้า ${insight.target.toFixed(2)} · Upside <span className={insight.upside >= 0 ? "text-emerald-300" : "text-rose-300"}>{insight.upside.toFixed(0)}%</span> · <span className={heatmapRsiTone(stock.rsi)}>RSI {stock.rsi}</span>
+                </div>
+                <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
+                  <span className={heatmapTone(afterMarket.closeVsPrev)}>เมื่อวาน {heatmapSigned(afterMarket.closeVsPrev)}</span>
+                  <span className={heatmapTone(stock.change)}>วันนี้ {heatmapSigned(stock.change)}</span>
+                  <span className={`${heatmapTone(afterMarket.percent)} text-right`}>AH {heatmapSigned(afterMarket.percent)}%</span>
                 </div>
                 <div className="mt-2 h-1.5 rounded-full bg-white/[0.08]">
                   <div className={`h-full rounded-full ${insight.risk === "สูง" ? "bg-rose-500" : insight.risk === "กลาง" ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${stock.momentumScore}%` }} />

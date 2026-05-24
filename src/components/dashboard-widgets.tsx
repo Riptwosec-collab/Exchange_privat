@@ -113,22 +113,48 @@ function buildMiniSeries(ticker: string, up: boolean, points = 76) {
     .join(" ");
 }
 
-function afterMarketSnapshot(quote: { ticker: string; price: number; changePercent: number }) {
+function afterMarketSnapshot(quote: { ticker: string; price: number; previousClose: number; change: number; changePercent: number }) {
   const seed = quote.ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const direction = seed % 3 === 0 ? -1 : 1;
   const percent = Number((direction * (0.12 + (seed % 9) * 0.17)).toFixed(2));
   const price = Number((quote.price * (1 + percent / 100)).toFixed(2));
-  const previousPercent = Number((quote.changePercent - percent).toFixed(2));
-  return { price, percent, previousPercent };
+  const closeVsPrevPercent = Number(((quote.price - quote.previousClose) / Math.max(0.01, quote.previousClose) * 100).toFixed(2));
+  const closeVsPrevChange = Number((quote.price - quote.previousClose).toFixed(2));
+  return { price, percent, closeVsPrevPercent, closeVsPrevChange, totalSessionPercent: Number((closeVsPrevPercent + percent).toFixed(2)) };
 }
 
-function MiniMarketChart({ ticker, up }: { ticker: string; up: boolean }) {
+function signed(value: number, digits = 2) {
+  return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
+}
+
+function directionTone(value: number) {
+  if (value > 0) return "text-emerald-300";
+  if (value < 0) return "text-rose-300";
+  return "text-slate-300";
+}
+
+function directionBadge(value: number) {
+  if (value > 0) return "bg-emerald-400/16 text-emerald-200";
+  if (value < 0) return "bg-rose-400/16 text-rose-200";
+  return "bg-slate-400/14 text-slate-200";
+}
+
+function directionArrow(value: number) {
+  if (value > 0) return "↗";
+  if (value < 0) return "↘";
+  return "→";
+}
+
+function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker: string; intradayChange: number; afterHoursChange: number }) {
+  const up = intradayChange >= 0;
+  const afterUp = afterHoursChange >= 0;
   const points = buildMiniSeries(ticker, up);
-  const afterPoints = buildMiniSeries(`${ticker}-after`, !up, 34);
+  const afterPoints = buildMiniSeries(`${ticker}-after`, afterUp, 34);
   const areaPath = `${points} L 132 58 L 0 58 Z`;
   const stroke = up ? "#80e59a" : "#f28caf";
   const glow = up ? "#5fe27e" : "#ff78a6";
   const fill = up ? "rgba(101,216,120,.34)" : "rgba(240,138,170,.34)";
+  const afterStroke = afterUp ? "#80e59a" : "#f28caf";
 
   return (
     <svg viewBox="0 0 132 60" className="h-[70px] w-full min-w-[118px]" aria-label={`${ticker} intraday chart`}>
@@ -149,7 +175,7 @@ function MiniMarketChart({ ticker, up }: { ticker: string; up: boolean }) {
       <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
       <path d={points} fill="none" stroke={glow} strokeOpacity="0.2" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
       <path d={points} fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={afterPoints} fill="none" stroke={stroke} strokeDasharray="2 3" strokeOpacity="0.38" strokeWidth="1.2" transform="translate(82 0) scale(.38 1)" />
+      <path d={afterPoints} fill="none" stroke={afterStroke} strokeDasharray="2 3" strokeOpacity="0.45" strokeWidth="1.25" transform="translate(82 0) scale(.38 1)" />
     </svg>
   );
 }
@@ -204,9 +230,10 @@ export function WatchlistPanel() {
             ไม่พบหุ้นตามตัวกรองนี้
           </div>
         ) : rows.map((quote) => {
-          const up = quote.changePercent >= 0;
           const afterMarket = afterMarketSnapshot(quote);
+          const up = afterMarket.closeVsPrevChange >= 0;
           const afterUp = afterMarket.percent >= 0;
+          const rsiTone = quote.rsi >= 70 ? "text-rose-300" : quote.rsi <= 30 ? "text-emerald-300" : "text-slate-300";
           return (
             <button
               key={quote.ticker}
@@ -219,7 +246,12 @@ export function WatchlistPanel() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-violet-400/20 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
                   🇺🇸 หุ้นสหรัฐฯ
                 </span>
-                <span className="text-[11px] text-slate-400">เทียบเมื่อวาน {quote.previousClose.toFixed(2)}</span>
+                <span className="text-[11px] text-slate-400">
+                  เทียบเมื่อวาน {quote.previousClose.toFixed(2)}
+                  <span className={`ml-1 font-mono ${directionTone(afterMarket.closeVsPrevChange)}`}>
+                    {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
+                  </span>
+                </span>
               </div>
               <div className="grid grid-cols-[minmax(96px,1fr)_minmax(96px,1.05fr)_auto] items-center gap-3">
                 <div className="flex min-w-0 items-center gap-3">
@@ -229,22 +261,22 @@ export function WatchlistPanel() {
                     <p className="truncate text-xs text-slate-400">{quote.name}</p>
                   </div>
                 </div>
-                <MiniMarketChart ticker={quote.ticker} up={up} />
+                <MiniMarketChart ticker={quote.ticker} intradayChange={afterMarket.closeVsPrevChange} afterHoursChange={afterMarket.percent} />
                 <div className="shrink-0 text-right font-mono">
                   <p className="text-[11px] font-semibold text-slate-400">
                     หลังตลาดปิด <span className="text-slate-100">{afterMarket.price.toFixed(2)}</span>
-                    <span className={afterUp ? "ml-1 text-emerald-300" : "ml-1 text-rose-300"}>{afterUp ? "↗" : "↘"} {Math.abs(afterMarket.percent).toFixed(2)}%</span>
+                    <span className={`ml-1 ${directionTone(afterMarket.percent)}`}>{directionArrow(afterMarket.percent)} {signed(afterMarket.percent)}%</span>
                   </p>
                   <p className="mt-1 text-xl font-semibold text-slate-100">{quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })} <span className="text-sm font-normal text-slate-300">USD</span></p>
-                  <span className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${up ? "bg-emerald-400/16 text-emerald-200" : "bg-rose-400/16 text-rose-200"}`}>
-                    {up ? "↗" : "↘"} {Math.abs(quote.changePercent).toFixed(2)}%
+                  <span className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${directionBadge(afterMarket.closeVsPrevChange)}`}>
+                    {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
                   </span>
                 </div>
               </div>
               <div className="mt-2 grid grid-cols-3 gap-2 text-[11px] text-slate-400">
                 <span className="truncate">{quote.sector}</span>
-                <span className="truncate">วันนี้ {up ? "+" : ""}{quote.change.toFixed(2)}</span>
-                <span className="truncate text-right">RSI {quote.rsi} · AH {afterUp ? "+" : ""}{afterMarket.percent.toFixed(2)}%</span>
+                <span className={`truncate ${directionTone(quote.change)}`}>วันนี้ {signed(quote.change)}</span>
+                <span className="truncate text-right"><span className={rsiTone}>RSI {quote.rsi}</span> · <span className={directionTone(afterMarket.percent)}>AH {signed(afterMarket.percent)}%</span></span>
               </div>
             </button>
           );
