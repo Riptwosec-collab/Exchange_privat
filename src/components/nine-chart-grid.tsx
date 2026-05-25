@@ -276,19 +276,21 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     const normalized = candles.map((candle) => ({ ...candle, time: candle.time as Time }));
     const afterHoursSeriesData = buildAfterHoursSeries(candles, quote.ticker);
     const afterHoursPadding = afterHoursSeriesData.length > 1 ? afterHoursSeriesData.length - 1 : 0;
-    const visiblePointCount = Math.max(8, normalized.length + afterHoursPadding);
+    const visiblePointCount = Math.max(2, normalized.length + afterHoursPadding);
+    const visibleFrom = normalized.length > 1 ? -0.5 : 0;
+    const visibleTo = normalized.length > 1 ? normalized.length - 0.5 + afterHoursPadding : 1;
     const applyFullWidthRange = () => {
-      const width = Math.max(1, element.clientWidth);
+      const width = Math.max(1, Math.floor(element.getBoundingClientRect().width));
       chart.applyOptions({
         width,
-        height: Math.max(1, element.clientHeight),
+        height: Math.max(1, Math.floor(element.getBoundingClientRect().height)),
         timeScale: {
-          barSpacing: Math.max(1, Math.min(18, width / visiblePointCount)),
+          barSpacing: Math.max(1, width / visiblePointCount),
           minBarSpacing: 1
         }
       });
       if (normalized.length > 1) {
-        chart.timeScale().setVisibleLogicalRange({ from: 0, to: normalized.length - 1 + afterHoursPadding });
+        chart.timeScale().setVisibleLogicalRange({ from: visibleFrom, to: visibleTo });
       } else {
         chart.timeScale().fitContent();
       }
@@ -313,15 +315,15 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         lockVisibleTimeRangeOnResize: true,
         rightBarStaysOnScroll: true,
         rightOffset: 0,
-        barSpacing: Math.max(1, Math.min(18, Math.max(1, element.clientWidth) / visiblePointCount)),
+        barSpacing: Math.max(1, Math.max(1, element.getBoundingClientRect().width) / visiblePointCount),
         minBarSpacing: 1
       },
       crosshair: {
         vertLine: { color: "rgba(226, 232, 240, 0.42)", style: LineStyle.Dashed, labelBackgroundColor: "#111827" },
         horzLine: { color: "rgba(239, 68, 68, 0.38)", style: LineStyle.Dotted, labelBackgroundColor: "#111827" }
       },
-      width: element.clientWidth,
-      height: element.clientHeight
+      width: Math.max(1, Math.floor(element.getBoundingClientRect().width)),
+      height: Math.max(1, Math.floor(element.getBoundingClientRect().height))
     });
 
     const candleByTime = new Map(normalized.map((candle) => [timeKey(candle.time), candle]));
@@ -370,6 +372,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     }
 
     applyFullWidthRange();
+    const delayedResizeIds = [50, 180, 420].map((delay) => window.setTimeout(applyFullWidthRange, delay));
 
     chart.subscribeCrosshairMove((param) => {
       if (!param.point || !param.time || param.point.x < 0 || param.point.y < 0 || param.point.x > element.clientWidth || param.point.y > element.clientHeight) {
@@ -401,6 +404,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
 
     return () => {
       resizeObserver.disconnect();
+      delayedResizeIds.forEach((id) => window.clearTimeout(id));
       setHoverQuote(null);
       chart.remove();
     };

@@ -152,6 +152,38 @@ textarea::placeholder {
   border-spacing: 0;
 }
 
+.glass .tv-lightweight-charts table,
+.tv-lightweight-charts table {
+  table-layout: auto !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+}
+
+.glass .tv-lightweight-charts td,
+.tv-lightweight-charts td {
+  box-sizing: border-box;
+}
+
+.glass .tv-lightweight-charts tr > td:first-child,
+.tv-lightweight-charts tr > td:first-child {
+  max-width: 0 !important;
+  min-width: 0 !important;
+  width: 0 !important;
+}
+
+.glass .tv-lightweight-charts tr > td:nth-child(2),
+.tv-lightweight-charts tr > td:nth-child(2) {
+  width: calc(100% - 74px) !important;
+}
+
+.glass .tv-lightweight-charts tr > td:nth-child(3),
+.tv-lightweight-charts tr > td:nth-child(3) {
+  max-width: 74px !important;
+  min-width: 60px !important;
+  width: 74px !important;
+}
+
 .glass th,
 .glass td {
   max-width: 16ch;
