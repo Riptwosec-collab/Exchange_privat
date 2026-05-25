@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BaselineSeries, ColorType, createChart, HistogramSeries, LineStyle, type Time } from "lightweight-charts";
+import { AreaSeries, BaselineSeries, ColorType, createChart, HistogramSeries, LineStyle, type Time } from "lightweight-charts";
 import type { Candle, StockQuote } from "@/lib/types";
 import { candles as fallbackCandles } from "@/lib/mock-data";
 import { useMarketStore } from "@/store/market-store";
@@ -356,16 +356,14 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     }
 
     if (afterHoursSeriesData.length > 1) {
-      const afterHours = chart.addSeries(BaselineSeries, {
-        baseValue: { type: "price", price: normalized.at(-1)?.close ?? firstClose },
-        topLineColor: "rgba(203, 213, 225, 1)",
-        topFillColor1: "rgba(203, 213, 225, 0.28)",
-        topFillColor2: "rgba(203, 213, 225, 0.06)",
-        bottomLineColor: "rgba(203, 213, 225, 1)",
-        bottomFillColor1: "rgba(203, 213, 225, 0.06)",
-        bottomFillColor2: "rgba(203, 213, 225, 0.28)",
+      const afterHours = chart.addSeries(AreaSeries, {
+        lineColor: "rgba(203, 213, 225, 1)",
+        topColor: "rgba(203, 213, 225, 0.42)",
+        bottomColor: "rgba(203, 213, 225, 0.02)",
         lineWidth: 3,
-        lineStyle: LineStyle.Solid,
+        crosshairMarkerVisible: true,
+        priceLineVisible: true,
+        priceLineColor: "rgba(203, 213, 225, 0.95)",
         title: "After-hours"
       });
       afterHours.setData(afterHoursSeriesData);
