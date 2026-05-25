@@ -342,14 +342,14 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     if (afterHoursSeriesData.length > 1) {
       const afterHours = chart.addSeries(BaselineSeries, {
         baseValue: { type: "price", price: normalized.at(-1)?.close ?? firstClose },
-        topLineColor: "rgba(148, 163, 184, 0.92)",
-        topFillColor1: "rgba(148, 163, 184, 0.12)",
-        topFillColor2: "rgba(148, 163, 184, 0.02)",
-        bottomLineColor: "rgba(148, 163, 184, 0.92)",
-        bottomFillColor1: "rgba(148, 163, 184, 0.02)",
-        bottomFillColor2: "rgba(148, 163, 184, 0.12)",
-        lineWidth: 2,
-        lineStyle: LineStyle.Dashed,
+        topLineColor: "rgba(203, 213, 225, 1)",
+        topFillColor1: "rgba(203, 213, 225, 0.28)",
+        topFillColor2: "rgba(203, 213, 225, 0.06)",
+        bottomLineColor: "rgba(203, 213, 225, 1)",
+        bottomFillColor1: "rgba(203, 213, 225, 0.06)",
+        bottomFillColor2: "rgba(203, 213, 225, 0.28)",
+        lineWidth: 3,
+        lineStyle: LineStyle.Solid,
         title: "After-hours"
       });
       afterHours.setData(afterHoursSeriesData);

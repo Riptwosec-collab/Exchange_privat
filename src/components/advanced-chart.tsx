@@ -812,13 +812,13 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
 
     if (afterHoursSeriesData.length > 1) {
       const afterHoursSeries = chart.addSeries(LineSeries, {
-        color: "rgba(148, 163, 184, 0.94)",
-        lineWidth: 2,
-        lineStyle: LineStyle.Dashed,
+        color: "rgba(203, 213, 225, 1)",
+        lineWidth: 3,
+        lineStyle: LineStyle.Solid,
         lineType: LineType.Curved,
         crosshairMarkerVisible: true,
         priceLineVisible: true,
-        priceLineColor: "rgba(148, 163, 184, 0.72)",
+        priceLineColor: "rgba(203, 213, 225, 0.95)",
         title: `After-hours ${formatIndicator(afterHoursSeriesData.at(-1)?.value ?? null)}`
       });
       afterHoursSeries.setData(afterHoursSeriesData);
