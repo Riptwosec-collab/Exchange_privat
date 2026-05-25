@@ -80,6 +80,32 @@ function latestAfterHours(symbol: string, close: number, trendPercent: number) {
   return { percent, price: Number((close * (1 + percent / 100)).toFixed(2)) };
 }
 
+function nextAfterHoursTime(time: Candle["time"], step: number): Time {
+  if (typeof time === "number") return (time + step * 30 * 60) as Time;
+  const date = new Date(time);
+  if (!Number.isNaN(date.getTime())) {
+    date.setDate(date.getDate() + step);
+    return date.toISOString().slice(0, 10) as Time;
+  }
+  return time as Time;
+}
+
+function buildAfterHoursSeries(candles: Candle[], symbol: string) {
+  const latest = candles.at(-1);
+  const first = candles[0] ?? latest;
+  if (!latest || !first) return [];
+  const trendPercent = ((latest.close - first.close) / Math.max(0.01, first.close)) * 100;
+  const afterHours = latestAfterHours(symbol, latest.close, trendPercent);
+  const seed = symbol.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return Array.from({ length: 9 }, (_, index) => {
+    if (index === 0) return { time: latest.time as Time, value: latest.close };
+    const progress = index / 8;
+    const wave = Math.sin(index + seed) * latest.close * 0.0012;
+    const value = latest.close + (afterHours.price - latest.close) * progress + wave;
+    return { time: nextAfterHoursTime(latest.time, index), value: Number(value.toFixed(2)) };
+  });
+}
+
 function calculateAtr(candles: Candle[], period = 14) {
   if (candles.length < 2) return null;
   const trueRanges = candles.slice(1).map((candle, index) => {
@@ -683,6 +709,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     });
     const normalizedCandles = chartData.map((candle) => ({ ...candle, time: candle.time as Time }));
     const closeSeriesData = normalizedCandles.map((candle) => ({ time: candle.time, value: candle.close }));
+    const afterHoursSeriesData = buildAfterHoursSeries(chartData, activeTicker);
     const candleByTime = new Map(normalizedCandles.map((candle) => [timeKey(candle.time), candle]));
     const firstClose = normalizedCandles[0]?.close ?? 0;
     const lastClose = normalizedCandles.at(-1)?.close ?? firstClose;
@@ -783,6 +810,20 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       maSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
     }
 
+    if (afterHoursSeriesData.length > 1) {
+      const afterHoursSeries = chart.addSeries(LineSeries, {
+        color: "rgba(148, 163, 184, 0.94)",
+        lineWidth: 2,
+        lineStyle: LineStyle.Dashed,
+        lineType: LineType.Curved,
+        crosshairMarkerVisible: true,
+        priceLineVisible: true,
+        priceLineColor: "rgba(148, 163, 184, 0.72)",
+        title: `After-hours ${formatIndicator(afterHoursSeriesData.at(-1)?.value ?? null)}`
+      });
+      afterHoursSeries.setData(afterHoursSeriesData);
+    }
+
     chart.subscribeCrosshairMove((param) => {
       if (!param.point || !param.time || param.point.x < 0 || param.point.y < 0 || param.point.x > chartElement.clientWidth || param.point.y > chartElement.clientHeight) {
         setHoverQuote(null);
@@ -808,7 +849,8 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     const fitChartToFullWidth = () => {
       if (normalizedCandles.length > 1) {
         const padding = visibleRangePadding(normalizedCandles.length);
-        chart.timeScale().setVisibleLogicalRange({ from: -padding, to: normalizedCandles.length - 1 + padding });
+        const afterHoursPadding = afterHoursSeriesData.length > 1 ? afterHoursSeriesData.length - 1 : 0;
+        chart.timeScale().setVisibleLogicalRange({ from: -padding, to: normalizedCandles.length - 1 + afterHoursPadding + padding });
       } else {
         chart.timeScale().fitContent();
       }
