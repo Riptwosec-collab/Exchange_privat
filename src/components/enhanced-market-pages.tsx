@@ -737,9 +737,9 @@ export function EnhancedCopilotPageFull() {
   const sectorRows = quotes.filter((item) => item.sector === quote.sector);
   const sectorAvg = sectorRows.length ? sectorRows.reduce((sum, item) => sum + item.changePercent, 0) / sectorRows.length : 0;
   const latestNews = generatedNews.filter((item) => item.ticker === ticker || item.category.includes(quote.sector.split(" ")[0])).slice(0, 8);
-  const [prompt, setPrompt] = useState("วิเคราะห์หุ้นนี้แบบรอบด้าน พร้อมแนวรับ แนวต้าน จุดเข้า จุดคัต เป้าหมาย ข่าวล่าสุด และความเสี่ยง");
+  const [prompt, setPrompt] = useState("วิเคราะห์หุ้นนี้แบบ institutional-grade ให้ครบ Price Action, Market Structure, RSI, MACD, EMA/SMA, ADX, ATR, Volume, Smart Money, Dark Pool, Options Flow, Insider/Congress/Hedge Fund positioning, Sector Rotation, Peer Comparison, News, Earnings, Macro, Scenario และ Trade Setup");
   const [mode, setMode] = useState<"beginner" | "advanced">("advanced");
-  const [answer, setAnswer] = useState("เลือก ticker แล้วกด Ask Copilot เพื่อวิเคราะห์จากราคา realtime, previous close, RSI, sector, peer group, ข่าว และ scenario หลายมุม");
+  const [answer, setAnswer] = useState("เลือก ticker แล้วกด Ask Copilot เพื่อวิเคราะห์แบบ Institutional AI Stock Copilot: technicals, smart money, macro, sector, peers, risk, scenario และ trade setup แบบภาษาไทยครบชุด");
   const [loading, setLoading] = useState(false);
 
   async function ask() {
@@ -749,6 +749,8 @@ export function EnhancedCopilotPageFull() {
       const context = [
         `Ticker: ${ticker} (${quote.name})`,
         `Price: ${quote.price}, previous close: ${quote.previousClose}, change: ${quote.change} (${quote.changePercent}%), RSI: ${quote.rsi}, volume: ${quote.volume}, market cap: ${quote.marketCap}`,
+        `Quant factors: breakout score ${quote.breakoutScore}/100, momentum score ${quote.momentumScore}/100, revenue growth ${quote.revenueGrowth}%, P/E ${quote.peRatio ?? "N/A"}, dividend yield ${quote.dividendYield}%`,
+        `Theme flags: AI stock ${quote.isAiStock ? "yes" : "no"}, sector ${quote.sector}`,
         `Sector: ${quote.sector}, sector average change: ${sectorAvg.toFixed(2)}%`,
         `Peer group: ${peers.map((item) => `${item.ticker} ${item.changePercent}% RSI ${item.rsi}`).join(" | ")}`,
         `Technical levels: support ${plan.support.toFixed(2)}, resistance ${plan.resistance.toFixed(2)}, entry ${plan.entry.toFixed(2)}, cut ${plan.cut.toFixed(2)}, target ${plan.target.toFixed(2)}, RR ${plan.rr.toFixed(2)}`,
@@ -770,7 +772,7 @@ export function EnhancedCopilotPageFull() {
         <button onClick={ask} disabled={loading} className="mt-3 flex items-center gap-2 rounded-md bg-cyan-300 px-4 py-2 font-medium text-slate-950"><Bot size={16} />{loading ? "Analyzing..." : "Ask Copilot"}</button>
         <pre className="mt-4 whitespace-pre-wrap rounded-md border border-white/10 bg-black/30 p-4 text-sm leading-6 text-slate-300">{answer}</pre>
       </Panel>
-      <Panel className="p-4"><h3 className="font-semibold text-white">Context Stack</h3><div className="mt-4 space-y-3 text-sm text-slate-300"><div className="rounded-md border border-white/10 bg-white/[0.03] p-3">Peers: {peers.map((item) => item.ticker).join(", ") || "-"}</div><div className="rounded-md border border-white/10 bg-white/[0.03] p-3">News loaded: {latestNews.length}</div><div className="rounded-md border border-white/10 bg-white/[0.03] p-3">Volume: {quote.volume} · Market cap: {quote.marketCap}</div></div><div className="mt-4 space-y-2">{["หุ้นนี้ breakout ไหม", "สรุปข่าวและ sentiment วันนี้", "ตั้ง stop loss/target แบบ trader", "เทียบกับหุ้นใน sector เดียวกัน", "ความเสี่ยง bullish/base/bearish"].map((item) => <button key={item} onClick={() => setPrompt(item)} className="w-full rounded-md border border-white/10 px-3 py-2 text-left text-sm text-slate-300">{item}</button>)}</div><button className="mt-4 flex items-center gap-2 text-sm text-cyan-200"><Mic size={15} />Voice input ready</button></Panel>
+      <Panel className="p-4"><h3 className="font-semibold text-white">Context Stack</h3><div className="mt-4 space-y-3 text-sm text-slate-300"><div className="rounded-md border border-white/10 bg-white/[0.03] p-3">Peers: {peers.map((item) => item.ticker).join(", ") || "-"}</div><div className="rounded-md border border-white/10 bg-white/[0.03] p-3">News loaded: {latestNews.length}</div><div className="rounded-md border border-white/10 bg-white/[0.03] p-3">Volume: {quote.volume} · Market cap: {quote.marketCap}</div><div className="rounded-md border border-white/10 bg-white/[0.03] p-3">Breakout {quote.breakoutScore}/100 · Momentum {quote.momentumScore}/100 · Revenue Growth {quote.revenueGrowth.toFixed(1)}%</div></div><div className="mt-4 space-y-2">{["วิเคราะห์หุ้นนี้แบบ institutional-grade ครบทุกมิติ", "หุ้นนี้ Breakout/Breakdown probability เท่าไร", "เจาะ Smart Money, Dark Pool, Options Flow และ Liquidity Zones", "ทำ Bull/Base/Bear Scenario พร้อม price target", "ตั้ง Entry, Stop Loss, Take Profit และ Risk/Reward", "เทียบกับ Sector, Nasdaq, S&P500 และ peer companies"].map((item) => <button key={item} onClick={() => setPrompt(item)} className="w-full rounded-md border border-white/10 px-3 py-2 text-left text-sm text-slate-300">{item}</button>)}</div><button className="mt-4 flex items-center gap-2 text-sm text-cyan-200"><Mic size={15} />Voice input ready</button></Panel>
     </div>
   );
 }
