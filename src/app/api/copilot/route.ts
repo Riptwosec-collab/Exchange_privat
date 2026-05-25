@@ -2,83 +2,93 @@ import { NextResponse } from "next/server";
 import { summarizeMarket } from "@/lib/ai";
 
 const institutionalOutputTemplate = `
-ตอบเป็นภาษาไทยแบบ institutional-grade เท่านั้น และใช้โครงสร้างนี้:
+ตอบเป็นภาษาไทยแบบ institutional-grade เท่านั้น
+ห้ามตอบแบบ retail/shallow
+ถ้าข้อมูลไม่พอ ให้แยกชัดเจนว่า "ข้อมูลตรงที่ยังขาด" และ "inference จาก context ที่มี"
 
-1. Executive Summary
-- สรุปสถานะหุ้น, bias, จุดที่ตลาดกำลัง price-in, และ thesis หลัก
+ต้องใช้โครงสร้างนี้เสมอ:
 
-2. Multi-Timeframe Analysis
-- Intraday
-- 1D
-- 1W
-- 1M
-- Short-term / Mid-term / Long-term trend
+1. Market Context
+- วิเคราะห์ Nasdaq, S&P500, Sector ETF, peer companies, market regime
+- ระบุว่า stock กำลัง lead sector, lag peers, มี relative strength หรือ relative weakness
+- อธิบาย macro environment, sentiment, sector rotation และ institutional preference
 
-3. Technical & Quant Dashboard
-- Price Action / Market Structure
-- RSI พร้อม Overbought/Oversold
-- MACD พร้อม Momentum interpretation
-- EMA/SMA trend
-- ADX trend strength
-- ATR volatility
-- Support / Resistance
-- Breakout / Breakdown Probability
+2. Technical Structure
+- Price Action, Market Structure, Support/Resistance, Liquidity Zones
+- EMA/SMA Trend, RSI, MACD, ADX, ATR
+- Breakout/Breakdown structure และ invalidation level
+- ตรวจ pattern เช่น Bull Flag, Bear Flag, Cup & Handle, Double Top/Bottom, Ascending/Descending Triangle, Wyckoff, Head & Shoulders
 
-4. Volume & Smart Money
-- Volume, RVOL, Buy/Sell Pressure
-- Accumulation / Distribution
-- Liquidity zones และ liquidity grab
-- Dark Pool, Options Flow, Insider Trading, Congress Trading, Hedge Fund Positioning
-- หากไม่มีข้อมูลตรง ให้ระบุว่า "ไม่มีข้อมูล live จาก context นี้" และให้ inference จาก price/volume แทน
+3. Momentum Analysis
+- Momentum, RVOL, volume impulse, trend continuation probability
+- exhaustion risk, reversal potential, volatility compression/expansion
+- อธิบาย market psychology ที่อยู่หลัง momentum
 
-5. Market Context
-- เทียบกับ Sector, Nasdaq, S&P500, peer companies
-- Relative Strength: leading/lagging/neutral
-- Sector rotation และ AI sector context ถ้าเกี่ยวข้อง
+4. Smart Money Analysis
+- Dark Pool Activity, Options Flow, Options Sweeps, Unusual Options Activity
+- Insider Transactions, Congress Trading, Hedge Fund Positioning
+- Whale Accumulation/Distribution, Liquidity Absorption, Large Block Activity
+- หากไม่มีข้อมูล live ให้ระบุชัดว่าไม่มีข้อมูลตรง และใช้ inference จาก price/volume/relative strength/news context
 
-6. AI Pattern Detection
-- ตรวจ Bull Flag, Bear Flag, Cup & Handle, Double Top/Bottom, Ascending/Descending Triangle, Wyckoff, Head and Shoulders, Breakout Structure
-- ระบุ pattern ที่น่าจะเป็นมากที่สุด พร้อมเหตุผลและ invalidation
+5. Sector & Peer Comparison
+- เทียบกับ sector, Nasdaq, S&P500 และ peers
+- ระบุ leadership/lagging behavior, relative strength/weakness, institutional rotation
 
-7. News / Earnings / Macro Impact
-- ข่าวและ catalyst
-- Earnings expectations
-- Macro risk: rates, USD, yields, liquidity, risk-on/risk-off
+6. Volatility & Risk Analysis
+- Volatility Risk, Earnings Risk, Valuation Risk, Liquidity Risk, Macro Risk, News Risk, Momentum Exhaustion Risk, Gap Risk, Institutional Exit Risk
+- ให้ Risk Score, Volatility Score, Confidence Score และ Trade Quality Score 1-100
 
-8. Risk Analysis
-- Volatility Risk
-- Earnings Risk
-- Valuation Risk
-- Liquidity Risk
-- Macro Risk
-- News Risk
-- Momentum Exhaustion Risk
-- ให้ Risk Score, Volatility Score, Confidence Score 1-100
+7. Bull Case
+- Probability %
+- Price Target
+- Main Catalysts
+- Main Risks
+- Invalidation Conditions
 
-9. Scenario Engine
-- Bull Case: probability %, price target, catalysts, risks
-- Base Case: probability %, price target, catalysts, risks
-- Bear Case: probability %, price target, catalysts, risks
+8. Base Case
+- Probability %
+- Price Target
+- Main Catalysts
+- Main Risks
+- Invalidation Conditions
 
-10. Trade Setup Engine
-- Entry zones
-- Support zones
-- Resistance zones
-- Stop loss
-- Take profit targets
-- Risk/Reward ratio
-- Swing trade setup
-- Momentum trade setup
-- Long-term investment view
+9. Bear Case
+- Probability %
+- Price Target
+- Main Catalysts
+- Main Risks
+- Invalidation Conditions
 
-11. AI Conclusion
+10. Trade Setup
+- Entry Zones
+- Support Zones
+- Resistance Zones
+- Liquidity Zones
+- Stop Loss
+- Take Profit Targets
+- Risk/Reward Ratio
+- Swing Trade Setup
+- Momentum Trade Setup
+- Long-term Investment View
+
+11. Institutional Signal Scores
+- Trend Score
+- Momentum Score
+- Smart Money Score
+- Risk Score
+- Volatility Score
+- Institutional Sentiment
+- Market Regime: Risk-On / Risk-Off / Trending / Sideway / High Volatility / Momentum Expansion / Distribution Phase / Accumulation Phase
+
+12. AI Conclusion
 - Overall Trend: Bullish / Neutral / Bearish
 - Momentum Strength: Weak / Moderate / Strong
 - Institutional Sentiment: Bullish / Neutral / Bearish
-- AI Confidence Score: 0-100
-- Trade Quality Score: 0-100
+- Market Regime
+- AI Confidence Score 0-100
+- Trade Quality Score 0-100
 - Volatility Level: Low / Medium / High
-- Final Summary แบบ professional institutional desk
+- Final institutional-grade summary รวม technicals, momentum, smart money, sector rotation, macro, liquidity, sentiment, risk และ institutional positioning
 `;
 
 export async function POST(request: Request) {
@@ -86,7 +96,8 @@ export async function POST(request: Request) {
   const prompt = body.prompt ?? "วิเคราะห์หุ้นที่เลือกแบบ institutional-grade";
   const answer = await summarizeMarket(`
 โหมด: ${body.mode ?? "advanced"} trader
-ภารกิจ: วิเคราะห์หุ้นที่ผู้ใช้เลือกแบบ Hedge Fund / Quant / Technical / Macro / Smart Money desk
+บทบาท: GPT-5.5 institutional-grade AI Stock Copilot และ market intelligence system
+ภารกิจ: วิเคราะห์หุ้นแบบ Hedge Fund / Institutional Trader / Quant / Technical / Macro / Smart Money / Risk desk
 
 ${institutionalOutputTemplate}
 
