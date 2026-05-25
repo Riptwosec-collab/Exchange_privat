@@ -254,8 +254,9 @@ export function NewsPage() {
   ).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
-      <Panel className="p-4">
+    <div className="grid gap-5 xl:grid-cols-[1fr_340px]">
+      <Panel className="overflow-hidden p-4 ring-1 ring-cyan-300/10">
+        <div className="rounded-lg border border-cyan-300/15 bg-cyan-300/[0.035] p-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Realtime News Feed</p>
@@ -270,8 +271,10 @@ export function NewsPage() {
             </button>
           </div>
         </div>
+        </div>
         {lineStatus ? <p className="mt-3 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-sm text-slate-300">{lineStatus}</p> : null}
-        <div className="mt-4 grid gap-3 md:grid-cols-5">
+        <div className="mt-4 rounded-lg border border-cyan-300/15 bg-black/25 p-3">
+        <div className="grid gap-3 md:grid-cols-5">
           <div className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 md:col-span-2">
             <Search size={16} className="text-slate-500" />
             <input value={query} onChange={(event) => setQuery(event.target.value)} className="h-10 w-full bg-transparent text-sm text-slate-100 outline-none" placeholder="Search ticker, source, headline..." />
@@ -303,30 +306,31 @@ export function NewsPage() {
             <Bell size={15} /> Alert Sentiment
           </button>
         </div>
-        <div className="mt-4 grid gap-3 xl:grid-cols-4">
-          <div className="rounded-md border border-cyan-300/20 bg-cyan-300/10 p-3">
+        </div>
+        <div className="mt-4 grid gap-3 rounded-lg border border-white/10 bg-white/[0.025] p-3 xl:grid-cols-4">
+          <div className="rounded-lg border border-cyan-300/25 bg-cyan-300/10 p-3 ring-1 ring-cyan-300/10">
             <div className="flex items-center gap-2 text-cyan-100"><ShieldCheck size={16} /><span className="text-xs uppercase tracking-[0.14em]">Source Quality</span></div>
             <strong className="mt-2 block font-mono text-xl text-white">{sourceQuality}/100</strong>
             <p className="mt-1 text-xs text-cyan-50">คะแนนความน่าเชื่อถือเฉลี่ยของแหล่งข่าวที่กรองอยู่</p>
           </div>
-          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+          <div className="rounded-lg border border-white/15 bg-black/30 p-3 ring-1 ring-white/[0.04]">
             <div className="flex items-center gap-2 text-slate-200"><BarChart3 size={16} /><span className="text-xs uppercase tracking-[0.14em]">Price / Volume</span></div>
             <strong className="mt-2 block font-mono text-xl text-white">{selectedQuote ? `$${selectedQuote.price.toFixed(2)}` : "-"}</strong>
             <p className="mt-1 text-xs text-slate-400">Volume {selectedQuote ? selectedQuote.volume : "-"} · Change {selectedQuote ? `${selectedQuote.changePercent.toFixed(2)}%` : "-"}</p>
           </div>
-          <div className="rounded-md border border-purple-300/20 bg-purple-300/10 p-3">
+          <div className="rounded-lg border border-purple-300/25 bg-purple-300/10 p-3 ring-1 ring-purple-300/10">
             <div className="flex items-center gap-2 text-purple-100"><LineChart size={16} /><span className="text-xs uppercase tracking-[0.14em]">Analyst View</span></div>
             <strong className="mt-2 block text-white">{research.analystRating}</strong>
             <p className="mt-1 text-xs text-purple-50">Target {research.priceTarget} · Upside {research.targetUpside}</p>
           </div>
-          <div className="rounded-md border border-rose-300/20 bg-rose-300/10 p-3">
+          <div className="rounded-lg border border-rose-300/25 bg-rose-300/10 p-3 ring-1 ring-rose-300/10">
             <div className="flex items-center gap-2 text-rose-100"><SlidersHorizontal size={16} /><span className="text-xs uppercase tracking-[0.14em]">Risk</span></div>
             <strong className="mt-2 block font-mono text-xl text-white">{research.riskScore}/100</strong>
             <p className="mt-1 text-xs text-rose-50">ประเมินจาก RSI, price move และ valuation proxy</p>
           </div>
         </div>
         <div className="mt-4 grid gap-3 xl:grid-cols-[1.2fr_1fr]">
-          <div className="rounded-md border border-white/10 bg-black/20 p-3">
+          <div className="rounded-lg border border-cyan-300/18 bg-black/30 p-3 ring-1 ring-white/[0.04]">
             <h3 className="text-sm font-semibold text-white">Fundamental / Competitive Deep Dive</h3>
             <div className="mt-3 grid gap-2 text-xs md:grid-cols-3">
               <span className="rounded border border-white/10 bg-white/[0.035] p-2 text-slate-300">Revenue <b className="block text-slate-100">{research.revenue}</b></span>
@@ -336,7 +340,7 @@ export function NewsPage() {
             <p className="mt-3 text-sm leading-6 text-slate-300">{research.competitive}</p>
             <p className="mt-2 rounded-md border border-cyan-300/20 bg-cyan-300/10 p-3 text-sm leading-6 text-cyan-50">{research.thesis}</p>
           </div>
-          <div className="rounded-md border border-white/10 bg-black/20 p-3">
+          <div className="rounded-lg border border-purple-300/18 bg-black/30 p-3 ring-1 ring-white/[0.04]">
             <h3 className="text-sm font-semibold text-white">Technical / Peer Compare</h3>
             <p className="mt-2 text-sm leading-6 text-slate-300">{research.technical}</p>
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
@@ -348,7 +352,7 @@ export function NewsPage() {
         <div className="mt-4 grid gap-3 xl:grid-cols-3">
           <MiniTrendPanel title="Sentiment Evolution" rows={sentimentTrend} positiveLabel="Bullish" negativeLabel="Bearish" />
           <MiniTrendPanel title="News Volume Trend" rows={newsVolumeTrend} positiveLabel="Articles" negativeLabel="Low" />
-          <div className="rounded-md border border-white/10 bg-black/20 p-3">
+          <div className="rounded-lg border border-white/15 bg-black/30 p-3 ring-1 ring-white/[0.04]">
             <h3 className="text-sm font-semibold text-white">Sector / Industry Comparison</h3>
             <div className="mt-3 space-y-2">
               {sectorComparison.map(([sectorName, row]) => (
@@ -360,7 +364,15 @@ export function NewsPage() {
             </div>
           </div>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-5 rounded-lg border border-cyan-300/15 bg-cyan-300/[0.035] p-3">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-cyan-300/15 pb-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">News Cards</p>
+              <h3 className="mt-1 text-sm font-semibold text-white">ข่าวแต่ละรายการถูกแยกเป็นช่องชัดเจน พร้อมสรุปและ action</h3>
+            </div>
+            <span className="rounded-md border border-white/10 bg-black/30 px-2.5 py-1 font-mono text-xs text-slate-300">{filtered.length} articles</span>
+          </div>
+        <div className="space-y-4">
           {filtered.slice(0, 100).map((article) => {
             const quote = watchlist.find((item) => item.ticker === article.ticker) ?? watchlist[0];
             const insight = buildExpandedNewsInsight(article);
@@ -368,9 +380,9 @@ export function NewsPage() {
               <article
                 key={article.id}
                 onClick={() => setSelectedArticle(article)}
-                className="cursor-pointer rounded-md border border-white/10 bg-white/[0.035] p-4 transition hover:border-cyan-300/35 hover:bg-white/[0.055]"
+                className="cursor-pointer overflow-hidden rounded-lg border border-white/15 bg-[#080b0f] shadow-[0_18px_42px_rgba(0,0,0,.28)] ring-1 ring-white/[0.05] transition hover:border-cyan-300/45 hover:bg-[#0b1118] hover:ring-cyan-300/20"
               >
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-black/35 px-4 py-3">
                   <StockLogo quote={quote} size="sm" />
                   <span className="font-mono text-sm font-semibold text-white">{article.ticker}</span>
                   <StatusPill tone={article.sentiment === "Bullish" ? "up" : article.sentiment === "Bearish" ? "down" : "neutral"}>{article.sentiment}</StatusPill>
@@ -387,11 +399,12 @@ export function NewsPage() {
                     <Bookmark size={16} fill={bookmarks.includes(article.id) ? "currentColor" : "none"} />
                   </button>
                 </div>
-                <h3 className="mt-3 text-base font-semibold text-white">{article.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-300">{insight.fullSummary}</p>
+                <div className="p-4">
+                <h3 className="text-base font-semibold text-white">{article.title}</h3>
+                <p className="mt-2 rounded-md border border-white/10 bg-white/[0.025] p-3 text-sm leading-6 text-slate-300">{insight.fullSummary}</p>
                 <div className="mt-3 grid gap-2 text-xs md:grid-cols-2">
                   {insight.points.slice(1).map((point) => (
-                    <span key={point} className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2 text-slate-400">{point}</span>
+                    <span key={point} className="rounded-md border border-white/12 bg-black/30 px-2.5 py-2 text-slate-400">{point}</span>
                   ))}
                 </div>
                 <div className="mt-3 rounded-md border border-cyan-300/20 bg-cyan-300/10 p-3 text-xs leading-5 text-cyan-50">
@@ -401,15 +414,20 @@ export function NewsPage() {
                   <div className="h-1.5 flex-1 rounded-full bg-slate-800"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} /></div>
                   <span className="font-mono text-xs text-slate-400">Impact {article.impact}</span>
                 </div>
+                </div>
               </article>
             );
           })}
         </div>
+        </div>
         {selectedArticle ? <NewsDetailModal article={selectedArticle} onClose={() => setSelectedArticle(null)} /> : null}
       </Panel>
-      <Panel className="p-4">
-        <h3 className="font-semibold text-white">News Controls</h3>
-        <div className="mt-4 space-y-3">
+      <Panel className="overflow-hidden p-0 ring-1 ring-purple-300/10">
+        <div className="border-b border-purple-300/15 bg-purple-300/[0.04] p-4">
+          <h3 className="font-semibold text-white">News Controls</h3>
+        </div>
+        <div className="p-4">
+        <div className="space-y-3">
           <Metric label="Articles" value={`${filtered.length}`} delta="filtered" tone="neutral" />
           <Metric label="High impact" value={`${highImpact.length}`} delta="impact 75+" tone={highImpact.length ? "up" : "neutral"} />
           <Metric label="Bull / Bear" value={`${bullishCount}/${bearishCount}`} delta="sentiment" tone={bullishCount >= bearishCount ? "up" : "down"} />
@@ -418,7 +436,7 @@ export function NewsPage() {
           <Metric label="Bookmarks" value={`${bookmarks.length}`} delta="saved" tone="up" />
           <Metric label="Provider" value={provider} delta="watchlist only" tone={provider.includes("yahoo") ? "up" : "neutral"} />
         </div>
-        <div className="mt-5 rounded-md border border-purple-300/20 bg-purple-300/10 p-3">
+        <div className="mt-5 rounded-lg border border-purple-300/25 bg-purple-300/10 p-3 ring-1 ring-purple-300/10">
           <p className="text-xs uppercase tracking-[0.16em] text-purple-200">AI Prompt Controls</p>
           <p className="mt-2 text-sm leading-6 text-purple-50">Depth: {depth} · Focus: {focus} · Alert: {sentimentAlert ? "เปิด" : "ปิด"}</p>
           <div className="mt-3 space-y-2 text-xs text-purple-50">
@@ -430,19 +448,20 @@ export function NewsPage() {
             ].map((item) => <p key={item} className="rounded border border-purple-200/20 bg-black/20 px-2 py-1.5">{item}</p>)}
           </div>
         </div>
-        <div className="mt-5 rounded-md border border-white/10 bg-white/[0.035] p-3">
+        <div className="mt-5 rounded-lg border border-white/15 bg-black/30 p-3 ring-1 ring-white/[0.04]">
           <p className="text-xs uppercase tracking-[0.16em] text-slate-500">สรุปภาพรวม</p>
           <p className="mt-2 text-sm leading-6 text-slate-300">
             ข่าวที่กรองอยู่มี {filtered.length} รายการ, high impact {highImpact.length} รายการ และ sentiment ฝั่งบวก/ลบอยู่ที่ {bullishCount}/{bearishCount}. ใช้หน้านี้คัดข่าวก่อน แล้วเปิดรายละเอียดเพื่อดู checklist, risk และ action ต่อหุ้น
           </p>
         </div>
-        <div className="mt-5 rounded-md border border-white/10 bg-white/[0.035] p-3">
+        <div className="mt-5 rounded-lg border border-cyan-300/18 bg-black/30 p-3 ring-1 ring-white/[0.04]">
           <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Ticker ที่มีข่าวมาก</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {topTickers.map(([symbol, count]) => (
               <span key={symbol} className="rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2.5 py-1 text-xs font-mono text-cyan-100">{symbol} · {count}</span>
             ))}
           </div>
+        </div>
         </div>
       </Panel>
     </div>
