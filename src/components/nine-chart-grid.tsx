@@ -38,12 +38,6 @@ function signed(value: number, digits = 2) {
   return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
 }
 
-function visibleRangePadding(pointCount: number) {
-  if (pointCount <= 12) return 0.5;
-  if (pointCount <= 40) return 2;
-  return Math.min(10, Math.max(3, pointCount * 0.035));
-}
-
 function formatCompact(value: number) {
   return Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
@@ -279,6 +273,26 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
   useEffect(() => {
     if (!containerRef.current) return;
     const element = containerRef.current;
+    const normalized = candles.map((candle) => ({ ...candle, time: candle.time as Time }));
+    const afterHoursSeriesData = buildAfterHoursSeries(candles, quote.ticker);
+    const afterHoursPadding = afterHoursSeriesData.length > 1 ? afterHoursSeriesData.length - 1 : 0;
+    const visiblePointCount = Math.max(8, normalized.length + afterHoursPadding);
+    const applyFullWidthRange = () => {
+      const width = Math.max(1, element.clientWidth);
+      chart.applyOptions({
+        width,
+        height: Math.max(1, element.clientHeight),
+        timeScale: {
+          barSpacing: Math.max(1, Math.min(18, width / visiblePointCount)),
+          minBarSpacing: 1
+        }
+      });
+      if (normalized.length > 1) {
+        chart.timeScale().setVisibleLogicalRange({ from: 0, to: normalized.length - 1 + afterHoursPadding });
+      } else {
+        chart.timeScale().fitContent();
+      }
+    };
     const chart = createChart(element, {
       layout: {
         background: { type: ColorType.Solid, color: "#0b0d0f" },
@@ -299,8 +313,8 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         lockVisibleTimeRangeOnResize: true,
         rightBarStaysOnScroll: true,
         rightOffset: 0,
-        barSpacing: candles.length <= 40 ? 8 : 4.5,
-        minBarSpacing: 2
+        barSpacing: Math.max(1, Math.min(18, Math.max(1, element.clientWidth) / visiblePointCount)),
+        minBarSpacing: 1
       },
       crosshair: {
         vertLine: { color: "rgba(226, 232, 240, 0.42)", style: LineStyle.Dashed, labelBackgroundColor: "#111827" },
@@ -310,8 +324,6 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
       height: element.clientHeight
     });
 
-    const normalized = candles.map((candle) => ({ ...candle, time: candle.time as Time }));
-    const afterHoursSeriesData = buildAfterHoursSeries(candles, quote.ticker);
     const candleByTime = new Map(normalized.map((candle) => [timeKey(candle.time), candle]));
     const firstClose = normalized[0]?.close ?? quote.previousClose;
     const baseline = chart.addSeries(BaselineSeries, {
@@ -357,13 +369,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
       afterHours.setData(afterHoursSeriesData);
     }
 
-    if (normalized.length > 1) {
-      const padding = visibleRangePadding(normalized.length);
-      const afterHoursPadding = afterHoursSeriesData.length > 1 ? afterHoursSeriesData.length - 1 : 0;
-      chart.timeScale().setVisibleLogicalRange({ from: -padding, to: normalized.length - 1 + afterHoursPadding + padding });
-    } else {
-      chart.timeScale().fitContent();
-    }
+    applyFullWidthRange();
 
     chart.subscribeCrosshairMove((param) => {
       if (!param.point || !param.time || param.point.x < 0 || param.point.y < 0 || param.point.x > element.clientWidth || param.point.y > element.clientHeight) {
@@ -389,10 +395,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
 
     const resizeObserver = new ResizeObserver(([entry]) => {
       if (!entry) return;
-      chart.applyOptions({
-        width: Math.floor(entry.contentRect.width),
-        height: Math.floor(entry.contentRect.height)
-      });
+      requestAnimationFrame(applyFullWidthRange);
     });
     resizeObserver.observe(element);
 
