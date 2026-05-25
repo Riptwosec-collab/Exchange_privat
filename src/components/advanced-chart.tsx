@@ -24,6 +24,19 @@ const chartModes = [
 ] as const;
 
 type ChartMode = (typeof chartModes)[number]["key"];
+type IndicatorKey = "levels" | "ad" | "rsi" | "macd" | "ema" | "volume" | "atr" | "adx";
+type IndicatorVisibility = Record<IndicatorKey, boolean>;
+
+const defaultIndicatorVisibility: IndicatorVisibility = {
+  levels: true,
+  ad: true,
+  rsi: true,
+  macd: true,
+  ema: true,
+  volume: true,
+  atr: true,
+  adx: true
+};
 
 function visibleRangePadding(pointCount: number) {
   if (pointCount <= 8) return 0.5;
@@ -346,6 +359,36 @@ function buildPolyline(values: Array<number | null>, width: number, height: numb
     .join(" ");
 }
 
+function latestFinitePoint(values: Array<number | null>, width: number, height: number, min?: number, max?: number) {
+  const finite = values
+    .map((value, index) => ({ value, index }))
+    .filter((point): point is { value: number; index: number } => point.value !== null && Number.isFinite(point.value));
+  if (!finite.length) return null;
+  const latest = finite.at(-1);
+  if (!latest) return null;
+  const low = min ?? Math.min(...finite.map((point) => point.value));
+  const high = max ?? Math.max(...finite.map((point) => point.value));
+  const range = Math.max(0.0001, high - low);
+  return {
+    x: (latest.index / Math.max(1, values.length - 1)) * width,
+    y: height - ((latest.value - low) / range) * height,
+    value: latest.value
+  };
+}
+
+function EndValueLabel({ values, label, color, width = 1000, height = 150, min, max, formatter = (value) => formatIndicator(value, 2) }: { values: Array<number | null>; label: string; color: string; width?: number; height?: number; min?: number; max?: number; formatter?: (value: number) => string }) {
+  const point = latestFinitePoint(values, width, height, min, max);
+  if (!point) return null;
+  const y = Math.max(12, Math.min(height - 12, point.y));
+  return (
+    <g>
+      <circle cx={point.x} cy={y} r="4" fill={color} stroke="#0b0d0f" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+      <rect x="878" y={y - 10} width="118" height="20" rx="4" fill={color} opacity="0.92" />
+      <text x="884" y={y + 4} fill={color === "#facc15" || color === "#f59e0b" || color === "#22d3ee" ? "#020617" : "#ffffff"} fontSize="11" fontFamily="monospace">{label} {formatter(point.value)}</text>
+    </g>
+  );
+}
+
 function IndicatorPane({ title, rightLabels, children, height = 150 }: { title: string; rightLabels: Array<{ label: string; className: string }>; children: ReactNode; height?: number }) {
   return (
     <div className="relative overflow-hidden border-t border-white/10 bg-[#0b0d0f]" style={{ height }}>
@@ -363,7 +406,7 @@ function IndicatorPane({ title, rightLabels, children, height = 150 }: { title: 
   );
 }
 
-function AdvancedIndicatorVisuals({ candles, metrics }: { candles: Candle[]; metrics: ReturnType<typeof calculateDashboardMetrics> }) {
+function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Candle[]; metrics: ReturnType<typeof calculateDashboardMetrics>; visible: IndicatorVisibility }) {
   const width = 1000;
   const height = 150;
   const rsi = calculateRsiSeries(candles);
@@ -384,7 +427,7 @@ function AdvancedIndicatorVisuals({ candles, metrics }: { candles: Candle[]; met
 
   return (
     <div className="overflow-hidden rounded-b-md border-t border-white/10">
-      <IndicatorPane
+      {visible.rsi ? <IndicatorPane
         title={`RSI 14 close  ${formatIndicator(latestRsi, 2)}  ${formatIndicator(latestRsiMa, 2)}`}
         rightLabels={[
           { label: "RSI", className: "bg-violet-500 text-white" },
@@ -397,9 +440,11 @@ function AdvancedIndicatorVisuals({ candles, metrics }: { candles: Candle[]; met
         <line x1="0" x2={width} y1="115" y2="115" stroke="rgba(226,232,240,.34)" strokeDasharray="4 5" />
         <path d={buildPolyline(rsi, width, height, 0, 100)} fill="none" stroke="#7c5ac7" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
         <path d={buildPolyline(rsiMa, width, height, 0, 100)} fill="none" stroke="#d6bd2a" strokeWidth="1.7" vectorEffect="non-scaling-stroke" />
-      </IndicatorPane>
+        <EndValueLabel values={rsi} label="RSI" color="#7c5ac7" min={0} max={100} />
+        <EndValueLabel values={rsiMa} label="MA" color="#facc15" min={0} max={100} />
+      </IndicatorPane> : null}
 
-      <IndicatorPane
+      {visible.macd ? <IndicatorPane
         title={`MACD close 12 26 9  ${formatIndicator(latestMacd, 4)}  ${formatIndicator(latestSignal, 4)}`}
         rightLabels={[
           { label: "MACD", className: "bg-blue-600 text-white" },
@@ -415,40 +460,46 @@ function AdvancedIndicatorVisuals({ candles, metrics }: { candles: Candle[]; met
         })}
         <path d={buildPolyline(macd.macd, width, height, -macdMax, macdMax)} fill="none" stroke="#2563eb" strokeWidth="2.1" vectorEffect="non-scaling-stroke" />
         <path d={buildPolyline(macd.signal, width, height, -macdMax, macdMax)} fill="none" stroke="#f97316" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
-      </IndicatorPane>
+        <EndValueLabel values={macd.macd} label="MACD" color="#2563eb" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
+        <EndValueLabel values={macd.signal} label="SIG" color="#f97316" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
+        <EndValueLabel values={macd.histogram} label="HIST" color={(latestMacd ?? 0) >= (latestSignal ?? 0) ? "#00c853" : "#ef3340"} min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
+      </IndicatorPane> : null}
 
-      <div className="grid border-t border-white/10 md:grid-cols-3">
-        <IndicatorPane
+      {visible.ad || visible.atr || visible.adx ? <div className="grid border-t border-white/10 md:grid-cols-3">
+        {visible.ad ? <IndicatorPane
           title={`A/D  ${formatCompact(latestAd)}`}
           rightLabels={[{ label: "A/D", className: (metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "bg-emerald-500 text-slate-950" : "bg-rose-500 text-white" }]}
           height={108}
         >
           <path d={buildPolyline(ad, width, height)} fill="none" stroke={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#00c853" : "#ef3340"} strokeWidth="2" vectorEffect="non-scaling-stroke" />
-        </IndicatorPane>
-        <IndicatorPane
+          <EndValueLabel values={ad} label="A/D" color={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#00c853" : "#ef3340"} height={height} formatter={(value) => formatCompact(value)} />
+        </IndicatorPane> : null}
+        {visible.atr ? <IndicatorPane
           title={`ATR 14  ${formatIndicator(latestAtr)}`}
           rightLabels={[{ label: "ATR", className: "bg-amber-400 text-slate-950" }]}
           height={108}
         >
           <path d={buildPolyline(atr, width, height)} fill="none" stroke="#f59e0b" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-        </IndicatorPane>
-        <IndicatorPane
+          <EndValueLabel values={atr} label="ATR" color="#f59e0b" height={height} />
+        </IndicatorPane> : null}
+        {visible.adx ? <IndicatorPane
           title={`ADX 14  ${formatIndicator(latestAdx, 2)} · ${describeAdx(latestAdx)}`}
           rightLabels={[{ label: "ADX", className: "bg-cyan-400 text-slate-950" }]}
           height={108}
         >
           <line x1="0" x2={width} y1="75" y2="75" stroke="rgba(226,232,240,.3)" strokeDasharray="4 5" />
           <path d={buildPolyline(adx, width, height, 0, 60)} fill="none" stroke="#22d3ee" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-        </IndicatorPane>
-      </div>
+          <EndValueLabel values={adx} label="ADX" color="#22d3ee" min={0} max={60} height={height} />
+        </IndicatorPane> : null}
+      </div> : null}
 
       <div className="grid gap-px bg-white/10 md:grid-cols-4">
         {[
-          ["Auto Key Levels", `S ${formatIndicator(metrics.latest ? metrics.latest.close - (metrics.atr ?? 0) : null)} · R ${formatIndicator(metrics.latest ? metrics.latest.close + (metrics.atr ?? 0) : null)}`],
-          ["EMA", `EMA20 ${formatIndicator(metrics.ema20)} · EMA50 ${formatIndicator(metrics.ema50)}`],
-          ["Volume", `Vol ${formatCompact(metrics.currentVolume)} · RVOL ${metrics.rvol.toFixed(2)}x`],
-          ["Trend Strength", describeAdx(metrics.adx)]
-        ].map(([label, value]) => (
+          visible.levels ? ["Auto Key Levels", `S ${formatIndicator(metrics.latest ? metrics.latest.close - (metrics.atr ?? 0) : null)} · R ${formatIndicator(metrics.latest ? metrics.latest.close + (metrics.atr ?? 0) : null)}`] : null,
+          visible.ema ? ["EMA", `EMA20 ${formatIndicator(metrics.ema20)} · EMA50 ${formatIndicator(metrics.ema50)}`] : null,
+          visible.volume ? ["Volume", `Vol ${formatCompact(metrics.currentVolume)} · RVOL ${metrics.rvol.toFixed(2)}x`] : null,
+          visible.adx ? ["Trend Strength", describeAdx(metrics.adx)] : null
+        ].filter((item): item is string[] => Boolean(item)).map(([label, value]) => (
           <div key={label} className="bg-[#0b0d0f] px-3 py-2">
             <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{label}</p>
             <p className="mt-1 font-mono text-xs text-slate-100">{value}</p>
@@ -472,6 +523,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
   const [chartMode, setChartMode] = useState<ChartMode>("Area");
   const [hoverQuote, setHoverQuote] = useState<HoverQuote | null>(null);
   const [showAdvancedIndicators, setShowAdvancedIndicators] = useState(true);
+  const [indicatorVisibility, setIndicatorVisibility] = useState<IndicatorVisibility>(defaultIndicatorVisibility);
   const technicals = useMemo(() => calculateTechnicals(chartData), [chartData]);
   const marketMetrics = useMemo(() => calculateDashboardMetrics(chartData, activeTicker), [chartData, activeTicker]);
   const advancedIndicatorItems = useMemo<AdvancedIndicatorItem[]>(() => {
@@ -553,6 +605,22 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       { label: "Resistance", title: "แนวต้าน", value: formatIndicator(technicals.resistance), detail: "สูงสุดช่วงล่าสุด" }
     ],
     [marketMetrics.atr, marketMetrics.stochastic, technicals]
+  );
+  const visibleAdvancedIndicatorItems = useMemo(
+    () => advancedIndicatorItems.filter((item) => indicatorVisibility[item.key as IndicatorKey]),
+    [advancedIndicatorItems, indicatorVisibility]
+  );
+  const visibleIndicatorCards = useMemo(
+    () =>
+      indicatorCards.filter((item) => {
+        if (item.label === "RSI") return indicatorVisibility.rsi;
+        if (item.label === "MACD") return indicatorVisibility.macd;
+        if (item.label === "ATR") return indicatorVisibility.atr;
+        if (item.label === "MA20" || item.label === "MA50" || item.label === "VWAP") return indicatorVisibility.ema;
+        if (item.label === "Support" || item.label === "Resistance") return indicatorVisibility.levels;
+        return true;
+      }),
+    [indicatorCards, indicatorVisibility]
   );
   const chartHeightClass = compact
     ? "h-[240px]"
@@ -645,13 +713,16 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       return series;
     };
 
+    let primarySeries: any = null;
+
     if (chartMode === "Bars") {
       const series = chart.addSeries(BarSeries, { upColor: "#00c853", downColor: "#ff3366", openVisible: true, thinBars: false });
       series.setData(normalizedCandles);
+      primarySeries = series;
     } else if (chartMode === "Line") {
-      addLineSeries(LineType.Simple);
+      primarySeries = addLineSeries(LineType.Simple);
     } else if (chartMode === "Area") {
-      addAreaSeries();
+      primarySeries = addAreaSeries();
     } else if (chartMode === "Baseline") {
       const series = chart.addSeries(BaselineSeries, {
         baseValue: { type: "price", price: firstClose },
@@ -664,35 +735,51 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         lineWidth: 3
       });
       series.setData(closeSeriesData);
+      primarySeries = series;
     } else if (chartMode === "Smooth") {
-      addAreaSeries(softLineColor, isUpTrend ? "rgba(0, 230, 118, 0.42)" : "rgba(255, 92, 138, 0.42)");
+      primarySeries = addAreaSeries(softLineColor, isUpTrend ? "rgba(0, 230, 118, 0.42)" : "rgba(255, 92, 138, 0.42)");
     } else if (chartMode === "Step") {
-      addLineSeries(LineType.WithSteps, isUpTrend ? "#00c853" : "#ff5c8a", 3);
+      primarySeries = addLineSeries(LineType.WithSteps, isUpTrend ? "#00c853" : "#ff5c8a", 3);
     } else if (chartMode === "Hollow") {
       const series = chart.addSeries(CandlestickSeries, { upColor: "rgba(15, 23, 42, 0)", downColor: "#ff3366", borderVisible: true, borderUpColor: "#00c853", borderDownColor: "#ff3366", wickUpColor: "#00c853", wickDownColor: "#ff3366" });
       series.setData(normalizedCandles);
+      primarySeries = series;
     } else if (chartMode === "Trend") {
-      addAreaSeries(lineColor, isUpTrend ? "rgba(0, 200, 83, 0.24)" : "rgba(255, 51, 102, 0.24)");
-      const trendSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dashed, lineType: LineType.Curved });
-      trendSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
+      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(0, 200, 83, 0.24)" : "rgba(255, 51, 102, 0.24)");
+      if (indicatorVisibility.ema) {
+        const trendSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dashed, lineType: LineType.Curved, priceLineVisible: true, title: "EMA20" });
+        trendSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
+      }
     } else if (chartMode === "Volume") {
-      addAreaSeries(lineColor, isUpTrend ? "rgba(0, 200, 83, 0.18)" : "rgba(255, 51, 102, 0.18)");
+      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(0, 200, 83, 0.18)" : "rgba(255, 51, 102, 0.18)");
     } else {
       const series = chart.addSeries(CandlestickSeries, { upColor: "#00c853", downColor: "#ff3366", borderVisible: false, wickUpColor: "#00c853", wickDownColor: "#ff3366" });
       series.setData(normalizedCandles);
+      primarySeries = series;
     }
 
-    const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(0, 200, 83, 0.28)", priceFormat: { type: "volume" }, priceScaleId: "" });
-    volumeSeries.setData(
-      chartData.map((candle) => ({
-        time: candle.time as Time,
-        value: candle.volume,
-        color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(0,200,83,.58)" : "rgba(0,200,83,.2)") : chartMode === "Volume" ? "rgba(255,51,102,.58)" : "rgba(255,51,102,.2)"
-      }))
-    );
+    if (indicatorVisibility.levels && primarySeries) {
+      if (technicals.support !== null) {
+        primarySeries.createPriceLine({ price: technicals.support, color: "#22d3ee", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: `Support ${formatIndicator(technicals.support)}` });
+      }
+      if (technicals.resistance !== null) {
+        primarySeries.createPriceLine({ price: technicals.resistance, color: "#f472b6", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: `Resistance ${formatIndicator(technicals.resistance)}` });
+      }
+    }
 
-    if (!["Trend", "Volume"].includes(chartMode)) {
-      const maSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dotted, lineType: LineType.Curved });
+    if (indicatorVisibility.volume) {
+      const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(0, 200, 83, 0.28)", priceFormat: { type: "volume" }, priceScaleId: "", title: "Volume" });
+      volumeSeries.setData(
+        chartData.map((candle) => ({
+          time: candle.time as Time,
+          value: candle.volume,
+          color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(0,200,83,.58)" : "rgba(0,200,83,.2)") : chartMode === "Volume" ? "rgba(255,51,102,.58)" : "rgba(255,51,102,.2)"
+        }))
+      );
+    }
+
+    if (indicatorVisibility.ema && !["Trend", "Volume"].includes(chartMode)) {
+      const maSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dotted, lineType: LineType.Curved, priceLineVisible: true, title: `EMA20 ${formatIndicator(ma20.at(-1)?.value ?? null)}` });
       maSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
     }
 
@@ -741,7 +828,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       setHoverQuote(null);
       chart.remove();
     };
-  }, [chartData, chartMode, isFullscreen, ma20]);
+  }, [chartData, chartMode, indicatorVisibility, isFullscreen, ma20, technicals.resistance, technicals.support]);
 
   const activeChartMode = chartModes.find((mode) => mode.key === chartMode)?.label ?? "Area";
   const timeAxis = buildTimeAxis(chartData);
@@ -854,9 +941,25 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         </button>
         {showAdvancedIndicators ? (
           <>
-            <AdvancedIndicatorVisuals candles={chartData} metrics={marketMetrics} />
+            <div className="flex flex-wrap gap-2 border-t border-white/10 px-3 py-3">
+              {advancedIndicatorItems.map((item) => {
+                const active = indicatorVisibility[item.key as IndicatorKey];
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => setIndicatorVisibility((current) => ({ ...current, [item.key as IndicatorKey]: !current[item.key as IndicatorKey] }))}
+                    className={`rounded-md border px-2.5 py-1.5 text-xs transition ${active ? "border-[#00c853]/45 bg-[#00c853]/12 text-[#9af7b5]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
+                    title={`${active ? "ซ่อน" : "แสดง"} ${item.title}`}
+                  >
+                    {active ? "ON" : "OFF"} {item.title}
+                  </button>
+                );
+              })}
+            </div>
+            <AdvancedIndicatorVisuals candles={chartData} metrics={marketMetrics} visible={indicatorVisibility} />
             <div className={`grid gap-2 border-t border-white/10 p-3 text-xs sm:grid-cols-2 ${compact ? "" : "xl:grid-cols-4"}`}>
-              {advancedIndicatorItems.map((item) => (
+              {visibleAdvancedIndicatorItems.map((item) => (
                 <article key={item.key} className="min-h-[92px] rounded-md border border-white/10 bg-white/[0.035] p-3">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-[12px] font-semibold text-slate-100">{item.title}</h3>
@@ -870,7 +973,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         ) : null}
       </section>
       <div className={`mt-3 grid gap-3 ${compact ? "lg:grid-cols-1 2xl:grid-cols-3" : "xl:grid-cols-[1.05fr_1.2fr_1.15fr]"}`}>
-        <section className="rounded-md border border-white/10 bg-black/20 p-3">
+        {indicatorVisibility.volume ? <section className="rounded-md border border-white/10 bg-black/20 p-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-white"><BarChart3 size={16} className="text-[#00c853]" />Volume Panel</div>
           <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
             {[
@@ -893,11 +996,11 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
               <span className={`rounded-md border px-2 py-1 ${marketMetrics.unusualVolume ? "border-fuchsia-300/35 bg-fuchsia-300/12 text-fuchsia-100" : "border-white/10 bg-white/[0.035] text-slate-400"}`}>Unusual Volume</span>
             </div>
           </div>
-        </section>
-        <section className="rounded-md border border-white/10 bg-black/20 p-3">
+        </section> : null}
+        {visibleIndicatorCards.length ? <section className="rounded-md border border-white/10 bg-black/20 p-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-white"><Activity size={16} className="text-amber-200" />Technical Indicators</div>
           <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
-            {indicatorCards.map((item) => (
+            {visibleIndicatorCards.map((item) => (
               <div key={item.label} className="min-h-[76px] rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-amber-100">{item.label}</span>
@@ -908,7 +1011,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
               </div>
             ))}
           </div>
-        </section>
+        </section> : null}
         <section className="rounded-md border border-white/10 bg-black/20 p-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-white"><Bot size={16} className="text-cyan-200" />AI Analysis</div>
           <div className="mt-3 grid gap-2 text-xs">

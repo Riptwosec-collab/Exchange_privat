@@ -8,6 +8,30 @@ import { useMarketStore } from "@/store/market-store";
 import { Panel } from "./ui";
 
 type GridSize = number | "all";
+type IndicatorKey = "levels" | "ad" | "rsi" | "macd" | "ema" | "volume" | "atr" | "adx";
+type IndicatorVisibility = Record<IndicatorKey, boolean>;
+
+const defaultIndicatorVisibility: IndicatorVisibility = {
+  levels: true,
+  ad: true,
+  rsi: true,
+  macd: true,
+  ema: true,
+  volume: true,
+  atr: true,
+  adx: true
+};
+
+const indicatorLabels: Array<{ key: IndicatorKey; label: string }> = [
+  { key: "levels", label: "Auto Key Levels" },
+  { key: "ad", label: "A/D" },
+  { key: "rsi", label: "RSI" },
+  { key: "macd", label: "MACD" },
+  { key: "ema", label: "EMA" },
+  { key: "volume", label: "Volume" },
+  { key: "atr", label: "ATR" },
+  { key: "adx", label: "ADX" }
+];
 
 function signed(value: number, digits = 2) {
   return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
@@ -98,6 +122,7 @@ function calcAdx(candles: Candle[], period = 14) {
 function calcMiniAnalytics(candles: Candle[]) {
   const latest = candles.at(-1);
   const recent = candles.slice(-20);
+  const closes = candles.map((candle) => candle.close);
   const avgVolume = average(recent.map((candle) => candle.volume)) ?? 0;
   const currentVolume = latest?.volume ?? 0;
   const upVolume = recent.filter((candle) => candle.close >= candle.open).reduce((sum, candle) => sum + candle.volume, 0);
@@ -109,11 +134,24 @@ function calcMiniAnalytics(candles: Candle[]) {
   const atr = calcAtr(candles);
   const stochastic = calcStochastic(candles);
   const adx = calcAdx(candles);
+  const ema20 = closes.length ? emaSeries(closes, 20).at(-1) ?? null : null;
+  const ema50 = closes.length ? emaSeries(closes, 50).at(-1) ?? null : null;
+  const support = recent.length ? Math.min(...recent.map((candle) => candle.low)) : null;
+  const resistance = recent.length ? Math.max(...recent.map((candle) => candle.high)) : null;
+  let adRunning = 0;
+  const adSeries = candles.map((candle) => {
+    const range = candle.high - candle.low;
+    const multiplier = range === 0 ? 0 : ((candle.close - candle.low) - (candle.high - candle.close)) / range;
+    adRunning += multiplier * candle.volume;
+    return adRunning;
+  });
+  const ad = adSeries.at(-1) ?? null;
+  const adPrevious = adSeries.at(-6) ?? adSeries.at(-2) ?? null;
   const trendStrength = Math.min(100, Math.round((adx ?? 0) * 1.7));
   const momentum = Math.max(0, Math.min(100, Math.round(50 + (macd.histogram ?? 0) * 10)));
   const breakout = Math.max(5, Math.min(95, Math.round(rvol * 28 + trendStrength * 0.38 + (buyPressure > 55 ? 14 : 0))));
   const risk = Math.max(5, Math.min(95, Math.round((atr && latest ? atr / latest.close * 900 : 20) + (buyPressure < 45 ? 15 : 4))));
-  return { currentVolume, avgVolume, buyPressure, rvol, rsi, macd, atr, stochastic, adx, trendStrength, momentum, breakout, risk, smartMoney: Math.round(buyPressure * 0.62 + Math.min(38, rvol * 12)) };
+  return { currentVolume, avgVolume, buyPressure, rvol, rsi, macd, atr, stochastic, adx, ema20, ema50, support, resistance, ad, adPrevious, trendStrength, momentum, breakout, risk, smartMoney: Math.round(buyPressure * 0.62 + Math.min(38, rvol * 12)) };
 }
 
 function timeKey(time: Time | string | number | undefined) {
@@ -175,7 +213,7 @@ type HoverQuote = {
   volume: number;
 };
 
-function MiniYahooStyleChart({ quote, timeframe, refreshNonce }: { quote: StockQuote; timeframe: string; refreshNonce: number }) {
+function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { quote: StockQuote; timeframe: string; refreshNonce: number; indicators: IndicatorVisibility }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [candles, setCandles] = useState<Candle[]>(fallbackCandles);
   const [provider, setProvider] = useState("mock");
@@ -259,17 +297,20 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce }: { quote: StockQ
     });
     baseline.setData(normalized.map((candle) => ({ time: candle.time, value: candle.close })));
 
-    const volume = chart.addSeries(HistogramSeries, {
-      priceScaleId: "",
-      priceFormat: { type: "volume" }
-    });
-    volume.setData(
-      normalized.map((candle) => ({
-        time: candle.time,
-        value: candle.volume,
-        color: candle.close >= candle.open ? "rgba(0, 150, 136, 0.58)" : "rgba(239, 51, 64, 0.58)"
-      }))
-    );
+    if (indicators.volume) {
+      const volume = chart.addSeries(HistogramSeries, {
+        priceScaleId: "",
+        priceFormat: { type: "volume" },
+        title: "Volume"
+      });
+      volume.setData(
+        normalized.map((candle) => ({
+          time: candle.time,
+          value: candle.volume,
+          color: candle.close >= candle.open ? "rgba(0, 150, 136, 0.58)" : "rgba(239, 51, 64, 0.58)"
+        }))
+      );
+    }
 
     if (normalized.length > 1) {
       const padding = visibleRangePadding(normalized.length);
@@ -314,7 +355,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce }: { quote: StockQ
       setHoverQuote(null);
       chart.remove();
     };
-  }, [candles, quote.previousClose]);
+  }, [candles, indicators.volume, quote.previousClose]);
 
   const up = stats.sessionPercent >= 0;
   const timeAxis = buildTimeAxis(candles);
@@ -331,13 +372,26 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce }: { quote: StockQ
         <p className="text-slate-100">${(stats.latest?.close ?? quote.price).toFixed(2)}</p>
         <p className={stats.change >= 0 ? "text-[#009688]" : "text-[#ef3340]"}>{signed(stats.change)} · {signed(stats.changePercent)}%</p>
       </div>
-      <div className="pointer-events-none absolute bottom-2 left-2 z-10 font-mono text-[10px] text-slate-500">Volume {formatCompact(stats.volume)}</div>
+      {indicators.volume ? <div className="pointer-events-none absolute bottom-2 left-2 z-10 font-mono text-[10px] text-slate-500">Volume {formatCompact(stats.volume)}</div> : null}
+      <div className="pointer-events-none absolute right-2 top-[48%] z-10 rounded border border-white/10 bg-[#0b0d0f]/90 px-2 py-1 font-mono text-[10px] text-slate-100">
+        Last ${(stats.latest?.close ?? quote.price).toFixed(2)}
+      </div>
+      {indicators.levels ? (
+        <div className="pointer-events-none absolute right-2 top-[58%] z-10 rounded border border-cyan-300/20 bg-cyan-300/10 px-2 py-1 font-mono text-[10px] text-cyan-100">
+          S {analytics.support === null ? "-" : analytics.support.toFixed(2)} / R {analytics.resistance === null ? "-" : analytics.resistance.toFixed(2)}
+        </div>
+      ) : null}
+      {indicators.ema ? (
+        <div className="pointer-events-none absolute right-2 top-[68%] z-10 rounded border border-amber-300/20 bg-amber-300/10 px-2 py-1 font-mono text-[10px] text-amber-100">
+          EMA20 {analytics.ema20 === null ? "-" : analytics.ema20.toFixed(2)}
+        </div>
+      ) : null}
       <div ref={containerRef} className="h-[250px] w-full" />
       <div className="flex items-center justify-between gap-2 border-t border-white/10 px-2 py-1.5 font-mono text-[10px] text-slate-500">
         {timeAxis.map((item) => <span key={item.key} title={item.full} className="shrink-0">{item.label}</span>)}
       </div>
       <div className="grid gap-px bg-white/10 text-[10px] sm:grid-cols-3">
-        <section className="bg-[#0b0d0f] p-2">
+        {indicators.volume ? <section className="bg-[#0b0d0f] p-2">
           <p className="font-semibold text-slate-100">Volume Panel</p>
           <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
             <span>Vol {formatCompact(analytics.currentVolume)}</span>
@@ -347,18 +401,24 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce }: { quote: StockQ
             <span className={analytics.rvol >= 1.8 ? "text-amber-200" : "text-slate-500"}>Spike {analytics.rvol >= 1.8 ? "Yes" : "No"}</span>
             <span>Dark {formatCompact(analytics.currentVolume * 0.14)}</span>
           </div>
-        </section>
-        <section className="bg-[#0b0d0f] p-2">
+        </section> : null}
+        {(indicators.rsi || indicators.macd || indicators.atr || indicators.adx || indicators.ema || indicators.ad || indicators.levels) ? <section className="bg-[#0b0d0f] p-2">
           <p className="font-semibold text-slate-100">Technical Indicators</p>
           <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
-            <span>RSI {analytics.rsi === null ? "-" : analytics.rsi.toFixed(1)}</span>
-            <span>{analytics.rsi !== null && analytics.rsi >= 70 ? "Overbought" : analytics.rsi !== null && analytics.rsi <= 30 ? "Oversold" : "Neutral"}</span>
-            <span>MACD {analytics.macd.macd === null ? "-" : analytics.macd.macd.toFixed(2)}</span>
-            <span>Hist {analytics.macd.histogram === null ? "-" : analytics.macd.histogram.toFixed(2)}</span>
+            {indicators.levels ? <span>Key S/R {analytics.support === null ? "-" : analytics.support.toFixed(1)} / {analytics.resistance === null ? "-" : analytics.resistance.toFixed(1)}</span> : null}
+            {indicators.ad ? <span>A/D {analytics.ad === null ? "-" : formatCompact(analytics.ad)}</span> : null}
+            {indicators.rsi ? <span>RSI {analytics.rsi === null ? "-" : analytics.rsi.toFixed(1)}</span> : null}
+            {indicators.rsi ? <span>{analytics.rsi !== null && analytics.rsi >= 70 ? "Overbought" : analytics.rsi !== null && analytics.rsi <= 30 ? "Oversold" : "Neutral"}</span> : null}
+            {indicators.macd ? <span>MACD {analytics.macd.macd === null ? "-" : analytics.macd.macd.toFixed(2)}</span> : null}
+            {indicators.macd ? <span>Hist {analytics.macd.histogram === null ? "-" : analytics.macd.histogram.toFixed(2)}</span> : null}
+            {indicators.ema ? <span>EMA20 {analytics.ema20 === null ? "-" : analytics.ema20.toFixed(2)}</span> : null}
+            {indicators.ema ? <span>EMA50 {analytics.ema50 === null ? "-" : analytics.ema50.toFixed(2)}</span> : null}
             <span>Stoch {analytics.stochastic === null ? "-" : analytics.stochastic.toFixed(1)}</span>
-            <span>ATR {analytics.atr === null ? "-" : analytics.atr.toFixed(2)}</span>
+            {indicators.atr ? <span>ATR {analytics.atr === null ? "-" : analytics.atr.toFixed(2)}</span> : null}
+            {indicators.adx ? <span>ADX {analytics.adx === null ? "-" : analytics.adx.toFixed(1)}</span> : null}
+            {indicators.adx ? <span>{analytics.adx !== null && analytics.adx >= 25 ? "Trend แข็งแรง" : "Trend อ่อน"}</span> : null}
           </div>
-        </section>
+        </section> : null}
         <section className="bg-[#0b0d0f] p-2">
           <p className="font-semibold text-slate-100">AI Analysis แปลไทย</p>
           <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
@@ -397,6 +457,7 @@ export function NineChartGridPage() {
   const { quotes, timeframe, setTimeframe, requestRefresh, refreshNonce, setSelectedTicker } = useMarketStore();
   const [start, setStart] = useState(0);
   const [grid, setGrid] = useState<GridSize>(9);
+  const [indicatorVisibility, setIndicatorVisibility] = useState<IndicatorVisibility>(defaultIndicatorVisibility);
   const rows = grid === "all" ? quotes : quotes.slice(start, start + grid);
 
   return (
@@ -430,10 +491,22 @@ export function NineChartGridPage() {
         </div>
       </div>
 
+      <div className="mt-3 flex flex-wrap gap-2 rounded-md border border-white/10 bg-black/20 p-3">
+        {indicatorLabels.map((item) => (
+          <button
+            key={item.key}
+            onClick={() => setIndicatorVisibility((current) => ({ ...current, [item.key]: !current[item.key] }))}
+            className={`rounded-md border px-2.5 py-1.5 text-xs transition ${indicatorVisibility[item.key] ? "border-[#009688]/45 bg-[#009688]/12 text-[#8ff3df]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
+          >
+            {indicatorVisibility[item.key] ? "ON" : "OFF"} {item.label}
+          </button>
+        ))}
+      </div>
+
       <div className={`mt-4 grid gap-3 ${grid === "all" || grid === 9 ? "xl:grid-cols-3" : grid === 6 ? "xl:grid-cols-3" : "xl:grid-cols-2"}`}>
         {rows.map((quote) => (
           <button key={quote.ticker} onClick={() => setSelectedTicker(quote.ticker)} className="min-w-0 text-left">
-            <MiniYahooStyleChart quote={quote} timeframe={timeframe} refreshNonce={refreshNonce} />
+            <MiniYahooStyleChart quote={quote} timeframe={timeframe} refreshNonce={refreshNonce} indicators={indicatorVisibility} />
           </button>
         ))}
       </div>
