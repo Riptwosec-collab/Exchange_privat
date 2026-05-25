@@ -16,11 +16,11 @@ import {
   EnhancedCopilotPageFull,
   EnhancedHeatmapPage,
   EnhancedHeatmapPanel,
-  EnhancedMultiChartPage,
   EnhancedPortfolioPage,
   EnhancedScreenerPage,
   EnhancedWhalesPage
 } from "@/components/enhanced-market-pages";
+import { MultiChartAdvancedPage } from "@/components/multi-chart-advanced";
 import { NineChartGridPage } from "@/components/nine-chart-grid";
 import { Sidebar } from "@/components/sidebar";
 import {
@@ -28,10 +28,11 @@ import {
   NewsPage,
   SettingsPageFull,
 } from "@/components/section-pages";
+import { TopMoversPage } from "@/components/top-movers-page";
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
-const mobileSections = ["Dashboard", "Watchlist", "Charts", "Multi Chart", "9 Charts", "News AI", "Portfolio", "Screener", "Heatmap", "Calendar", "Copilot"];
+const mobileSections = ["Dashboard", "Watchlist", "Charts", "Multi Chart", "9 Charts", "Top Movers", "News AI", "Portfolio", "Screener", "Heatmap", "Calendar", "Copilot"];
 
 function DashboardView() {
   return (
@@ -80,9 +81,11 @@ function SectionView() {
     case "Charts":
       return <AdvancedChart fillViewport />;
     case "Multi Chart":
-      return <EnhancedMultiChartPage />;
+      return <MultiChartAdvancedPage />;
     case "9 Charts":
       return <NineChartGridPage />;
+    case "Top Movers":
+      return <TopMoversPage />;
     case "News AI":
       return <NewsPage />;
     case "Portfolio":

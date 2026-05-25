@@ -28,6 +28,7 @@ const nav = [
   { label: "Charts", icon: ChartCandlestick },
   { label: "Multi Chart", icon: LineChart },
   { label: "9 Charts", icon: Grid3X3 },
+  { label: "Top Movers", icon: Gauge },
   { label: "News AI", icon: Newspaper },
   { label: "Portfolio", icon: WalletCards },
   { label: "Screener", icon: Radar },

@@ -24,6 +24,98 @@ const settingsOptions = {
   risk: ["Balanced", "Aggressive"]
 };
 
+function sentimentThai(sentiment: NewsArticle["sentiment"]) {
+  if (sentiment === "Bullish") return "บวก";
+  if (sentiment === "Bearish") return "ลบ";
+  return "กลาง";
+}
+
+function buildNewsInsight(article: NewsArticle) {
+  const quote = watchlist.find((item) => item.ticker === article.ticker);
+  const rsi = quote?.rsi ?? 50;
+  const priceText = quote ? `$${quote.price.toFixed(2)} (${quote.changePercent >= 0 ? "+" : ""}${quote.changePercent.toFixed(2)}%)` : "-";
+  const rsiText = rsi >= 70 ? "RSI อยู่โซนร้อน ต้องระวังแรงขายทำกำไร" : rsi <= 30 ? "RSI อยู่โซนอ่อน มีโอกาสรีบาวด์ถ้าข่าวหนุน" : "RSI ยังอยู่กลางกรอบ ใช้ราคาและวอลุ่มยืนยัน";
+  const impactText = article.impact >= 80 ? "ผลกระทบสูง ควรติดตามทันที" : article.impact >= 60 ? "ผลกระทบปานกลางถึงสูง มีผลต่อ sentiment ระยะสั้น" : "ผลกระทบปานกลาง ใช้เป็นบริบทประกอบ";
+  const sentimentText = sentimentThai(article.sentiment);
+  const sector = quote?.sector ?? article.category;
+
+  return {
+    priceText,
+    fullSummary: `${article.summaryTh} ภาพรวมเพิ่มเติม: ข่าวนี้ควรอ่านร่วมกับราคา ${priceText}, วอลุ่มล่าสุด, RSI และทิศทาง sector เพราะตลาดมักตอบสนองแรงเมื่อข่าวตรงกับ momentum เดิมของหุ้น หากราคาไปทางเดียวกับ sentiment และมีวอลุ่มเพิ่มขึ้น จะเพิ่มน้ำหนักให้สัญญาณ แต่ถ้าราคาไม่ตอบสนองหรือกลับทิศ ต้องถือว่าเป็นสัญญาณเตือนว่าตลาดอาจรับข่าวไปแล้ว`,
+    points: [
+      `ประเด็นหลัก: ${article.title}`,
+      `Ticker / Sector: ${article.ticker} / ${sector}`,
+      `Sentiment: ${article.sentiment} (${sentimentText})`,
+      `Impact: ${impactText}`
+    ],
+    checklist: [
+      `เช็กราคา: ${priceText}`,
+      `เช็ก RSI: ${rsi} - ${rsiText}`,
+      "ดู Volume ว่าสูงกว่าค่าเฉลี่ยหรือไม่",
+      "เทียบข่าวกับแนวรับ/แนวต้านในหน้า Charts"
+    ],
+    risk: article.sentiment === "Bearish"
+      ? "ความเสี่ยงหลักคือแรงขายต่อเนื่อง หากหลุดแนวรับหรือวอลุ่มขายเพิ่ม ไม่ควรรีบถัวเฉลี่ย"
+      : article.sentiment === "Bullish"
+        ? "ความเสี่ยงหลักคือราคาอาจสะท้อนข่าวบวกไปแล้ว ควรรอจังหวะย่อหรือ breakout ที่มีวอลุ่มยืนยัน"
+        : "ความเสี่ยงหลักคือข่าวยังไม่ชี้ทิศทางชัด ต้องรอราคาและ sector confirmation",
+    action: article.impact >= 75 ? "Action: เพิ่มเข้ารายการเฝ้าดูวันนี้ และตั้ง alert ที่แนวรับ/แนวต้าน" : "Action: เก็บเป็นบริบท และรอข้อมูลราคา/วอลุ่มยืนยัน"
+  };
+}
+
+function buildExpandedNewsInsight(article: NewsArticle) {
+  const quote = watchlist.find((item) => item.ticker === article.ticker);
+  const sector = quote?.sector ?? article.category;
+  const sentimentTh = article.sentiment === "Bullish" ? "บวก" : article.sentiment === "Bearish" ? "ลบ" : "กลาง";
+  const price = quote ? `$${quote.price.toFixed(2)}` : "-";
+  const change = quote ? `${quote.change >= 0 ? "+" : ""}${quote.change.toFixed(2)} USD / ${quote.changePercent >= 0 ? "+" : ""}${quote.changePercent.toFixed(2)}%` : "-";
+  const rsi = quote?.rsi ?? 50;
+  const rsiMeaning = rsi >= 70 ? "RSI อยู่โซนร้อน อาจมีแรงขายทำกำไรหากข่าวไม่แรงพอ" : rsi <= 30 ? "RSI อยู่โซนอ่อน มีโอกาสรีบาวด์ถ้าข่าวหนุนและวอลุ่มกลับมา" : "RSI อยู่กลางกรอบ ต้องรอสัญญาณจากราคาและวอลุ่ม";
+  const pe = quote?.peRatio === null || quote?.peRatio === undefined ? "-" : `${quote.peRatio.toFixed(1)}x`;
+  const growth = quote ? `${quote.revenueGrowth >= 0 ? "+" : ""}${quote.revenueGrowth.toFixed(1)}%` : "-";
+  const impactMeaning = article.impact >= 80 ? "ข่าวระดับสำคัญสูง มีโอกาสกระทบราคาและ sentiment ระยะสั้นทันที" : article.impact >= 60 ? "ข่าวสำคัญปานกลางถึงสูง ควรใช้ประกอบการดู momentum" : "ข่าวเป็นบริบทประกอบ ยังต้องรอราคาและวอลุ่มยืนยัน";
+  const confirmation = article.sentiment === "Bullish"
+    ? "ถ้าราคายืนเหนือแนวต้านพร้อมวอลุ่มสูงกว่าค่าเฉลี่ย ข่าวนี้จะมีน้ำหนักเชิงบวกมากขึ้น"
+    : article.sentiment === "Bearish"
+      ? "ถ้าราคาหลุดแนวรับพร้อมวอลุ่มขายสูง ข่าวนี้จะเพิ่มความเสี่ยงขาลง"
+      : "ถ้าราคาแกว่งในกรอบ ให้รอ breakout หรือ breakdown ก่อนเพิ่มน้ำหนักการตัดสินใจ";
+
+  const summaryParagraphs = [
+    `สรุปหลัก: ${article.title} เป็นข่าวของ ${article.ticker} ในกลุ่ม ${sector}. ระบบจัด sentiment เป็น ${article.sentiment} (${sentimentTh}) และให้ impact ${article.impact}/100 หมายความว่า ${impactMeaning}.`,
+    `ภาพราคาและเทคนิค: ราคาปัจจุบัน ${price}, เปลี่ยนแปลง ${change}, RSI ${rsi}. ${rsiMeaning}. ควรดูร่วมกับ Volume, RVOL, MACD และแนวรับ/แนวต้านในหน้า Charts เพื่อดูว่าตลาดยืนยันข่าวนี้จริงหรือไม่`,
+    `ภาพพื้นฐาน: Market Cap ${quote?.marketCap ?? "-"}, P/E ${pe}, Revenue Growth ${growth}, Dividend ${quote?.dividendYield?.toFixed(2) ?? "-"}%. สำหรับหุ้นในกลุ่ม ${sector} ตลาดจะให้น้ำหนักกับ guidance, margin, demand visibility, backlog/order book และความสามารถในการรักษา growth มากกว่าพาดหัวข่าวเพียงอย่างเดียว`,
+    `มุมมองใช้งานจริง: ${confirmation}. ถ้าราคาไม่ตอบสนองตาม sentiment หรือกลับทิศเร็ว ให้ถือว่าอาจเป็น sell-the-news / buy-the-dip แล้วลดความมั่นใจของสัญญาณลง`
+  ];
+
+  return {
+    summaryParagraphs,
+    fullSummary: summaryParagraphs.join(" "),
+    points: [
+      `ประเด็นหลัก: ${article.title}`,
+      `Ticker / Sector: ${article.ticker} / ${sector}`,
+      `Sentiment: ${article.sentiment} (${sentimentTh})`,
+      `Impact: ${article.impact}/100 - ${impactMeaning}`,
+      `ราคา: ${price} (${change})`,
+      `RSI: ${rsi} - ${rsiMeaning}`
+    ],
+    checklist: [
+      "เช็กว่า volume สูงกว่าค่าเฉลี่ยหรือไม่",
+      "ดู MACD ว่า momentum สนับสนุนข่าวหรือเริ่มอ่อนแรง",
+      "เทียบราคากับแนวรับ/แนวต้านใน Advanced Chart",
+      "ดูหุ้น peer ใน sector เดียวกันว่าขยับไปทางเดียวกันหรือไม่",
+      "ถ้าข่าว impact สูง ให้ตั้ง alert และรอ confirmation ก่อนเพิ่มน้ำหนัก"
+    ],
+    risk: article.sentiment === "Bearish"
+      ? "ความเสี่ยงหลักคือแรงขายต่อเนื่องและ valuation ถูกปรับลง หากหลุดแนวรับพร้อมวอลุ่มขายสูง ไม่ควรรีบถัวเฉลี่ย"
+      : article.sentiment === "Bullish"
+        ? "ความเสี่ยงหลักคือราคาอาจสะท้อนข่าวบวกไปแล้ว หาก RSI สูงหรือวอลุ่มไม่ตาม อาจเกิดการย่อตัวหลังข่าว"
+        : "ความเสี่ยงหลักคือข่าวยังไม่ชี้ทิศทางชัด ตลาดอาจแกว่งในกรอบจนกว่าจะมี catalyst ใหม่",
+    action: article.impact >= 75
+      ? "Action: เพิ่มเข้ารายการเฝ้าดูวันนี้ ตั้ง alert ที่แนวรับ/แนวต้าน และรอดูราคา+วอลุ่มยืนยัน"
+      : "Action: เก็บเป็นบริบทประกอบ รอราคา/วอลุ่มยืนยัน และใช้ position size เล็กจนกว่าสัญญาณจะชัด"
+  };
+}
+
 export function NewsPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
@@ -69,6 +161,12 @@ export function NewsPage() {
     const search = `${article.ticker} ${article.title} ${article.source} ${article.summaryTh}`.toLowerCase();
     return search.includes(query.toLowerCase());
   });
+  const highImpact = filtered.filter((article) => article.impact >= 75);
+  const bullishCount = filtered.filter((article) => article.sentiment === "Bullish").length;
+  const bearishCount = filtered.filter((article) => article.sentiment === "Bearish").length;
+  const topTickers = Array.from(
+    filtered.reduce((acc, article) => acc.set(article.ticker, (acc.get(article.ticker) ?? 0) + 1), new Map<string, number>())
+  ).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
   return (
     <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
@@ -104,8 +202,9 @@ export function NewsPage() {
           </select>
         </div>
         <div className="mt-4 space-y-3">
-          {filtered.slice(0, 60).map((article) => {
+          {filtered.slice(0, 100).map((article) => {
             const quote = watchlist.find((item) => item.ticker === article.ticker) ?? watchlist[0];
+            const insight = buildExpandedNewsInsight(article);
             return (
               <article
                 key={article.id}
@@ -130,7 +229,15 @@ export function NewsPage() {
                   </button>
                 </div>
                 <h3 className="mt-3 text-base font-semibold text-white">{article.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-400">{article.summaryTh}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{insight.fullSummary}</p>
+                <div className="mt-3 grid gap-2 text-xs md:grid-cols-2">
+                  {insight.points.slice(1).map((point) => (
+                    <span key={point} className="rounded-md border border-white/10 bg-black/20 px-2.5 py-2 text-slate-400">{point}</span>
+                  ))}
+                </div>
+                <div className="mt-3 rounded-md border border-cyan-300/20 bg-cyan-300/10 p-3 text-xs leading-5 text-cyan-50">
+                  {insight.action}
+                </div>
                 <div className="mt-3 flex items-center gap-3">
                   <div className="h-1.5 flex-1 rounded-full bg-slate-800"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} /></div>
                   <span className="font-mono text-xs text-slate-400">Impact {article.impact}</span>
@@ -145,8 +252,24 @@ export function NewsPage() {
         <h3 className="font-semibold text-white">News Controls</h3>
         <div className="mt-4 space-y-3">
           <Metric label="Articles" value={`${filtered.length}`} delta="filtered" tone="neutral" />
+          <Metric label="High impact" value={`${highImpact.length}`} delta="impact 75+" tone={highImpact.length ? "up" : "neutral"} />
+          <Metric label="Bull / Bear" value={`${bullishCount}/${bearishCount}`} delta="sentiment" tone={bullishCount >= bearishCount ? "up" : "down"} />
           <Metric label="Bookmarks" value={`${bookmarks.length}`} delta="saved" tone="up" />
           <Metric label="Provider" value={provider} delta="watchlist only" tone={provider.includes("yahoo") ? "up" : "neutral"} />
+        </div>
+        <div className="mt-5 rounded-md border border-white/10 bg-white/[0.035] p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">สรุปภาพรวม</p>
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            ข่าวที่กรองอยู่มี {filtered.length} รายการ, high impact {highImpact.length} รายการ และ sentiment ฝั่งบวก/ลบอยู่ที่ {bullishCount}/{bearishCount}. ใช้หน้านี้คัดข่าวก่อน แล้วเปิดรายละเอียดเพื่อดู checklist, risk และ action ต่อหุ้น
+          </p>
+        </div>
+        <div className="mt-5 rounded-md border border-white/10 bg-white/[0.035] p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Ticker ที่มีข่าวมาก</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {topTickers.map(([symbol, count]) => (
+              <span key={symbol} className="rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2.5 py-1 text-xs font-mono text-cyan-100">{symbol} · {count}</span>
+            ))}
+          </div>
         </div>
       </Panel>
     </div>
@@ -156,10 +279,11 @@ export function NewsPage() {
 function NewsDetailModal({ article, onClose }: { article: NewsArticle; onClose: () => void }) {
   const quote = watchlist.find((item) => item.ticker === article.ticker) ?? watchlist[0];
   const sentimentTone = article.sentiment === "Bullish" ? "text-emerald-300" : article.sentiment === "Bearish" ? "text-rose-300" : "text-slate-300";
+  const insight = buildExpandedNewsInsight(article);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-2xl rounded-xl border border-white/10 bg-[#101010] p-5 text-slate-100 shadow-2xl">
+      <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-xl border border-white/10 bg-[#101010] p-5 text-slate-100 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <StockLogo quote={quote} size="lg" />
@@ -192,9 +316,46 @@ function NewsDetailModal({ article, onClose }: { article: NewsArticle; onClose: 
           </div>
         </div>
 
+        <div className="mt-5 rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-4">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">Quick read</p>
+          <div className="mt-3 grid gap-2 text-sm leading-6 text-cyan-50 md:grid-cols-2">
+            {insight.points.slice(0, 6).map((point) => (
+              <div key={point} className="rounded-md border border-cyan-300/15 bg-black/20 px-3 py-2">{point}</div>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-5 rounded-lg border border-white/10 bg-black/30 p-4">
           <p className="text-xs uppercase tracking-[0.16em] text-slate-500">สรุปข่าวภาษาไทย</p>
-          <p className="mt-2 text-sm leading-7 text-slate-300">{article.summaryTh}</p>
+          <div className="mt-3 space-y-3 text-sm leading-7 text-slate-300">
+            {insight.summaryParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Key points</p>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+              {insight.points.map((point) => <li key={point}>• {point}</li>)}
+            </ul>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Trader checklist</p>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+              {insight.checklist.map((point) => <li key={point}>• {point}</li>)}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border border-rose-300/20 bg-rose-300/10 p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-rose-200">Risk</p>
+            <p className="mt-2 text-sm leading-6 text-rose-50">{insight.risk}</p>
+          </div>
+          <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-emerald-200">Action</p>
+            <p className="mt-2 text-sm leading-6 text-emerald-50">{insight.action}</p>
+          </div>
         </div>
 
         <div className="mt-5 h-2 rounded-full bg-slate-800">

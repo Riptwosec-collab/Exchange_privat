@@ -302,25 +302,42 @@ export function WatchlistPanel() {
 
 export function MoversPanel() {
   const quotes = useMarketStore((state) => state.quotes);
-  const topGainers = [...quotes].sort((a, b) => b.changePercent - a.changePercent).slice(0, 6);
-  const topLosers = [...quotes].sort((a, b) => a.changePercent - b.changePercent).slice(0, 6);
+  const rows = quotes.map((quote) => ({
+    ...quote,
+    dollarChange: Number((quote.price - quote.previousClose).toFixed(2)),
+    percentChange: Number(((quote.price - quote.previousClose) / Math.max(0.01, quote.previousClose) * 100).toFixed(2))
+  }));
+  const topGainers = [...rows].filter((item) => item.percentChange >= 0).sort((a, b) => b.percentChange - a.percentChange);
+  const topLosers = [...rows].filter((item) => item.percentChange < 0).sort((a, b) => a.percentChange - b.percentChange);
   return (
     <Panel className="p-4">
       <h3 className="font-semibold text-white">Top Gainers / Losers</h3>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
           {topGainers.map((item) => (
-            <div key={item.ticker} className="flex items-center justify-between rounded-md bg-emerald-400/10 px-3 py-2">
-              <span className="font-mono text-white">{item.ticker}</span>
-              <span className="flex items-center gap-1 text-emerald-300"><ArrowUpRight size={14} />+{item.changePercent.toFixed(2)}%</span>
+            <div key={item.ticker} className="flex items-center justify-between gap-3 rounded-md bg-emerald-400/10 px-3 py-2">
+              <div>
+                <span className="font-mono text-white">{item.ticker}</span>
+                <p className="text-[11px] text-slate-500">Prev ${item.previousClose.toFixed(2)}</p>
+              </div>
+              <span className="text-right font-mono text-emerald-300">
+                <span className="flex items-center justify-end gap-1"><ArrowUpRight size={14} />+{item.percentChange.toFixed(2)}%</span>
+                <span className="block text-[11px]">+${item.dollarChange.toFixed(2)}</span>
+              </span>
             </div>
           ))}
         </div>
         <div className="space-y-2">
           {topLosers.map((item) => (
-            <div key={item.ticker} className="flex items-center justify-between rounded-md bg-rose-400/10 px-3 py-2">
-              <span className="font-mono text-white">{item.ticker}</span>
-              <span className="flex items-center gap-1 text-rose-300"><ArrowDownRight size={14} />{item.changePercent.toFixed(2)}%</span>
+            <div key={item.ticker} className="flex items-center justify-between gap-3 rounded-md bg-rose-400/10 px-3 py-2">
+              <div>
+                <span className="font-mono text-white">{item.ticker}</span>
+                <p className="text-[11px] text-slate-500">Prev ${item.previousClose.toFixed(2)}</p>
+              </div>
+              <span className="text-right font-mono text-rose-300">
+                <span className="flex items-center justify-end gap-1"><ArrowDownRight size={14} />{item.percentChange.toFixed(2)}%</span>
+                <span className="block text-[11px]">${item.dollarChange.toFixed(2)}</span>
+              </span>
             </div>
           ))}
         </div>

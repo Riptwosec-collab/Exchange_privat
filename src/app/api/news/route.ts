@@ -20,7 +20,7 @@ async function fetchYahooNews(tickers: string[]) {
   if (!response.ok) return [];
 
   const xml = await response.text();
-  return Array.from(xml.matchAll(/<item>([\s\S]*?)<\/item>/g)).slice(0, 40).map((match, index) => {
+  return Array.from(xml.matchAll(/<item>([\s\S]*?)<\/item>/g)).slice(0, 80).map((match, index) => {
     const block = match[1];
     const title = stripTags(block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>|<title>([\s\S]*?)<\/title>/)?.[1] ?? block.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "Market headline");
     const link = stripTags(block.match(/<link>([\s\S]*?)<\/link>/)?.[1] ?? "https://finance.yahoo.com/");
@@ -40,7 +40,7 @@ async function fetchYahooNews(tickers: string[]) {
       time: pubDate.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
       impact: 55 + (index % 41),
       sentiment,
-      summaryTh: `ข่าวล่าสุดของ ${ticker}: ${title} ระบบจัดเข้ากลุ่ม ${category} และประเมิน sentiment เบื้องต้นเป็น ${sentiment} ควรดูร่วมกับราคา realtime, volume และแนวโน้ม sector`,
+      summaryTh: `ข่าวล่าสุดของ ${ticker}: ${title} ระบบจัดเข้ากลุ่ม ${category} และประเมิน sentiment เบื้องต้นเป็น ${sentiment}. ควรอ่านร่วมกับราคา realtime, volume, RSI, แนวรับแนวต้าน และทิศทาง sector เพื่อดูว่าตลาดยืนยันข่าวนี้หรือรับข่าวไปแล้ว`,
       url: link,
       saved: false
     };
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
   });
 
   return NextResponse.json({
-    items: filtered.slice(0, 140),
+    items: filtered.slice(0, 220),
     provider: liveItems.length ? "yahoo-rss+watchlist" : "watchlist-mock",
     dates: Array.from(new Set(filtered.map((article) => article.date))).sort().reverse(),
     categories: Array.from(new Set(stockUniverse.map((stock) => stock.sector))).sort()
