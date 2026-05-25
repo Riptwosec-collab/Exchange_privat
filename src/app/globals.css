@@ -1,8 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: "Inter", "Noto Sans Thai", "Sarabun", "Segoe UI", Arial, ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Inter", "Noto Sans Thai", "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
+  --font-sans: "Noto Sans Thai", "IBM Plex Sans Thai", "LINE Seed Sans TH", "Inter", "Segoe UI", Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Noto Sans Thai", "IBM Plex Sans Thai", "LINE Seed Sans TH", "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
 }
 
 :root {
@@ -43,7 +44,18 @@ body {
   line-height: 1.5;
   letter-spacing: 0;
   font-synthesis-weight: none;
-  font-weight: 500;
+  font-weight: 600;
+}
+
+b,
+strong,
+.font-semibold {
+  font-weight: 800;
+}
+
+.font-bold,
+.font-extrabold {
+  font-weight: 850;
 }
 
 button,
@@ -102,7 +114,7 @@ textarea::placeholder {
 .glass .font-mono {
   font-size: clamp(0.78rem, 0.86vw, 0.94rem);
   font-variant-numeric: tabular-nums;
-  font-weight: 750;
+  font-weight: 800;
   line-height: 1.32;
   overflow-wrap: anywhere;
 }

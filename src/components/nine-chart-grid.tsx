@@ -32,6 +32,7 @@ const indicatorLabels: Array<{ key: IndicatorKey; label: string }> = [
   { key: "atr", label: "ATR" },
   { key: "adx", label: "ADX" }
 ];
+const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
 
 function signed(value: number, digits = 2) {
   return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
@@ -281,7 +282,8 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     const chart = createChart(element, {
       layout: {
         background: { type: ColorType.Solid, color: "#0b0d0f" },
-        textColor: "rgba(203, 213, 225, 0.72)"
+        textColor: "rgba(203, 213, 225, 0.72)",
+        fontFamily: tradingThaiFont
       },
       grid: {
         vertLines: { color: "rgba(255, 255, 255, 0.045)" },

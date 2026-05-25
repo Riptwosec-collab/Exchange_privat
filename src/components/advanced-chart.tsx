@@ -26,6 +26,7 @@ const chartModes = [
 type ChartMode = (typeof chartModes)[number]["key"];
 type IndicatorKey = "levels" | "ad" | "rsi" | "macd" | "ema" | "volume" | "atr" | "adx";
 type IndicatorVisibility = Record<IndicatorKey, boolean>;
+const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
 
 const defaultIndicatorVisibility: IndicatorVisibility = {
   levels: true,
@@ -688,7 +689,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     if (!containerRef.current) return;
     const chartElement = containerRef.current;
     const chart = createChart(containerRef.current, {
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#cbd5e1" },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#cbd5e1", fontFamily: tradingThaiFont },
       grid: { vertLines: { color: "rgba(255, 255, 255, 0.035)" }, horzLines: { color: "rgba(255, 255, 255, 0.055)" } },
       rightPriceScale: { borderColor: "rgba(255, 255, 255, 0.12)", scaleMargins: { top: 0.08, bottom: chartMode === "Volume" ? 0.34 : 0.22 } },
       timeScale: {
