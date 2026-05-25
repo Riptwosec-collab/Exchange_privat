@@ -3,7 +3,6 @@
 import {
   Bell,
   Bot,
-  CalendarDays,
   ChartCandlestick,
   Flame,
   Gauge,
@@ -13,7 +12,6 @@ import {
   ListChecks,
   LineChart,
   Lock,
-  Network,
   Newspaper,
   Radar,
   Settings,
@@ -33,8 +31,7 @@ const nav = [
   { label: "Portfolio", icon: WalletCards },
   { label: "Screener", icon: Radar },
   { label: "Heatmap", icon: Flame },
-  { label: "Calendar", icon: CalendarDays },
-  { label: "Whales", icon: Network },
+  { label: "Market Intelligence Center", icon: Gauge },
   { label: "Copilot", icon: Bot },
   { label: "Settings", icon: Settings }
 ];

@@ -12,19 +12,18 @@ import {
 } from "@/components/dashboard-widgets";
 import { Header } from "@/components/header";
 import { MarketTicker } from "@/components/market-ticker";
+import { MarketIntelligenceCenter } from "@/components/market-intelligence-center";
 import {
   EnhancedCopilotPageFull,
   EnhancedHeatmapPage,
   EnhancedHeatmapPanel,
   EnhancedPortfolioPage,
-  EnhancedScreenerPage,
-  EnhancedWhalesPage
+  EnhancedScreenerPage
 } from "@/components/enhanced-market-pages";
 import { MultiChartAdvancedPage } from "@/components/multi-chart-advanced";
 import { NineChartGridPage } from "@/components/nine-chart-grid";
 import { Sidebar } from "@/components/sidebar";
 import {
-  CalendarPage,
   NewsPage,
   SettingsPageFull,
 } from "@/components/section-pages";
@@ -32,7 +31,7 @@ import { TopMoversPage } from "@/components/top-movers-page";
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
-const mobileSections = ["Dashboard", "Watchlist", "Charts", "Multi Chart", "9 Charts", "Top Movers", "News AI", "Portfolio", "Screener", "Heatmap", "Calendar", "Copilot"];
+const mobileSections = ["Dashboard", "Watchlist", "Charts", "Multi Chart", "9 Charts", "Top Movers", "News AI", "Portfolio", "Screener", "Heatmap", "Market Intelligence Center", "Copilot"];
 
 function DashboardView() {
   return (
@@ -94,10 +93,8 @@ function SectionView() {
       return <EnhancedScreenerPage />;
     case "Heatmap":
       return <EnhancedHeatmapPage />;
-    case "Calendar":
-      return <CalendarPage />;
-    case "Whales":
-      return <EnhancedWhalesPage />;
+    case "Market Intelligence Center":
+      return <MarketIntelligenceCenter />;
     case "Copilot":
       return <EnhancedCopilotPageFull />;
     case "Settings":
