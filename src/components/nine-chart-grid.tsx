@@ -406,7 +406,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
   const analytics = useMemo(() => calcMiniAnalytics(candles), [candles]);
 
   return (
-    <article className="relative overflow-hidden rounded-md border border-white/10 bg-[#0b0d0f] shadow-[0_16px_40px_rgba(0,0,0,.24)]">
+    <article className="relative h-full overflow-hidden rounded-lg border border-cyan-300/20 bg-[#0b0d0f] shadow-[0_18px_46px_rgba(0,0,0,.34)] ring-1 ring-white/[0.06] transition hover:border-cyan-300/45 hover:ring-cyan-300/20">
       <div className="pointer-events-none absolute left-2 top-2 z-10 flex flex-wrap items-center gap-2 text-xs">
         <span className="font-mono font-semibold text-slate-100">{quote.ticker}</span>
         <span className={up ? "font-mono text-[#009688]" : "font-mono text-[#ef3340]"}>{signed(stats.sessionPercent)}%</span>
@@ -430,12 +430,12 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
           EMA20 {analytics.ema20 === null ? "-" : analytics.ema20.toFixed(2)}
         </div>
       ) : null}
-      <div ref={containerRef} className="h-[250px] w-full" />
-      <div className="flex items-center justify-between gap-2 border-t border-white/10 px-2 py-1.5 font-mono text-[10px] text-slate-500">
+      <div ref={containerRef} className="h-[340px] w-full md:h-[380px] xl:h-[420px]" />
+      <div className="flex items-center justify-between gap-2 border-y border-white/10 bg-black/30 px-2 py-1.5 font-mono text-[10px] text-slate-500">
         {timeAxis.map((item) => <span key={item.key} title={item.full} className="shrink-0">{item.label}</span>)}
       </div>
-      <div className="grid gap-px bg-white/10 text-[10px] sm:grid-cols-3">
-        {indicators.volume ? <section className="bg-[#0b0d0f] p-2">
+      <div className="grid gap-px bg-cyan-300/15 text-[10px] sm:grid-cols-3">
+        {indicators.volume ? <section className="bg-[#0b0d0f] p-2.5">
           <p className="font-semibold text-slate-100">Volume Panel</p>
           <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
             <span>Vol {formatCompact(analytics.currentVolume)}</span>
@@ -446,7 +446,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
             <span>Dark {formatCompact(analytics.currentVolume * 0.14)}</span>
           </div>
         </section> : null}
-        {(indicators.rsi || indicators.macd || indicators.atr || indicators.adx || indicators.ema || indicators.ad || indicators.levels) ? <section className="bg-[#0b0d0f] p-2">
+        {(indicators.rsi || indicators.macd || indicators.atr || indicators.adx || indicators.ema || indicators.ad || indicators.levels) ? <section className="bg-[#0b0d0f] p-2.5">
           <p className="font-semibold text-slate-100">Technical Indicators</p>
           <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
             {indicators.levels ? <span>Key S/R {analytics.support === null ? "-" : analytics.support.toFixed(1)} / {analytics.resistance === null ? "-" : analytics.resistance.toFixed(1)}</span> : null}
@@ -463,7 +463,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
             {indicators.adx ? <span>{analytics.adx !== null && analytics.adx >= 25 ? "Trend แข็งแรง" : "Trend อ่อน"}</span> : null}
           </div>
         </section> : null}
-        <section className="bg-[#0b0d0f] p-2">
+        <section className="bg-[#0b0d0f] p-2.5">
           <p className="font-semibold text-slate-100">AI Analysis แปลไทย</p>
           <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
             <span>Trend {analytics.trendStrength}/100</span>
@@ -547,9 +547,9 @@ export function NineChartGridPage() {
         ))}
       </div>
 
-      <div className={`mt-4 grid gap-3 ${grid === "all" || grid === 9 ? "xl:grid-cols-3" : grid === 6 ? "xl:grid-cols-3" : "xl:grid-cols-2"}`}>
+      <div className={`mt-4 grid gap-4 ${grid === "all" || grid === 9 ? "xl:grid-cols-3" : grid === 6 ? "xl:grid-cols-3" : "xl:grid-cols-2"}`}>
         {rows.map((quote) => (
-          <button key={quote.ticker} onClick={() => setSelectedTicker(quote.ticker)} className="min-w-0 text-left">
+          <button key={quote.ticker} onClick={() => setSelectedTicker(quote.ticker)} className="block h-full min-w-0 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60">
             <MiniYahooStyleChart quote={quote} timeframe={timeframe} refreshNonce={refreshNonce} indicators={indicatorVisibility} />
           </button>
         ))}
