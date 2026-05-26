@@ -16,6 +16,7 @@ const sizes = {
 
 const officialDomains: Record<string, string> = {
   AAPL: "apple.com",
+  BTCTHB: "bitcoin.org",
   NVDA: "nvidia.com",
   AMD: "amd.com",
   TSLA: "tesla.com",
@@ -63,6 +64,7 @@ const officialDomains: Record<string, string> = {
 
 const simpleIconSlugs: Record<string, string> = {
   AAPL: "apple",
+  BTCTHB: "bitcoin",
   NVDA: "nvidia",
   AMD: "amd",
   TSLA: "tesla",
@@ -73,14 +75,18 @@ const simpleIconSlugs: Record<string, string> = {
   GOOGL: "google",
   NFLX: "netflix",
   COIN: "coinbase",
+  CRWD: "crowdstrike",
+  PANW: "paloaltonetworks",
   HOOD: "robinhood",
   INTU: "intuit",
   NET: "cloudflare",
   V: "visa",
   INTC: "intel",
+  SNDK: "sandisk",
   PLTR: "palantir",
   QCOM: "qualcomm",
-  IBM: "ibm"
+  IBM: "ibm",
+  TSM: "tsmc"
 };
 
 const cryptoLogos: Record<string, string> = {
@@ -94,13 +100,24 @@ function favicon(domain: string) {
   return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
 }
 
+function clearbitLogo(domain: string) {
+  return `https://logo.clearbit.com/${domain}`;
+}
+
+function duckDuckGoIcon(domain: string) {
+  return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+}
+
 function logoCandidates(quote: StockLogoProps["quote"]) {
   const ticker = quote.ticker.toUpperCase();
+  const domain = officialDomains[ticker];
   const urls = [
-    quote.logoUrl,
     cryptoLogos[ticker],
     simpleIconSlugs[ticker] ? `https://cdn.simpleicons.org/${simpleIconSlugs[ticker]}/ffffff` : null,
-    officialDomains[ticker] ? favicon(officialDomains[ticker]) : null
+    domain ? clearbitLogo(domain) : null,
+    quote.logoUrl,
+    domain ? duckDuckGoIcon(domain) : null,
+    domain ? favicon(domain) : null
   ].filter((url): url is string => Boolean(url));
   return Array.from(new Set(urls));
 }
