@@ -9,12 +9,12 @@
 :root {
   color-scheme: dark;
   --background: #101010;
-  --foreground: #f6f7fb;
+  --foreground: #fbfcff;
   --panel: #151515;
   --panel-soft: #1b1b1d;
   --border-soft: rgba(255, 255, 255, 0.095);
-  --muted: #a7a8b0;
-  --muted-strong: #d6d7dc;
+  --muted: #c1c5d0;
+  --muted-strong: #edf0f7;
   --accent: #8c6ff7;
   --accent-soft: rgba(124, 89, 219, 0.28);
   --success: #18e08a;
@@ -28,7 +28,7 @@
 
 html {
   background: var(--background);
-  text-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -40,11 +40,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 16.5px;
+  line-height: 1.58;
   letter-spacing: 0;
   font-synthesis-weight: none;
-  font-weight: 600;
+  font-weight: 650;
 }
 
 b,
@@ -86,7 +86,7 @@ textarea {
 
 input::placeholder,
 textarea::placeholder {
-  color: #738196;
+  color: #9aa4b6;
 }
 
 :focus-visible {
@@ -112,10 +112,10 @@ textarea::placeholder {
 }
 
 .glass .font-mono {
-  font-size: clamp(0.78rem, 0.86vw, 0.94rem);
+  font-size: clamp(0.82rem, 0.88vw, 0.96rem);
   font-variant-numeric: tabular-nums;
   font-weight: 800;
-  line-height: 1.32;
+  line-height: 1.38;
   overflow-wrap: anywhere;
 }
 
@@ -188,8 +188,8 @@ textarea::placeholder {
 .glass td {
   max-width: 16ch;
   white-space: nowrap;
-  font-size: clamp(0.78rem, 0.86vw, 0.94rem);
-  line-height: 1.45;
+  font-size: clamp(0.82rem, 0.88vw, 0.96rem);
+  line-height: 1.52;
 }
 
 .glass td {
@@ -198,7 +198,7 @@ textarea::placeholder {
 }
 
 .glass th {
-  color: #b9bac2;
+  color: #d3d7e1;
   font-weight: 850;
 }
 
@@ -222,39 +222,54 @@ textarea::placeholder {
 }
 
 .glass :where(.text-white, .text-slate-100) {
-  color: #f7f7fb;
+  color: #ffffff;
 }
 
 .glass :where(.text-slate-200) {
-  color: #e6e7ed;
+  color: #f0f2f8;
 }
 
 .glass :where(.text-slate-300) {
-  color: #d0d1d8;
+  color: #dce1ec;
 }
 
 .glass :where(.text-slate-400) {
-  color: #c5c8d3;
+  color: #cbd1dc;
 }
 
 .glass :where(.text-slate-500) {
-  color: #a7abb8;
+  color: #b4bbc8;
 }
 
 .glass :where(.text-emerald-300) {
-  color: var(--success);
+  color: #42f0a5;
 }
 
 .glass :where(.text-rose-300) {
-  color: var(--danger);
+  color: #ff9fbd;
 }
 
 .glass :where(.text-amber-300) {
-  color: var(--warning);
+  color: #ffe08a;
 }
 
 .glass :where(.text-cyan-100, .text-cyan-200, .text-cyan-300) {
-  color: #c8bbff;
+  color: #d8e7ff;
+}
+
+.glass :where(.text-xs) {
+  font-size: 0.8rem;
+  line-height: 1.48;
+}
+
+.glass :where(.text-\[9px\], .text-\[10px\], .text-\[11px\]) {
+  font-size: 0.74rem;
+  line-height: 1.42;
+}
+
+.glass :where(.text-\[12px\]) {
+  font-size: 0.82rem;
+  line-height: 1.48;
 }
 
 .glass .bg-white :where(.text-slate-400) {
@@ -367,7 +382,7 @@ textarea::placeholder {
 }
 
 .market-heatmap-surface :where(.text-slate-600, .text-slate-500) {
-  color: #9ca3af !important;
+  color: #c3cad6 !important;
 }
 
 .market-heatmap-surface :where(.border-slate-200, .border-slate-100) {
@@ -406,5 +421,16 @@ textarea::placeholder {
 .glass h3,
 .glass h4 {
   font-weight: 850;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  line-height: 1.28;
+}
+
+.glass p,
+.glass li,
+.glass span,
+.glass button,
+.glass input,
+.glass select,
+.glass textarea {
+  letter-spacing: 0;
 }
