@@ -234,11 +234,11 @@ textarea::placeholder {
 }
 
 .glass :where(.text-slate-400) {
-  color: #adaeb7;
+  color: #c5c8d3;
 }
 
 .glass :where(.text-slate-500) {
-  color: #898a93;
+  color: #a7abb8;
 }
 
 .glass :where(.text-emerald-300) {

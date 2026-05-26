@@ -553,7 +553,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
   const [symbolSearch, setSymbolSearch] = useState("");
   const [showTools, setShowTools] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [chartMode, setChartMode] = useState<ChartMode>("Area");
+  const [chartMode, setChartMode] = useState<ChartMode>("Baseline");
   const [hoverQuote, setHoverQuote] = useState<HoverQuote | null>(null);
   const [showAdvancedIndicators, setShowAdvancedIndicators] = useState(true);
   const [indicatorVisibility, setIndicatorVisibility] = useState<IndicatorVisibility>(defaultIndicatorVisibility);
@@ -695,7 +695,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     if (!containerRef.current) return;
     const chartElement = containerRef.current;
     const chart = createChart(containerRef.current, {
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#cbd5e1", fontFamily: tradingThaiFont },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#e2e8f0", fontFamily: tradingThaiFont },
       grid: { vertLines: { color: "rgba(255, 255, 255, 0.042)" }, horzLines: { color: "rgba(255, 255, 255, 0.052)" } },
       rightPriceScale: { borderColor: "rgba(255, 255, 255, 0.12)", scaleMargins: { top: 0.08, bottom: chartMode === "Volume" ? 0.34 : 0.22 } },
       timeScale: {
@@ -893,17 +893,17 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
   });
   const chartLevelBadges = [
     indicatorVisibility.levels && technicals.resistance !== null
-      ? { label: "Resistance", value: formatIndicator(technicals.resistance), className: "border-pink-300/45 bg-pink-300/12 text-pink-100", dot: "#f472b6" }
+      ? { label: "Resistance", value: formatIndicator(technicals.resistance), className: "border-pink-300/55 bg-pink-300/16 text-pink-50", dot: "#f472b6" }
       : null,
     indicatorVisibility.ema
-      ? { label: "EMA20", value: formatIndicator(marketMetrics.ema20), className: "border-yellow-300/45 bg-yellow-300/12 text-yellow-100", dot: "#facc15" }
+      ? { label: "EMA20", value: formatIndicator(marketMetrics.ema20), className: "border-yellow-300/55 bg-yellow-300/16 text-yellow-50", dot: "#facc15" }
       : null,
     indicatorVisibility.levels && technicals.support !== null
-      ? { label: "Support", value: formatIndicator(technicals.support), className: "border-cyan-300/45 bg-cyan-300/12 text-cyan-100", dot: "#22d3ee" }
+      ? { label: "Support", value: formatIndicator(technicals.support), className: "border-cyan-300/55 bg-cyan-300/16 text-cyan-50", dot: "#22d3ee" }
       : null,
-    { label: "After-hours", value: formatIndicator(marketMetrics.afterHours.price), className: "border-slate-200/35 bg-slate-200/12 text-slate-100", dot: "#cbd5e1" },
+    { label: "After-hours", value: formatIndicator(marketMetrics.afterHours.price), className: "border-slate-200/45 bg-slate-200/14 text-slate-50", dot: "#cbd5e1" },
     indicatorVisibility.volume
-      ? { label: "Volume", value: formatCompact(marketMetrics.currentVolume), className: "border-[#18e08a]/40 bg-[#18e08a]/12 text-[#b6ffd8]", dot: freshGreen }
+      ? { label: "Volume", value: formatCompact(marketMetrics.currentVolume), className: "border-[#18e08a]/50 bg-[#18e08a]/16 text-[#d5ffe7]", dot: freshGreen }
       : null
   ].filter((item): item is { label: string; value: string; className: string; dot: string } => Boolean(item));
   const aiSummary =
@@ -958,10 +958,10 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
           {["Trendline ready", "Fibonacci ready", "Support/Resistance", `Compare: ${compare}`].map((item) => <button key={item} className="rounded-md border border-[#18e08a]/20 bg-[#18e08a]/10 px-3 py-2 text-left">{item}</button>)}
         </div>
       ) : null}
-      <div className="mt-3 flex min-h-10 flex-wrap items-center gap-2 rounded-md border border-white/10 bg-black/25 px-3 py-2">
+      <div className="mt-2 flex min-h-7 flex-wrap items-center gap-1 rounded-md border border-white/10 bg-black/20 px-2 py-1">
         {chartLevelBadges.map((badge) => (
-          <span key={badge.label} className={`inline-flex items-center gap-2 rounded-md border px-2.5 py-1 font-mono text-[11px] font-semibold ${badge.className}`}>
-            <span className="h-2 w-2 rounded-full shadow-[0_0_10px_currentColor]" style={{ backgroundColor: badge.dot }} />
+          <span key={badge.label} className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-bold leading-3 shadow-[0_8px_24px_rgba(0,0,0,.28)] [font-family:var(--font-mono)] ${badge.className}`}>
+            <span className="h-1.5 w-1.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: badge.dot }} />
             {badge.label} {badge.value}
           </span>
         ))}
@@ -978,11 +978,11 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
           >
             <div className="mb-2 border-b border-white/10 pb-2 font-mono text-[11px] text-slate-100">{hoverQuote.dateTime}</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-              <span className="text-slate-500">Open</span><strong className="text-right font-mono text-slate-100">${hoverQuote.open.toFixed(2)}</strong>
-              <span className="text-slate-500">High</span><strong className="text-right font-mono text-[#18e08a]">${hoverQuote.high.toFixed(2)}</strong>
-              <span className="text-slate-500">Low</span><strong className="text-right font-mono text-[#ff3366]">${hoverQuote.low.toFixed(2)}</strong>
-              <span className="text-slate-500">Close</span><strong className="text-right font-mono text-slate-100">${hoverQuote.close.toFixed(2)}</strong>
-              <span className="text-slate-500">Volume</span><strong className="text-right font-mono text-slate-100">{formatCompact(hoverQuote.volume)}</strong>
+              <span className="text-slate-400">Open</span><strong className="text-right font-mono text-slate-100">${hoverQuote.open.toFixed(2)}</strong>
+              <span className="text-slate-400">High</span><strong className="text-right font-mono text-[#18e08a]">${hoverQuote.high.toFixed(2)}</strong>
+              <span className="text-slate-400">Low</span><strong className="text-right font-mono text-[#ff3366]">${hoverQuote.low.toFixed(2)}</strong>
+              <span className="text-slate-400">Close</span><strong className="text-right font-mono text-slate-100">${hoverQuote.close.toFixed(2)}</strong>
+              <span className="text-slate-400">Volume</span><strong className="text-right font-mono text-slate-100">{formatCompact(hoverQuote.volume)}</strong>
             </div>
           </div>
         ) : null}

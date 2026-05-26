@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AreaSeries, BaselineSeries, ColorType, createChart, HistogramSeries, LineStyle, type Time } from "lightweight-charts";
+import { AreaSeries, BaselineSeries, ColorType, createChart, HistogramSeries, LineStyle, LineType, type Time } from "lightweight-charts";
 import type { Candle, StockQuote } from "@/lib/types";
 import { candles as fallbackCandles } from "@/lib/mock-data";
 import { useMarketStore } from "@/store/market-store";
@@ -302,7 +302,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     const chart = createChart(element, {
       layout: {
         background: { type: ColorType.Solid, color: "#0b0d0f" },
-        textColor: "rgba(203, 213, 225, 0.72)",
+        textColor: "rgba(226, 232, 240, 0.88)",
         fontFamily: tradingThaiFont
       },
       grid: {
@@ -311,7 +311,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
       },
       rightPriceScale: {
         borderVisible: false,
-        scaleMargins: { top: 0.06, bottom: 0.22 }
+        scaleMargins: { top: 0.08, bottom: 0.22 }
       },
       timeScale: {
         borderVisible: false,
@@ -365,6 +365,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         topColor: afterHoursTop,
         bottomColor: afterHoursBottom,
         lineWidth: 3,
+        lineType: LineType.Curved,
         crosshairMarkerVisible: true,
         priceLineVisible: false,
         lastValueVisible: false,
@@ -418,51 +419,51 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
   const analytics = useMemo(() => calcMiniAnalytics(candles), [candles]);
   const afterHoursValue = buildAfterHoursSeries(candles, quote.ticker).at(-1)?.value ?? stats.latest?.close ?? quote.price;
   const levelBadges = [
-    indicators.levels && analytics.resistance !== null ? { label: "Resistance", value: analytics.resistance.toFixed(2), className: "border-pink-300/45 bg-pink-300/12 text-pink-100" } : null,
-    indicators.ema && analytics.ema20 !== null ? { label: "EMA20", value: analytics.ema20.toFixed(2), className: "border-yellow-300/45 bg-yellow-300/12 text-yellow-100" } : null,
-    indicators.levels && analytics.support !== null ? { label: "Support", value: analytics.support.toFixed(2), className: "border-cyan-300/45 bg-cyan-300/12 text-cyan-100" } : null,
-    { label: "After-hours", value: afterHoursValue.toFixed(2), className: "border-slate-200/35 bg-slate-200/12 text-slate-100" },
-    indicators.volume ? { label: "Volume", value: formatCompact(stats.volume), className: "border-[#18e08a]/40 bg-[#18e08a]/12 text-[#b6ffd8]" } : null
-  ].filter((item): item is { label: string; value: string; className: string } => Boolean(item));
+    indicators.levels && analytics.resistance !== null ? { label: "R", title: "Resistance", value: analytics.resistance.toFixed(2), className: "border-pink-300/55 bg-pink-300/16 text-pink-50" } : null,
+    indicators.ema && analytics.ema20 !== null ? { label: "EMA20", title: "EMA20", value: analytics.ema20.toFixed(2), className: "border-yellow-300/55 bg-yellow-300/16 text-yellow-50" } : null,
+    indicators.levels && analytics.support !== null ? { label: "S", title: "Support", value: analytics.support.toFixed(2), className: "border-cyan-300/55 bg-cyan-300/16 text-cyan-50" } : null,
+    { label: "AH", title: "After-hours", value: afterHoursValue.toFixed(2), className: "border-slate-200/45 bg-slate-200/14 text-slate-50" },
+    indicators.volume ? { label: "Vol", title: "Volume", value: formatCompact(stats.volume), className: "border-[#18e08a]/50 bg-[#18e08a]/16 text-[#d5ffe7]" } : null
+  ].filter((item): item is { label: string; title: string; value: string; className: string } => Boolean(item));
 
   return (
     <article className="relative h-full overflow-hidden rounded-lg border border-cyan-300/20 bg-[#0b0d0f] shadow-[0_18px_46px_rgba(0,0,0,.34)] ring-1 ring-white/[0.06] transition hover:border-cyan-300/45 hover:ring-cyan-300/20">
       <div className="pointer-events-none absolute left-2 top-2 z-10 flex flex-wrap items-center gap-2 text-xs">
         <span className="font-mono font-semibold text-slate-100">{quote.ticker}</span>
         <span className={up ? "font-mono text-[#18e08a]" : "font-mono text-[#ef3340]"}>{signed(stats.sessionPercent)}%</span>
-        <span className="font-mono text-slate-500">{provider.toUpperCase()}</span>
+        <span className="font-mono text-slate-400">{provider.toUpperCase()}</span>
       </div>
       <div className="pointer-events-none absolute right-2 top-2 z-10 text-right font-mono text-xs">
         <p className="text-slate-100">${(stats.latest?.close ?? quote.price).toFixed(2)}</p>
         <p className={stats.change >= 0 ? "text-[#18e08a]" : "text-[#ef3340]"}>{signed(stats.change)} · {signed(stats.changePercent)}%</p>
       </div>
-      <div className="pointer-events-none absolute left-2 right-2 top-8 z-10 flex min-h-7 flex-wrap items-center gap-1.5 rounded-md border border-white/10 bg-black/28 px-2 py-1 backdrop-blur">
+      <div className="pointer-events-none absolute left-2 top-7 z-10 flex max-w-[88%] flex-wrap items-center gap-1 rounded border border-white/10 bg-black/35 px-1.5 py-0.5 backdrop-blur-sm">
         {levelBadges.map((badge) => (
-          <span key={badge.label} className={`rounded border px-1.5 py-0.5 font-mono text-[9px] font-semibold ${badge.className}`}>{badge.label} {badge.value}</span>
+          <span key={badge.title} title={badge.title} className={`rounded-sm border px-1 py-[1px] text-[8px] font-black leading-3 shadow-[0_8px_20px_rgba(0,0,0,.35)] [font-family:var(--font-mono)] ${badge.className}`}>{badge.label} {badge.value}</span>
         ))}
       </div>
       <div className="pointer-events-none absolute right-2 top-[48%] z-10 rounded border border-white/10 bg-[#0b0d0f]/90 px-2 py-1 font-mono text-[10px] text-slate-100">
         Last ${(stats.latest?.close ?? quote.price).toFixed(2)}
       </div>
       <div ref={containerRef} className="h-[340px] w-full md:h-[380px] xl:h-[420px]" />
-      <div className="flex items-center justify-between gap-2 border-y border-white/10 bg-black/30 px-2 py-1.5 font-mono text-[10px] text-slate-500">
+      <div className="flex items-center justify-between gap-2 border-y border-white/10 bg-black/30 px-2 py-1.5 font-mono text-[10px] text-slate-400">
         {timeAxis.map((item) => <span key={item.key} title={item.full} className="shrink-0">{item.label}</span>)}
       </div>
       <div className="grid gap-px bg-cyan-300/15 text-[10px] sm:grid-cols-3">
         {indicators.volume ? <section className="bg-[#0b0d0f] p-2.5">
           <p className="font-semibold text-slate-100">Volume Panel</p>
-          <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
+          <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-300">
             <span>Vol {formatCompact(analytics.currentVolume)}</span>
             <span>Avg {formatCompact(analytics.avgVolume)}</span>
             <span>RVOL {analytics.rvol.toFixed(2)}x</span>
             <span>Buy {analytics.buyPressure.toFixed(0)}%</span>
-            <span className={analytics.rvol >= 1.8 ? "text-amber-200" : "text-slate-500"}>Spike {analytics.rvol >= 1.8 ? "Yes" : "No"}</span>
+            <span className={analytics.rvol >= 1.8 ? "text-amber-200" : "text-slate-400"}>Spike {analytics.rvol >= 1.8 ? "Yes" : "No"}</span>
             <span>Dark {formatCompact(analytics.currentVolume * 0.14)}</span>
           </div>
         </section> : null}
         {(indicators.rsi || indicators.macd || indicators.atr || indicators.adx || indicators.ema || indicators.ad || indicators.levels) ? <section className="bg-[#0b0d0f] p-2.5">
           <p className="font-semibold text-slate-100">Technical Indicators</p>
-          <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
+          <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-300">
             {indicators.levels ? <span>Key S/R {analytics.support === null ? "-" : analytics.support.toFixed(1)} / {analytics.resistance === null ? "-" : analytics.resistance.toFixed(1)}</span> : null}
             {indicators.ad ? <span>A/D {analytics.ad === null ? "-" : formatCompact(analytics.ad)}</span> : null}
             {indicators.rsi ? <span>RSI {analytics.rsi === null ? "-" : analytics.rsi.toFixed(1)}</span> : null}
@@ -479,7 +480,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         </section> : null}
         <section className="bg-[#0b0d0f] p-2.5">
           <p className="font-semibold text-slate-100">AI Analysis แปลไทย</p>
-          <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-400">
+          <div className="mt-1 grid grid-cols-2 gap-1 font-mono text-slate-300">
             <span>Trend {analytics.trendStrength}/100</span>
             <span>Momentum {analytics.momentum}/100</span>
             <span>Breakout {analytics.breakout}%</span>
@@ -491,7 +492,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
       </div>
       {hoverQuote ? (
         <div
-          className="pointer-events-none absolute z-20 w-[214px] rounded-md border border-white/15 bg-[#101318]/95 p-3 text-xs text-slate-300 shadow-[0_18px_44px_rgba(0,0,0,.38)]"
+          className="pointer-events-none absolute z-20 w-[214px] rounded-md border border-cyan-300/20 bg-[#101620]/95 p-3 text-xs text-slate-300 shadow-[0_18px_44px_rgba(0,0,0,.38)]"
           style={{
             left: Math.min(Math.max(8, hoverQuote.x + 12), Math.max(8, (containerRef.current?.clientWidth ?? 240) - 222)),
             top: Math.min(Math.max(8, hoverQuote.y + 12), Math.max(8, (containerRef.current?.clientHeight ?? 160) - 148))
@@ -499,11 +500,11 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         >
           <div className="mb-2 border-b border-white/10 pb-2 font-mono text-[11px] text-slate-100">{hoverQuote.dateTime}</div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-            <span className="text-slate-500">Open</span><strong className="text-right font-mono text-slate-100">${hoverQuote.open.toFixed(2)}</strong>
-            <span className="text-slate-500">High</span><strong className="text-right font-mono text-[#18e08a]">${hoverQuote.high.toFixed(2)}</strong>
-            <span className="text-slate-500">Low</span><strong className="text-right font-mono text-[#ef3340]">${hoverQuote.low.toFixed(2)}</strong>
-            <span className="text-slate-500">Close</span><strong className="text-right font-mono text-slate-100">${hoverQuote.close.toFixed(2)}</strong>
-            <span className="text-slate-500">Volume</span><strong className="text-right font-mono text-slate-100">{formatCompact(hoverQuote.volume)}</strong>
+            <span className="text-slate-400">Open</span><strong className="text-right font-mono text-slate-100">${hoverQuote.open.toFixed(2)}</strong>
+            <span className="text-slate-400">High</span><strong className="text-right font-mono text-[#18e08a]">${hoverQuote.high.toFixed(2)}</strong>
+            <span className="text-slate-400">Low</span><strong className="text-right font-mono text-[#ef3340]">${hoverQuote.low.toFixed(2)}</strong>
+            <span className="text-slate-400">Close</span><strong className="text-right font-mono text-slate-100">${hoverQuote.close.toFixed(2)}</strong>
+            <span className="text-slate-400">Volume</span><strong className="text-right font-mono text-slate-100">{formatCompact(hoverQuote.volume)}</strong>
           </div>
         </div>
       ) : null}
