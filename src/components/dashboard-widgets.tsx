@@ -331,12 +331,12 @@ export function WatchlistPanel() {
   const rows = filteredRows;
 
   return (
-    <Panel className="flex max-h-[1420px] flex-col overflow-hidden p-0">
-      <div className="border-b border-white/10 px-4 py-3">
+    <Panel className="flex max-h-[1420px] flex-col overflow-hidden p-0 ring-1 ring-cyan-300/10">
+      <div className="border-b border-white/10 bg-black/20 px-4 py-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-white">Watchlist</h3>
-            <p className="text-xs text-slate-500">{quotes.length} tracked symbols · realtime institutional intelligence</p>
+            <p className="text-xs text-slate-400">{quotes.length} tracked symbols · realtime institutional intelligence</p>
           </div>
           <button onClick={requestRefresh} className="rounded-md border border-white/10 px-2.5 py-1.5 text-xs text-slate-300 hover:border-cyan-300/30">Refresh</button>
         </div>
@@ -345,17 +345,17 @@ export function WatchlistPanel() {
         <div className="rounded-md border border-white/10 bg-black/25 p-2">
           <div className="flex items-center gap-2 text-cyan-100"><ShieldCheck size={14} /> Coverage</div>
           <strong className="mt-1 block font-mono text-slate-100">{quotes.length}/{quotes.length} tickers</strong>
-          <p className="mt-1 text-slate-500">Stocks, ETF, Crypto, AI, Chip, Space</p>
+          <p className="mt-1 text-slate-400">Stocks, ETF, Crypto, AI, Chip, Space</p>
         </div>
         <div className="rounded-md border border-white/10 bg-black/25 p-2">
           <div className="flex items-center gap-2 text-emerald-200"><Sparkles size={14} /> AI Priority</div>
           <strong className="mt-1 block font-mono text-slate-100">{leaders.map((item) => item.ticker).join(" · ")}</strong>
-          <p className="mt-1 text-slate-500">จัดอันดับจาก Momentum + Smart Money + Relative Strength</p>
+          <p className="mt-1 text-slate-400">จัดอันดับจาก Momentum + Smart Money + Relative Strength</p>
         </div>
         <div className="rounded-md border border-white/10 bg-black/25 p-2">
           <div className="flex items-center gap-2 text-amber-200"><AlertTriangle size={14} /> Alerts</div>
           <strong className="mt-1 block font-mono text-slate-100">{riskAlerts.length} signals</strong>
-          <p className="mt-1 text-slate-500">{riskAlerts.slice(0, 2).map((item) => `${item.ticker}: ${intelByTicker.get(item.ticker)?.alert}`).join(" · ") || "ไม่มี alert แรง"}</p>
+          <p className="mt-1 text-slate-400">{riskAlerts.slice(0, 2).map((item) => `${item.ticker}: ${intelByTicker.get(item.ticker)?.alert}`).join(" · ") || "ไม่มี alert แรง"}</p>
         </div>
       </div>
       <div className="mx-4 mt-3 flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3">
@@ -375,13 +375,13 @@ export function WatchlistPanel() {
           </button>
         ))}
       </div>
-      <div className="mx-4 mt-3 flex items-center justify-between gap-2 text-xs text-slate-500">
+      <div className="mx-4 mt-3 flex items-center justify-between gap-2 rounded-md border border-white/10 bg-black/20 px-3 py-2 text-xs text-slate-400">
         <span>{filteredRows.length} stocks</span>
-        <span className="font-mono text-slate-400">ราคา · เมื่อวาน · หลังตลาดปิด</span>
+        <span className="font-mono text-slate-300">ราคา · เมื่อวาน · หลังตลาดปิด</span>
       </div>
-      <div className="mt-2 min-h-0 max-h-[1160px] divide-y divide-white/[0.06] overflow-y-auto scrollbar-thin">
+      <div className="mt-2 min-h-0 max-h-[1160px] space-y-3 overflow-y-auto p-4 pt-2 scrollbar-thin">
         {rows.length === 0 ? (
-          <div className="m-4 rounded-md border border-dashed border-white/10 bg-white/[0.025] p-4 text-center text-sm text-slate-400">
+          <div className="rounded-md border border-dashed border-white/10 bg-white/[0.025] p-4 text-center text-sm text-slate-400">
             ไม่พบหุ้นตามตัวกรองนี้
           </div>
         ) : rows.map((quote) => {
@@ -394,80 +394,88 @@ export function WatchlistPanel() {
             <button
               key={quote.ticker}
               onClick={() => setSelectedTicker(quote.ticker)}
-              className={`w-full px-4 py-3.5 text-left transition ${
-                selectedTicker === quote.ticker ? "bg-cyan-300/10" : "hover:bg-white/[0.045]"
+              className={`w-full rounded-xl border p-3 text-left shadow-[0_16px_40px_rgba(0,0,0,.26)] transition ${
+                selectedTicker === quote.ticker
+                  ? "border-cyan-300/45 bg-cyan-300/[0.075] ring-1 ring-cyan-300/25"
+                  : "border-white/10 bg-[#0b0f14] hover:border-cyan-300/25 hover:bg-white/[0.045]"
               }`}
             >
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full bg-violet-400/20 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
-                  🇺🇸 หุ้นสหรัฐฯ
-                </span>
-                <span className="text-[11px] text-slate-400">
-                  เทียบเมื่อวาน {quote.previousClose.toFixed(2)}
-                  <span className={`ml-1 font-mono ${directionTone(afterMarket.closeVsPrevChange)}`}>
-                    {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
-                  </span>
-                </span>
-              </div>
-              <div className="grid grid-cols-[minmax(96px,1fr)_minmax(96px,1.05fr)_auto] items-center gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <StockLogo quote={quote} size="lg" />
-                  <div className="min-w-0">
-                    <strong className="block truncate text-lg font-semibold text-slate-100">{quote.ticker}</strong>
-                    <p className="truncate text-xs text-slate-400">{quote.name}</p>
+              <div className="grid gap-3">
+                <div className="rounded-lg border border-white/10 bg-black/25 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-md border border-violet-300/25 bg-violet-400/14 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
+                      หุ้นสหรัฐฯ
+                    </span>
+                    <span className="text-[11px] text-slate-300">
+                      เทียบเมื่อวาน {quote.previousClose.toFixed(2)}
+                      <span className={`ml-1 font-mono ${directionTone(afterMarket.closeVsPrevChange)}`}>
+                        {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
+                      </span>
+                    </span>
                   </div>
-                </div>
-                <MiniMarketChart ticker={quote.ticker} intradayChange={afterMarket.closeVsPrevChange} afterHoursChange={afterMarket.percent} />
-                <div className="shrink-0 text-right font-mono">
-                  <p className="text-[11px] font-semibold text-slate-400">
-                    หลังตลาดปิด <span className="text-slate-100">{afterMarket.price.toFixed(2)}</span>
-                    <span className={`ml-1 ${directionTone(afterMarket.percent)}`}>{directionArrow(afterMarket.percent)} {signed(afterMarket.percent)}%</span>
-                  </p>
-                  <p className="mt-1 text-xl font-semibold text-slate-100">{quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })} <span className="text-sm font-normal text-slate-300">USD</span></p>
-                  <span className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${directionBadge(afterMarket.closeVsPrevChange)}`}>
-                    {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
-                  </span>
-                </div>
-              </div>
-              <div className="mt-2 grid grid-cols-3 gap-2 text-[11px] text-slate-400">
-                <span className="truncate">{quote.sector}</span>
-                <span className={`truncate ${directionTone(quote.change)}`}>วันนี้ {signed(quote.change)}</span>
-                <span className="truncate text-right"><span className={rsiTone}>RSI {quote.rsi}</span> · <span className={directionTone(afterMarket.percent)}>AH {signed(afterMarket.percent)}%</span></span>
-              </div>
-              <div className="mt-3 rounded-lg border border-white/10 bg-black/25 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2 py-1 text-[11px] font-semibold text-cyan-100">{intel.priority}</span>
-                  <span className="rounded-md border border-purple-300/20 bg-purple-300/10 px-2 py-1 text-[11px] font-semibold text-purple-100">{intel.setup}</span>
-                  <span className={`rounded-md border px-2 py-1 text-[11px] font-semibold ${intel.alert === "Monitor" ? "border-white/10 bg-white/[0.035] text-slate-300" : "border-amber-300/30 bg-amber-300/10 text-amber-100"}`}>{intel.alert}</span>
-                </div>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {[
-                    ["Trend", intel.trendScore, false],
-                    ["Smart", intel.smartMoneyScore, false],
-                    ["Risk", intel.riskScore, true],
-                    ["Vol", intel.volatilityScore, true],
-                    ["RS", intel.relativeStrength, false],
-                    ["AI", intel.aiConfidenceScore, false]
-                  ].map(([label, score, inverse]) => (
-                    <div key={label as string} className="min-w-0">
-                      <div className="flex items-center justify-between gap-1 font-mono text-[10px]">
-                        <span className="text-slate-500">{label}</span>
-                        <strong className={scoreTone(score as number, inverse as boolean)}>{score}</strong>
-                      </div>
-                      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
-                        <div className={`h-full rounded-full bg-gradient-to-r ${scoreBar(score as number, inverse as boolean)}`} style={{ width: `${score}%` }} />
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] items-stretch gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <StockLogo quote={quote} size="lg" />
+                      <div className="min-w-0">
+                        <strong className="block truncate text-lg font-semibold text-slate-100">{quote.ticker}</strong>
+                        <p className="truncate text-xs text-slate-300">{quote.name}</p>
                       </div>
                     </div>
-                  ))}
+                    <div className="min-w-0 rounded-md border border-cyan-300/14 bg-cyan-300/[0.035] px-2 py-1">
+                      <MiniMarketChart ticker={quote.ticker} intradayChange={afterMarket.closeVsPrevChange} afterHoursChange={afterMarket.percent} />
+                    </div>
+                    <div className="rounded-md border border-white/10 bg-black/30 p-3 text-right font-mono">
+                      <p className="text-[11px] font-semibold text-slate-300">
+                        หลังตลาดปิด <span className="text-slate-100">{afterMarket.price.toFixed(2)}</span>
+                        <span className={`ml-1 ${directionTone(afterMarket.percent)}`}>{directionArrow(afterMarket.percent)} {signed(afterMarket.percent)}%</span>
+                      </p>
+                      <p className="mt-1 text-xl font-semibold text-slate-100">{quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })} <span className="text-sm font-normal text-slate-300">USD</span></p>
+                      <span className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${directionBadge(afterMarket.closeVsPrevChange)}`}>
+                        {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-3 grid gap-2 text-[11px] leading-5 text-slate-400 sm:grid-cols-2">
-                  <p><b className="text-slate-200">Dark Pool:</b> {intel.darkPoolActivity}</p>
-                  <p><b className="text-slate-200">Options Flow:</b> {intel.optionsFlow}</p>
-                  <p><b className="text-slate-200">Institutional:</b> {intel.institutionalPositioning}</p>
-                  <p><b className="text-slate-200">Sector:</b> {intel.sectorRotation}</p>
+                <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-300">
+                  <span className="rounded-md border border-white/10 bg-black/25 px-2 py-1 truncate">{quote.sector}</span>
+                  <span className={`rounded-md border border-white/10 bg-black/25 px-2 py-1 truncate ${directionTone(quote.change)}`}>วันนี้ {signed(quote.change)}</span>
+                  <span className="rounded-md border border-white/10 bg-black/25 px-2 py-1 truncate text-right"><span className={rsiTone}>RSI {quote.rsi}</span> · <span className={directionTone(afterMarket.percent)}>AH {signed(afterMarket.percent)}%</span></span>
                 </div>
-                <p className="mt-3 text-[11px] leading-5 text-slate-300">{intel.thesis}</p>
-                <p className="mt-1 text-[11px] leading-5 text-rose-200/90">Invalidation: {intel.invalidation}</p>
+                <div className="rounded-lg border border-white/10 bg-black/25 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+                    <span className="rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2 py-1 text-[11px] font-semibold text-cyan-100">{intel.priority}</span>
+                    <span className="rounded-md border border-purple-300/20 bg-purple-300/10 px-2 py-1 text-[11px] font-semibold text-purple-100">{intel.setup}</span>
+                    <span className={`rounded-md border px-2 py-1 text-[11px] font-semibold ${intel.alert === "Monitor" ? "border-white/10 bg-white/[0.035] text-slate-300" : "border-amber-300/30 bg-amber-300/10 text-amber-100"}`}>{intel.alert}</span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {[
+                      ["Trend", intel.trendScore, false],
+                      ["Smart", intel.smartMoneyScore, false],
+                      ["Risk", intel.riskScore, true],
+                      ["Vol", intel.volatilityScore, true],
+                      ["RS", intel.relativeStrength, false],
+                      ["AI", intel.aiConfidenceScore, false]
+                    ].map(([label, score, inverse]) => (
+                      <div key={label as string} className="min-w-0 rounded-md border border-white/10 bg-white/[0.035] p-2">
+                        <div className="flex items-center justify-between gap-1 font-mono text-[10px]">
+                          <span className="text-slate-400">{label}</span>
+                          <strong className={scoreTone(score as number, inverse as boolean)}>{score}</strong>
+                        </div>
+                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
+                          <div className={`h-full rounded-full bg-gradient-to-r ${scoreBar(score as number, inverse as boolean)}`} style={{ width: `${score}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 text-[11px] leading-5 text-slate-300">
+                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Dark Pool:</b> {intel.darkPoolActivity}</p>
+                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Options Flow:</b> {intel.optionsFlow}</p>
+                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Institutional:</b> {intel.institutionalPositioning}</p>
+                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Sector:</b> {intel.sectorRotation}</p>
+                  </div>
+                  <p className="mt-3 rounded-md border border-cyan-300/12 bg-cyan-300/[0.035] p-2 text-[11px] leading-5 text-slate-200">{intel.thesis}</p>
+                  <p className="mt-2 rounded-md border border-rose-300/15 bg-rose-300/[0.04] p-2 text-[11px] leading-5 text-rose-100">Invalidation: {intel.invalidation}</p>
+                </div>
               </div>
             </button>
           );
