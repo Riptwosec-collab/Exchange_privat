@@ -160,7 +160,7 @@ export function EnhancedHeatmapPanel() {
           </button>
         </div>
       </div>
-      <div className="mt-4 grid max-h-[760px] gap-3 overflow-y-auto pr-1 scrollbar-thin sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-4 grid max-h-[760px] gap-4 overflow-y-auto rounded-lg border border-cyan-300/15 bg-cyan-300/[0.035] p-3 pr-2 scrollbar-thin sm:grid-cols-2 xl:grid-cols-3">
         {rows.map((stock) => {
           const insight = buildHeatmapInsight(stock);
           const afterMarket = heatmapAfterMarketSnapshot(stock);
@@ -171,7 +171,7 @@ export function EnhancedHeatmapPanel() {
             <motion.article
               key={stock.ticker}
               whileHover={{ y: -2 }}
-              className="market-heatmap-card rounded-lg border border-white/10 bg-[#141414] p-4 text-left shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]"
+              className="market-heatmap-card rounded-lg border border-cyan-300/22 bg-[#090d12] p-4 text-left shadow-[0_18px_46px_rgba(0,0,0,.34)] ring-1 ring-white/[0.05] transition hover:border-cyan-200/55 hover:bg-[#0d1319] hover:ring-cyan-300/20"
             >
               <button onClick={() => setSelectedTicker(stock.ticker)} className="block w-full text-left">
                 <div className="flex items-start justify-between gap-2">
@@ -208,15 +208,15 @@ export function EnhancedHeatmapPanel() {
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="rounded-md bg-white/[0.055] p-2">
+                  <div className="rounded-md border border-white/10 bg-black/25 p-2">
                     <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">วันนี้</p>
                     <strong className={`font-mono text-sm ${heatmapTone(stock.change)}`}>{heatmapSigned(stock.change)}</strong>
                   </div>
-                  <div className="rounded-md bg-white/[0.055] p-2">
+                  <div className="rounded-md border border-white/10 bg-black/25 p-2">
                     <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Upside</p>
                     <strong className={`font-mono text-sm ${insight.upside >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{insight.upside.toFixed(0)}%</strong>
                   </div>
-                  <div className="rounded-md bg-white/[0.055] p-2">
+                  <div className="rounded-md border border-white/10 bg-black/25 p-2">
                     <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500">RSI</p>
                     <strong className={`font-mono text-sm ${rsiTone}`}>{stock.rsi}</strong>
                   </div>
@@ -315,7 +315,7 @@ function heatmapBadge(value: number) {
 
 function heatmapArrow(value: number) {
   if (value > 0) return "â†—";
-  if (value < 0) return "â†˜";
+  if (value < 0) return "↘";
   return "â†’";
 }
 
@@ -497,13 +497,13 @@ export function EnhancedHeatmapPage() {
           <button onClick={requestRefresh} className="h-10 rounded-md border border-white/10 px-3 text-sm text-slate-300 hover:border-cyan-300/40">Refresh</button>
         </div>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div className="mt-4 grid gap-4 rounded-lg border border-cyan-300/15 bg-cyan-300/[0.035] p-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {rows.map((stock) => {
           const insight = buildHeatmapInsight(stock);
           const afterMarket = heatmapAfterMarketSnapshot(stock);
           const status = insight.upside > 8 && stock.rsi < 70 ? "Buy" : stock.rsi > 68 || insight.upside < 0 ? "Watch" : "Hold";
           return (
-            <article key={stock.ticker} className="market-heatmap-card rounded-lg border border-white/10 bg-[#141414] p-4 text-slate-100 shadow-[0_16px_42px_rgba(0,0,0,.24)] transition hover:border-cyan-300/35 hover:bg-[#181818]">
+            <article key={stock.ticker} className="market-heatmap-card rounded-lg border border-cyan-300/22 bg-[#090d12] p-4 text-slate-100 shadow-[0_18px_46px_rgba(0,0,0,.34)] ring-1 ring-white/[0.05] transition hover:border-cyan-200/55 hover:bg-[#0d1319] hover:ring-cyan-300/20">
               <button
                 onClick={() => { setSelectedTicker(stock.ticker); setSelected(stock); }}
                 className="block w-full text-left"

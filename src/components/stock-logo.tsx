@@ -14,26 +14,128 @@ const sizes = {
   lg: "h-12 w-12 text-sm"
 };
 
+const officialDomains: Record<string, string> = {
+  AAPL: "apple.com",
+  NVDA: "nvidia.com",
+  AMD: "amd.com",
+  TSLA: "tesla.com",
+  MSFT: "microsoft.com",
+  META: "meta.com",
+  AMZN: "amazon.com",
+  GOOG: "google.com",
+  GOOGL: "google.com",
+  NFLX: "netflix.com",
+  COIN: "coinbase.com",
+  CRWD: "crowdstrike.com",
+  CRWV: "coreweave.com",
+  PANW: "paloaltonetworks.com",
+  NU: "nubank.com.br",
+  HOOD: "robinhood.com",
+  INTU: "intuit.com",
+  RKLB: "rocketlabusa.com",
+  MU: "micron.com",
+  OSK: "oshkosh.com",
+  ASTS: "ast-science.com",
+  LUNR: "intuitivemachines.com",
+  SOFI: "sofi.com",
+  NBIS: "nebius.com",
+  NET: "cloudflare.com",
+  V: "visa.com",
+  INTC: "intel.com",
+  SNDK: "sandisk.com",
+  PLTR: "palantir.com",
+  QCOM: "qualcomm.com",
+  IBM: "ibm.com",
+  AVGO: "broadcom.com",
+  TSM: "tsmc.com",
+  APLD: "applieddigital.com",
+  BBAI: "bigbear.ai",
+  IONQ: "ionq.com",
+  RGTI: "rigetti.com",
+  SMCI: "supermicro.com",
+  VRT: "vertiv.com",
+  SERV: "serverobotics.com",
+  SYM: "symbotic.com",
+  ANET: "arista.com",
+  ETN: "eaton.com",
+  STK: "columbiathreadneedleus.com"
+};
+
+const simpleIconSlugs: Record<string, string> = {
+  AAPL: "apple",
+  NVDA: "nvidia",
+  AMD: "amd",
+  TSLA: "tesla",
+  MSFT: "microsoft",
+  META: "meta",
+  AMZN: "amazon",
+  GOOG: "google",
+  GOOGL: "google",
+  NFLX: "netflix",
+  COIN: "coinbase",
+  HOOD: "robinhood",
+  INTU: "intuit",
+  NET: "cloudflare",
+  V: "visa",
+  INTC: "intel",
+  PLTR: "palantir",
+  QCOM: "qualcomm",
+  IBM: "ibm"
+};
+
+const cryptoLogos: Record<string, string> = {
+  BTC: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+  BTCTHB: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+  ETH: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+  ETHUSD: "https://assets.coingecko.com/coins/images/279/large/ethereum.png"
+};
+
+function favicon(domain: string) {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+}
+
+function logoCandidates(quote: StockLogoProps["quote"]) {
+  const ticker = quote.ticker.toUpperCase();
+  const urls = [
+    quote.logoUrl,
+    cryptoLogos[ticker],
+    simpleIconSlugs[ticker] ? `https://cdn.simpleicons.org/${simpleIconSlugs[ticker]}/ffffff` : null,
+    officialDomains[ticker] ? favicon(officialDomains[ticker]) : null
+  ].filter((url): url is string => Boolean(url));
+  return Array.from(new Set(urls));
+}
+
 export function StockLogo({ quote, size = "md" }: StockLogoProps) {
-  const [failed, setFailed] = useState(false);
+  const [sourceIndex, setSourceIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const timeoutRef = useRef<number | null>(null);
-  const showImage = Boolean(quote.logoUrl) && !failed;
+  const candidates = logoCandidates(quote);
+  const activeSource = candidates[sourceIndex];
+  const showImage = Boolean(activeSource);
 
   useEffect(() => {
-    setFailed(false);
+    setSourceIndex(0);
     setLoaded(false);
-    if (!quote.logoUrl) return;
-    timeoutRef.current = window.setTimeout(() => setFailed(true), 8000);
+  }, [quote.logoUrl, quote.ticker]);
+
+  useEffect(() => {
+    setLoaded(false);
+    if (!activeSource) return;
+    timeoutRef.current = window.setTimeout(() => nextSource(), 8000);
     return () => {
       if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
     };
-  }, [quote.logoUrl]);
+  }, [activeSource]);
+
+  function nextSource() {
+    if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
+    setLoaded(false);
+    setSourceIndex((current) => current + 1);
+  }
 
   function handleLoad() {
     if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
     setLoaded(true);
-    setFailed(false);
   }
 
   return (
@@ -53,11 +155,11 @@ export function StockLogo({ quote, size = "md" }: StockLogoProps) {
       </>
       {showImage ? (
         <img
-          src={quote.logoUrl}
+          src={activeSource}
           alt={`${quote.ticker} logo`}
-          onError={() => setFailed(true)}
+          onError={nextSource}
           onLoad={handleLoad}
-          className="absolute inset-0 h-full w-full object-contain p-1 opacity-100 transition-opacity"
+          className={`absolute inset-0 h-full w-full object-contain p-1 transition-opacity ${loaded ? "opacity-100" : "opacity-0"}`}
           referrerPolicy="no-referrer"
         />
       ) : null}

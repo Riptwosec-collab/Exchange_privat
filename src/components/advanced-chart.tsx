@@ -27,6 +27,12 @@ type ChartMode = (typeof chartModes)[number]["key"];
 type IndicatorKey = "levels" | "ad" | "rsi" | "macd" | "ema" | "volume" | "atr" | "adx";
 type IndicatorVisibility = Record<IndicatorKey, boolean>;
 const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
+const freshGreen = "#18e08a";
+const freshGreenSoft = "rgba(24, 224, 138, 0.34)";
+const freshGreenFaint = "rgba(24, 224, 138, 0.05)";
+const afterHoursLine = "rgba(226, 232, 240, 0.92)";
+const afterHoursTop = "rgba(148, 163, 184, 0.36)";
+const afterHoursBottom = "rgba(15, 23, 42, 0.08)";
 
 const defaultIndicatorVisibility: IndicatorVisibility = {
   levels: true,
@@ -55,13 +61,13 @@ function signed(value: number, digits = 2) {
 }
 
 function toneClass(value: number) {
-  if (value > 0) return "text-[#00c853]";
+  if (value > 0) return "text-[#18e08a]";
   if (value < 0) return "text-[#ff3366]";
   return "text-slate-300";
 }
 
 function badgeClass(value: number) {
-  if (value > 0) return "border-[#00c853]/35 bg-[#00c853]/12 text-[#8ef7ad]";
+  if (value > 0) return "border-[#18e08a]/35 bg-[#18e08a]/12 text-[#9ff7c9]";
   if (value < 0) return "border-[#ff3366]/35 bg-[#ff3366]/12 text-[#ff9db6]";
   return "border-white/10 bg-white/[0.045] text-slate-300";
 }
@@ -69,7 +75,7 @@ function badgeClass(value: number) {
 function statusTone(score: number, inverse = false) {
   const high = inverse ? score <= 35 : score >= 65;
   const low = inverse ? score >= 65 : score <= 35;
-  if (high) return "text-[#00c853]";
+  if (high) return "text-[#18e08a]";
   if (low) return "text-[#ff3366]";
   return "text-amber-200";
 }
@@ -489,7 +495,7 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
         <path d={buildPolyline(macd.signal, width, height, -macdMax, macdMax)} fill="none" stroke="#f97316" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
         <EndValueLabel values={macd.macd} label="MACD" color="#2563eb" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
         <EndValueLabel values={macd.signal} label="SIG" color="#f97316" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
-        <EndValueLabel values={macd.histogram} label="HIST" color={(latestMacd ?? 0) >= (latestSignal ?? 0) ? "#00c853" : "#ef3340"} min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
+        <EndValueLabel values={macd.histogram} label="HIST" color={(latestMacd ?? 0) >= (latestSignal ?? 0) ? "#18e08a" : "#ef3340"} min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
       </IndicatorPane> : null}
 
       {visible.ad || visible.atr || visible.adx ? <div className="grid border-t border-white/10 md:grid-cols-3">
@@ -498,8 +504,8 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
           rightLabels={[{ label: "A/D", className: (metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "bg-emerald-500 text-slate-950" : "bg-rose-500 text-white" }]}
           height={108}
         >
-          <path d={buildPolyline(ad, width, height)} fill="none" stroke={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#00c853" : "#ef3340"} strokeWidth="2" vectorEffect="non-scaling-stroke" />
-          <EndValueLabel values={ad} label="A/D" color={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#00c853" : "#ef3340"} height={height} formatter={(value) => formatCompact(value)} />
+          <path d={buildPolyline(ad, width, height)} fill="none" stroke={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#18e08a" : "#ef3340"} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+          <EndValueLabel values={ad} label="A/D" color={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#18e08a" : "#ef3340"} height={height} formatter={(value) => formatCompact(value)} />
         </IndicatorPane> : null}
         {visible.atr ? <IndicatorPane
           title={`ATR 14  ${formatIndicator(latestAtr)}`}
@@ -573,28 +579,28 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         title: "Accumulation/Distribution (A/D)",
         value: formatCompact(marketMetrics.ad.value),
         detail: adChange >= 0 ? "เส้นขึ้น: มีการสะสมหุ้น" : "เส้นลง: มีแรงขายออก",
-        tone: adChange >= 0 ? "text-[#00c853]" : "text-[#ff3366]"
+        tone: adChange >= 0 ? "text-[#18e08a]" : "text-[#ff3366]"
       },
       {
         key: "rsi",
         title: "RSI",
         value: formatIndicator(technicals.rsi, 1),
         detail: technicals.rsi === null ? "รอข้อมูล" : technicals.rsi >= 70 ? "หุ้นร้อนเกินไป / Overbought" : technicals.rsi <= 30 ? "ลงแรงเกินไป / Oversold" : "แรงซื้อขายยังสมดุล",
-        tone: technicals.rsi !== null && technicals.rsi >= 70 ? "text-[#ff3366]" : technicals.rsi !== null && technicals.rsi <= 30 ? "text-[#00c853]" : "text-slate-100"
+        tone: technicals.rsi !== null && technicals.rsi >= 70 ? "text-[#ff3366]" : technicals.rsi !== null && technicals.rsi <= 30 ? "text-[#18e08a]" : "text-slate-100"
       },
       {
         key: "macd",
         title: "MACD",
         value: `${formatIndicator(technicals.macd, 2)} / ${formatIndicator(technicals.macdSignal, 2)}`,
         detail: `MACD Line · Signal Line · Histogram ${formatIndicator(technicals.macdHistogram, 2)}`,
-        tone: (technicals.macdHistogram ?? 0) >= 0 ? "text-[#00c853]" : "text-[#ff3366]"
+        tone: (technicals.macdHistogram ?? 0) >= 0 ? "text-[#18e08a]" : "text-[#ff3366]"
       },
       {
         key: "ema",
         title: "EMA",
         value: `${formatIndicator(marketMetrics.ema20)} / ${formatIndicator(marketMetrics.ema50)}`,
         detail: emaTrend >= 0 ? "ราคาอยู่เหนือ EMA20: แนวโน้มบวก" : "ราคาอยู่ใต้ EMA20: แนวโน้มอ่อน",
-        tone: emaTrend >= 0 ? "text-[#00c853]" : "text-[#ff3366]"
+        tone: emaTrend >= 0 ? "text-[#18e08a]" : "text-[#ff3366]"
       },
       {
         key: "volume",
@@ -615,7 +621,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         title: "ADX",
         value: formatIndicator(marketMetrics.adx, 1),
         detail: `${describeAdx(marketMetrics.adx)} · ADX บอกความแรงของ trend ไม่บอกทิศทาง`,
-        tone: marketMetrics.adx !== null && marketMetrics.adx >= 25 ? "text-[#00c853]" : "text-slate-100"
+        tone: marketMetrics.adx !== null && marketMetrics.adx >= 25 ? "text-[#18e08a]" : "text-slate-100"
       }
     ];
   }, [marketMetrics, technicals]);
@@ -690,7 +696,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     const chartElement = containerRef.current;
     const chart = createChart(containerRef.current, {
       layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#cbd5e1", fontFamily: tradingThaiFont },
-      grid: { vertLines: { color: "rgba(255, 255, 255, 0.035)" }, horzLines: { color: "rgba(255, 255, 255, 0.055)" } },
+      grid: { vertLines: { color: "rgba(255, 255, 255, 0.042)" }, horzLines: { color: "rgba(255, 255, 255, 0.052)" } },
       rightPriceScale: { borderColor: "rgba(255, 255, 255, 0.12)", scaleMargins: { top: 0.08, bottom: chartMode === "Volume" ? 0.34 : 0.22 } },
       timeScale: {
         borderColor: "rgba(255, 255, 255, 0.12)",
@@ -702,8 +708,8 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         minBarSpacing: 4
       },
       crosshair: {
-        vertLine: { color: "rgba(255, 255, 255, 0.24)", labelBackgroundColor: "#1f2937" },
-        horzLine: { color: "rgba(255, 255, 255, 0.2)", labelBackgroundColor: "#1f2937" }
+        vertLine: { color: "rgba(226, 232, 240, 0.42)", style: LineStyle.Dashed, labelBackgroundColor: "#111827" },
+        horzLine: { color: "rgba(226, 232, 240, 0.26)", style: LineStyle.Dotted, labelBackgroundColor: "#111827" }
       },
       width: chartElement.clientWidth,
       height: chartElement.clientHeight
@@ -715,9 +721,9 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     const firstClose = normalizedCandles[0]?.close ?? 0;
     const lastClose = normalizedCandles.at(-1)?.close ?? firstClose;
     const isUpTrend = lastClose >= firstClose;
-    const lineColor = isUpTrend ? "#00c853" : "#ff3366";
+    const lineColor = isUpTrend ? freshGreen : "#ff3366";
     const softLineColor = isUpTrend ? "#00e676" : "#ff5c8a";
-    const upFill = "rgba(0, 200, 83, 0.34)";
+    const upFill = freshGreenSoft;
     const downFill = "rgba(255, 51, 102, 0.34)";
     const transparentFill = "rgba(15, 23, 42, 0)";
 
@@ -744,7 +750,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     let primarySeries: any = null;
 
     if (chartMode === "Bars") {
-      const series = chart.addSeries(BarSeries, { upColor: "#00c853", downColor: "#ff3366", openVisible: true, thinBars: false });
+      const series = chart.addSeries(BarSeries, { upColor: freshGreen, downColor: "#ff3366", openVisible: true, thinBars: false });
       series.setData(normalizedCandles);
       primarySeries = series;
     } else if (chartMode === "Line") {
@@ -754,9 +760,9 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     } else if (chartMode === "Baseline") {
       const series = chart.addSeries(BaselineSeries, {
         baseValue: { type: "price", price: firstClose },
-        topLineColor: "#00c853",
-        topFillColor1: "rgba(0, 200, 83, 0.42)",
-        topFillColor2: "rgba(0, 200, 83, 0.05)",
+        topLineColor: freshGreen,
+        topFillColor1: "rgba(24, 224, 138, 0.42)",
+        topFillColor2: freshGreenFaint,
         bottomLineColor: "#ff3366",
         bottomFillColor1: "rgba(255, 51, 102, 0.05)",
         bottomFillColor2: "rgba(255, 51, 102, 0.42)",
@@ -767,60 +773,62 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     } else if (chartMode === "Smooth") {
       primarySeries = addAreaSeries(softLineColor, isUpTrend ? "rgba(0, 230, 118, 0.42)" : "rgba(255, 92, 138, 0.42)");
     } else if (chartMode === "Step") {
-      primarySeries = addLineSeries(LineType.WithSteps, isUpTrend ? "#00c853" : "#ff5c8a", 3);
+      primarySeries = addLineSeries(LineType.WithSteps, isUpTrend ? freshGreen : "#ff5c8a", 3);
     } else if (chartMode === "Hollow") {
-      const series = chart.addSeries(CandlestickSeries, { upColor: "rgba(15, 23, 42, 0)", downColor: "#ff3366", borderVisible: true, borderUpColor: "#00c853", borderDownColor: "#ff3366", wickUpColor: "#00c853", wickDownColor: "#ff3366" });
+      const series = chart.addSeries(CandlestickSeries, { upColor: "rgba(15, 23, 42, 0)", downColor: "#ff3366", borderVisible: true, borderUpColor: freshGreen, borderDownColor: "#ff3366", wickUpColor: freshGreen, wickDownColor: "#ff3366" });
       series.setData(normalizedCandles);
       primarySeries = series;
     } else if (chartMode === "Trend") {
-      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(0, 200, 83, 0.24)" : "rgba(255, 51, 102, 0.24)");
+      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(24, 224, 138, 0.24)" : "rgba(255, 51, 102, 0.24)");
       if (indicatorVisibility.ema) {
-        const trendSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dashed, lineType: LineType.Curved, priceLineVisible: true, title: "EMA20" });
+        const trendSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dashed, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
         trendSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
       }
     } else if (chartMode === "Volume") {
-      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(0, 200, 83, 0.18)" : "rgba(255, 51, 102, 0.18)");
+      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(24, 224, 138, 0.18)" : "rgba(255, 51, 102, 0.18)");
     } else {
-      const series = chart.addSeries(CandlestickSeries, { upColor: "#00c853", downColor: "#ff3366", borderVisible: false, wickUpColor: "#00c853", wickDownColor: "#ff3366" });
+      const series = chart.addSeries(CandlestickSeries, { upColor: freshGreen, downColor: "#ff3366", borderVisible: false, wickUpColor: freshGreen, wickDownColor: "#ff3366" });
       series.setData(normalizedCandles);
       primarySeries = series;
     }
 
     if (indicatorVisibility.levels && primarySeries) {
       if (technicals.support !== null) {
-        primarySeries.createPriceLine({ price: technicals.support, color: "#22d3ee", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: `Support ${formatIndicator(technicals.support)}` });
+        primarySeries.createPriceLine({ price: technicals.support, color: "#22d3ee", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: false, title: "" });
       }
       if (technicals.resistance !== null) {
-        primarySeries.createPriceLine({ price: technicals.resistance, color: "#f472b6", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: `Resistance ${formatIndicator(technicals.resistance)}` });
+        primarySeries.createPriceLine({ price: technicals.resistance, color: "#f472b6", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: false, title: "" });
       }
     }
 
     if (indicatorVisibility.volume) {
-      const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(0, 200, 83, 0.28)", priceFormat: { type: "volume" }, priceScaleId: "", title: "Volume" });
+      const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(24, 224, 138, 0.28)", priceFormat: { type: "volume" }, priceScaleId: "", priceLineVisible: false, lastValueVisible: false });
       volumeSeries.setData(
         chartData.map((candle) => ({
           time: candle.time as Time,
           value: candle.volume,
-          color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(0,200,83,.58)" : "rgba(0,200,83,.2)") : chartMode === "Volume" ? "rgba(255,51,102,.58)" : "rgba(255,51,102,.2)"
+          color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(24,224,138,.62)" : "rgba(24,224,138,.24)") : chartMode === "Volume" ? "rgba(255,51,102,.58)" : "rgba(255,51,102,.2)"
         }))
       );
     }
 
     if (indicatorVisibility.ema && !["Trend", "Volume"].includes(chartMode)) {
-      const maSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dotted, lineType: LineType.Curved, priceLineVisible: true, title: `EMA20 ${formatIndicator(ma20.at(-1)?.value ?? null)}` });
+      const maSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dotted, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
       maSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
     }
 
     if (afterHoursSeriesData.length > 1) {
       const afterHoursSeries = chart.addSeries(AreaSeries, {
-        lineColor: "rgba(203, 213, 225, 1)",
-        topColor: "rgba(203, 213, 225, 0.44)",
-        bottomColor: "rgba(203, 213, 225, 0.02)",
+        lineColor: afterHoursLine,
+        topColor: afterHoursTop,
+        bottomColor: afterHoursBottom,
         lineWidth: 3,
+        lineType: LineType.Curved,
         crosshairMarkerVisible: true,
-        priceLineVisible: true,
-        priceLineColor: "rgba(203, 213, 225, 0.95)",
-        title: `After-hours ${formatIndicator(afterHoursSeriesData.at(-1)?.value ?? null)}`
+        priceLineVisible: false,
+        lastValueVisible: false,
+        priceLineColor: afterHoursLine,
+        title: ""
       });
       afterHoursSeries.setData(afterHoursSeriesData);
     }
@@ -883,6 +891,21 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     timeStyle: "short",
     timeZone: "Asia/Bangkok"
   });
+  const chartLevelBadges = [
+    indicatorVisibility.levels && technicals.resistance !== null
+      ? { label: "Resistance", value: formatIndicator(technicals.resistance), className: "border-pink-300/45 bg-pink-300/12 text-pink-100", dot: "#f472b6" }
+      : null,
+    indicatorVisibility.ema
+      ? { label: "EMA20", value: formatIndicator(marketMetrics.ema20), className: "border-yellow-300/45 bg-yellow-300/12 text-yellow-100", dot: "#facc15" }
+      : null,
+    indicatorVisibility.levels && technicals.support !== null
+      ? { label: "Support", value: formatIndicator(technicals.support), className: "border-cyan-300/45 bg-cyan-300/12 text-cyan-100", dot: "#22d3ee" }
+      : null,
+    { label: "After-hours", value: formatIndicator(marketMetrics.afterHours.price), className: "border-slate-200/35 bg-slate-200/12 text-slate-100", dot: "#cbd5e1" },
+    indicatorVisibility.volume
+      ? { label: "Volume", value: formatCompact(marketMetrics.currentVolume), className: "border-[#18e08a]/40 bg-[#18e08a]/12 text-[#b6ffd8]", dot: freshGreen }
+      : null
+  ].filter((item): item is { label: string; value: string; className: string; dot: string } => Boolean(item));
   const aiSummary =
     marketMetrics.breakoutProbability >= 70
       ? "AI มองว่ามีโอกาส breakout สูง เพราะโมเมนตัมและวอลุ่มหนุนราคา"
@@ -918,11 +941,11 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
           <select value={selectedTicker} onChange={(event) => setSelectedTicker(event.target.value)} className="h-8 w-44 rounded-md border border-white/10 bg-slate-950 px-2 text-sm text-slate-100 outline-none">
             {symbolOptions.map((stock) => <option key={stock.ticker} value={stock.ticker}>{stock.ticker} - {stock.name}</option>)}
           </select>
-          <select value={chartMode} onChange={(event) => setChartMode(event.target.value as ChartMode)} className="h-8 w-32 rounded-md border border-[#00c853]/25 bg-slate-950 px-2 text-sm text-slate-100 outline-none hover:border-[#00c853]/60" title="Chart style">
+          <select value={chartMode} onChange={(event) => setChartMode(event.target.value as ChartMode)} className="h-8 w-32 rounded-md border border-[#18e08a]/25 bg-slate-950 px-2 text-sm text-slate-100 outline-none hover:border-[#18e08a]/60" title="Chart style">
             {chartModes.map((mode) => <option key={mode.key} value={mode.key}>{mode.label}</option>)}
           </select>
           {timeframes.map((item) => (
-            <button key={item} onClick={() => setTimeframe(item)} className={`h-8 rounded-md px-3 text-sm transition ${timeframe === item ? "bg-[#00c853] text-slate-950" : "border border-white/10 text-slate-300 hover:border-[#00c853]/40"}`}>{item}</button>
+            <button key={item} onClick={() => setTimeframe(item)} className={`h-8 rounded-md px-3 text-sm transition ${timeframe === item ? "bg-[#18e08a] text-slate-950" : "border border-white/10 text-slate-300 hover:border-[#18e08a]/40"}`}>{item}</button>
           ))}
           <button title="Refresh chart" onClick={() => { requestRefresh(); refreshCandles(); }} className="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 text-slate-300"><RefreshCw size={16} /></button>
           <button title="Drawing tools" onClick={() => setShowTools((value) => !value)} className="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 text-slate-300"><PenLine size={16} /></button>
@@ -932,9 +955,17 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       </div>
       {showTools ? (
         <div className="mt-3 grid gap-2 text-xs text-slate-300 sm:grid-cols-4">
-          {["Trendline ready", "Fibonacci ready", "Support/Resistance", `Compare: ${compare}`].map((item) => <button key={item} className="rounded-md border border-[#00c853]/20 bg-[#00c853]/10 px-3 py-2 text-left">{item}</button>)}
+          {["Trendline ready", "Fibonacci ready", "Support/Resistance", `Compare: ${compare}`].map((item) => <button key={item} className="rounded-md border border-[#18e08a]/20 bg-[#18e08a]/10 px-3 py-2 text-left">{item}</button>)}
         </div>
       ) : null}
+      <div className="mt-3 flex min-h-10 flex-wrap items-center gap-2 rounded-md border border-white/10 bg-black/25 px-3 py-2">
+        {chartLevelBadges.map((badge) => (
+          <span key={badge.label} className={`inline-flex items-center gap-2 rounded-md border px-2.5 py-1 font-mono text-[11px] font-semibold ${badge.className}`}>
+            <span className="h-2 w-2 rounded-full shadow-[0_0_10px_currentColor]" style={{ backgroundColor: badge.dot }} />
+            {badge.label} {badge.value}
+          </span>
+        ))}
+      </div>
       <div className={`relative w-full shrink-0 ${compact ? "mt-3" : "mt-4"}`}>
         <div ref={containerRef} className={`advanced-chart-host w-full overflow-hidden ${chartHeightClass}`} />
         {hoverQuote ? (
@@ -948,7 +979,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
             <div className="mb-2 border-b border-white/10 pb-2 font-mono text-[11px] text-slate-100">{hoverQuote.dateTime}</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1">
               <span className="text-slate-500">Open</span><strong className="text-right font-mono text-slate-100">${hoverQuote.open.toFixed(2)}</strong>
-              <span className="text-slate-500">High</span><strong className="text-right font-mono text-[#00c853]">${hoverQuote.high.toFixed(2)}</strong>
+              <span className="text-slate-500">High</span><strong className="text-right font-mono text-[#18e08a]">${hoverQuote.high.toFixed(2)}</strong>
               <span className="text-slate-500">Low</span><strong className="text-right font-mono text-[#ff3366]">${hoverQuote.low.toFixed(2)}</strong>
               <span className="text-slate-500">Close</span><strong className="text-right font-mono text-slate-100">${hoverQuote.close.toFixed(2)}</strong>
               <span className="text-slate-500">Volume</span><strong className="text-right font-mono text-slate-100">{formatCompact(hoverQuote.volume)}</strong>
@@ -965,14 +996,14 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
           <span key={item.key} title={item.full} className="shrink-0">{item.label}</span>
         ))}
       </div>
-      <section className="mt-3 rounded-md border border-white/10 bg-black/20">
+      <section className="mt-3 overflow-hidden rounded-lg border border-cyan-300/25 bg-cyan-300/[0.035] ring-1 ring-cyan-300/10">
         <button
           type="button"
           onClick={() => setShowAdvancedIndicators((value) => !value)}
           className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left"
         >
           <span className="flex min-w-0 items-center gap-2">
-            <Activity size={16} className="shrink-0 text-[#00c853]" />
+            <Activity size={16} className="shrink-0 text-[#18e08a]" />
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-white">Advanced Chart · YAHOO Indicators</span>
               <span className="block truncate text-xs text-slate-500">Auto Key Levels, A/D, RSI, MACD, EMA, Volume, ATR, ADX</span>
@@ -984,7 +1015,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         </button>
         {showAdvancedIndicators ? (
           <>
-            <div className="flex flex-wrap gap-2 border-t border-white/10 px-3 py-3">
+            <div className="flex flex-wrap gap-2 border-t border-cyan-300/15 bg-black/25 px-3 py-3">
               {advancedIndicatorItems.map((item) => {
                 const active = indicatorVisibility[item.key as IndicatorKey];
                 return (
@@ -992,7 +1023,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
                     key={item.key}
                     type="button"
                     onClick={() => setIndicatorVisibility((current) => ({ ...current, [item.key as IndicatorKey]: !current[item.key as IndicatorKey] }))}
-                    className={`rounded-md border px-2.5 py-1.5 text-xs transition ${active ? "border-[#00c853]/45 bg-[#00c853]/12 text-[#9af7b5]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
+                    className={`rounded-md border px-2.5 py-1.5 text-xs transition ${active ? "border-[#18e08a]/45 bg-[#18e08a]/12 text-[#b6ffd8]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
                     title={`${active ? "ซ่อน" : "แสดง"} ${item.title}`}
                   >
                     {active ? "ON" : "OFF"} {item.title}
@@ -1001,9 +1032,9 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
               })}
             </div>
             <AdvancedIndicatorVisuals candles={chartData} metrics={marketMetrics} visible={indicatorVisibility} />
-            <div className={`grid gap-2 border-t border-white/10 p-3 text-xs sm:grid-cols-2 ${compact ? "" : "xl:grid-cols-4"}`}>
+            <div className={`grid gap-3 border-t border-cyan-300/15 bg-black/20 p-3 text-xs sm:grid-cols-2 ${compact ? "" : "xl:grid-cols-4"}`}>
               {visibleAdvancedIndicatorItems.map((item) => (
-                <article key={item.key} className="min-h-[92px] rounded-md border border-white/10 bg-white/[0.035] p-3">
+                <article key={item.key} className="min-h-[92px] rounded-lg border border-cyan-300/18 bg-[#090d12] p-3 shadow-[0_14px_34px_rgba(0,0,0,.28)] ring-1 ring-white/[0.04]">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-[12px] font-semibold text-slate-100">{item.title}</h3>
                     <span className={`font-mono text-[11px] ${item.tone}`}>{item.value}</span>
@@ -1016,8 +1047,8 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         ) : null}
       </section>
       <div className={`mt-3 grid gap-3 ${compact ? "lg:grid-cols-1 2xl:grid-cols-3" : "xl:grid-cols-[1.05fr_1.2fr_1.15fr]"}`}>
-        {indicatorVisibility.volume ? <section className="rounded-md border border-white/10 bg-black/20 p-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white"><BarChart3 size={16} className="text-[#00c853]" />Volume Panel</div>
+        {indicatorVisibility.volume ? <section className="rounded-lg border border-cyan-300/18 bg-[#090d12] p-3 ring-1 ring-white/[0.04]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-white"><BarChart3 size={16} className="text-[#18e08a]" />Volume Panel</div>
           <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
             {[
               ["Volume รายวัน", formatCompact(marketMetrics.currentVolume)],
@@ -1025,7 +1056,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
               ["RVOL", `${marketMetrics.rvol.toFixed(2)}x`],
               ["Dark Pool est.", formatCompact(marketMetrics.darkPoolVolume)]
             ].map(([label, value]) => (
-              <div key={label} className="rounded-md border border-white/10 bg-white/[0.035] p-2">
+              <div key={label} className="rounded-md border border-cyan-300/14 bg-black/25 p-2">
                 <span className="block text-slate-500">{label}</span>
                 <strong className="mt-1 block font-mono text-sm text-slate-100">{value}</strong>
               </div>
@@ -1033,18 +1064,18 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
           </div>
           <div className="mt-3 space-y-2 text-xs">
             <div className="flex items-center justify-between text-slate-400"><span>Buy/Sell Pressure</span><span className="font-mono text-[#8ef7ad]">{marketMetrics.buyPressure.toFixed(0)}% / {marketMetrics.sellPressure.toFixed(0)}%</span></div>
-            <div className="h-2 overflow-hidden rounded-full bg-[#ff3366]/20"><div className="h-full bg-[#00c853]" style={{ width: `${marketMetrics.buyPressure}%` }} /></div>
+            <div className="h-2 overflow-hidden rounded-full bg-[#ff3366]/20"><div className="h-full bg-[#18e08a]" style={{ width: `${marketMetrics.buyPressure}%` }} /></div>
             <div className="flex flex-wrap gap-2">
               <span className={`rounded-md border px-2 py-1 ${marketMetrics.volumeSpike ? "border-amber-300/35 bg-amber-300/12 text-amber-100" : "border-white/10 bg-white/[0.035] text-slate-400"}`}>Volume Spike Detection</span>
               <span className={`rounded-md border px-2 py-1 ${marketMetrics.unusualVolume ? "border-fuchsia-300/35 bg-fuchsia-300/12 text-fuchsia-100" : "border-white/10 bg-white/[0.035] text-slate-400"}`}>Unusual Volume</span>
             </div>
           </div>
         </section> : null}
-        {visibleIndicatorCards.length ? <section className="rounded-md border border-white/10 bg-black/20 p-3">
+        {visibleIndicatorCards.length ? <section className="rounded-lg border border-amber-300/18 bg-[#090d12] p-3 ring-1 ring-white/[0.04]">
           <div className="flex items-center gap-2 text-sm font-semibold text-white"><Activity size={16} className="text-amber-200" />Technical Indicators</div>
           <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
             {visibleIndicatorCards.map((item) => (
-              <div key={item.label} className="min-h-[76px] rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
+              <div key={item.label} className="min-h-[76px] rounded-md border border-amber-300/14 bg-black/25 px-3 py-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-amber-100">{item.label}</span>
                   <span className="truncate text-[11px] text-slate-500">{item.title}</span>
@@ -1055,11 +1086,11 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
             ))}
           </div>
         </section> : null}
-        <section className="rounded-md border border-white/10 bg-black/20 p-3">
+        <section className="rounded-lg border border-cyan-300/18 bg-[#090d12] p-3 ring-1 ring-white/[0.04]">
           <div className="flex items-center gap-2 text-sm font-semibold text-white"><Bot size={16} className="text-cyan-200" />AI Analysis</div>
           <div className="mt-3 grid gap-2 text-xs">
             {aiMetrics.map(({ label, value, score, inverse, Icon }) => (
-              <div key={label} className="rounded-md border border-white/10 bg-white/[0.035] p-2">
+              <div key={label} className="rounded-md border border-cyan-300/14 bg-black/25 p-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2 text-slate-400"><Icon size={14} />{label}</span>
                   <strong className={`font-mono ${statusTone(score, inverse)}`}>{value}</strong>

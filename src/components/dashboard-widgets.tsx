@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
-import { Activity, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, ExternalLink, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, SlidersHorizontal, Sparkles, Volume2, X } from "lucide-react";
+import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, ExternalLink, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sparkles, Volume2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { economicEvents, gainers, generatedNews, indices, losers, news, portfolio } from "@/lib/mock-data";
-import type { NewsArticle } from "@/lib/types";
+import type { NewsArticle, StockQuote } from "@/lib/types";
 import { useMarketStore } from "@/store/market-store";
 import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
@@ -159,16 +159,121 @@ function directionArrow(value: number) {
   return "→";
 }
 
+type WatchlistIntel = {
+  trendScore: number;
+  momentumScore: number;
+  smartMoneyScore: number;
+  volatilityScore: number;
+  riskScore: number;
+  aiConfidenceScore: number;
+  relativeStrength: number;
+  darkPoolActivity: string;
+  optionsFlow: string;
+  institutionalPositioning: string;
+  newsSentiment: string;
+  aiSentiment: string;
+  peerContext: string;
+  sectorRotation: string;
+  priority: string;
+  setup: string;
+  alert: string;
+  thesis: string;
+  invalidation: string;
+};
+
+function clampScore(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function buildWatchlistIntel(quote: StockQuote, universe: StockQuote[]): WatchlistIntel {
+  const sectorPeers = universe.filter((item) => item.sector === quote.sector);
+  const sectorAvg = sectorPeers.length ? sectorPeers.reduce((sum, item) => sum + item.changePercent, 0) / sectorPeers.length : quote.changePercent;
+  const relativeStrength = clampScore(50 + (quote.changePercent - sectorAvg) * 8 + (quote.momentumScore - 50) * 0.35);
+  const volatilityScore = clampScore(Math.abs(quote.changePercent) * 12 + Math.abs(quote.change) / Math.max(1, quote.price) * 600 + (quote.rsi > 72 || quote.rsi < 28 ? 18 : 6));
+  const riskScore = clampScore(volatilityScore * 0.48 + (quote.rsi > 70 ? 22 : quote.rsi < 30 ? 16 : 8) + (quote.breakoutScore < 35 ? 16 : 0));
+  const smartMoneyScore = clampScore(quote.breakoutScore * 0.38 + quote.momentumScore * 0.34 + relativeStrength * 0.2 + (quote.isAiStock ? 8 : 0) - riskScore * 0.12);
+  const trendScore = clampScore(quote.momentumScore * 0.45 + quote.breakoutScore * 0.35 + relativeStrength * 0.2);
+  const aiConfidenceScore = clampScore((trendScore + smartMoneyScore + relativeStrength) / 3 - riskScore * 0.08 + (quote.revenueGrowth > 15 ? 6 : 0));
+  const bullish = trendScore >= 64 && smartMoneyScore >= 58;
+  const weak = trendScore <= 38 || quote.breakoutScore <= 35;
+  const distribution = quote.changePercent < -1 && quote.momentumScore < 48;
+  const accumulation = bullish || (quote.changePercent > 0 && relativeStrength >= 60);
+  const unusualVolume = volatilityScore >= 62 || Math.abs(quote.changePercent) >= 3.5;
+  const optionsFlow = quote.breakoutScore >= 72 ? "Call sweep bias / unusual options watch" : quote.breakoutScore <= 35 ? "Put hedge / downside protection watch" : "Options flow ปกติ ต้องรอ confirmation";
+  const darkPoolActivity = accumulation ? "Dark Pool accumulation inference" : distribution ? "Dark Pool distribution risk" : "Dark Pool neutral / absorption watch";
+  const institutionalPositioning = accumulation ? "สถาบันอาจสะสมตาม relative strength" : distribution ? "สถาบันอาจลด beta หรือขายทำกำไร" : "สถาบันยังรอ catalyst";
+  const newsSentiment = quote.revenueGrowth > 20 || quote.isAiStock ? "Bullish news sensitivity" : quote.changePercent < -1 ? "Bearish/neutral news pressure" : "Neutral news impact";
+  const aiSentiment = quote.isAiStock || /AI|Semiconductor|Cloud|Space/i.test(quote.sector) ? "AI theme supported" : "AI theme indirect";
+  const peerContext = relativeStrength >= 60 ? "นำ sector / relative strength เด่น" : relativeStrength <= 40 ? "ตามหลัง peers" : "เคลื่อนไหวใกล้ sector";
+  const sectorRotation = sectorAvg > 0.7 ? "เงินหมุนเข้า sector" : sectorAvg < -0.7 ? "เงินไหลออกจาก sector" : "sector rotation เป็นกลาง";
+  const priority = bullish ? "Momentum Leader" : weak ? "High-Risk / Weak Tape" : unusualVolume ? "Volatility Expansion" : "Watch";
+  const setup = quote.breakoutScore >= 72 ? "Breakout candidate" : quote.rsi <= 32 ? "Oversold reversal watch" : quote.rsi >= 72 ? "Momentum exhaustion risk" : "Base-building";
+  const alert = quote.breakoutScore >= 78
+    ? "Breakout detected"
+    : unusualVolume
+      ? "Volatility spike / unusual volume"
+      : distribution
+        ? "Institutional distribution risk"
+        : quote.rsi <= 32
+          ? "RSI divergence watch"
+          : "Monitor";
+  const thesis = accumulation
+    ? `${quote.ticker} แข็งแรงเพราะ momentum, breakout score และ relative strength เหนือกลุ่ม สะท้อนแรงซื้อสถาบันหรือการสะสมแบบค่อยเป็นค่อยไป`
+    : distribution
+      ? `${quote.ticker} อ่อนกว่าที่ควรเมื่อเทียบ sector มีความเสี่ยง distribution และ liquidity ถูกขายใส่จังหวะเด้ง`
+      : `${quote.ticker} ยังอยู่ในโหมดรอ catalyst ต้องดู volume, Options Flow และการยืนเหนือแนวต้านเพื่อยืนยัน`;
+  const invalidation = bullish
+    ? "เสีย thesis ถ้าหลุด previous close พร้อม RSI ถอยและ volume ขายเพิ่ม"
+    : "เปลี่ยนมุมมองถ้าเกิด reclaim ราคาเดิมพร้อม volume และ relative strength ฟื้น";
+
+  return {
+    trendScore,
+    momentumScore: quote.momentumScore,
+    smartMoneyScore,
+    volatilityScore,
+    riskScore,
+    aiConfidenceScore,
+    relativeStrength,
+    darkPoolActivity,
+    optionsFlow,
+    institutionalPositioning,
+    newsSentiment,
+    aiSentiment,
+    peerContext,
+    sectorRotation,
+    priority,
+    setup,
+    alert,
+    thesis,
+    invalidation
+  };
+}
+
+function scoreTone(score: number, inverse = false) {
+  const good = inverse ? score <= 35 : score >= 65;
+  const weak = inverse ? score >= 65 : score <= 35;
+  if (good) return "text-emerald-300";
+  if (weak) return "text-rose-300";
+  return "text-amber-200";
+}
+
+function scoreBar(score: number, inverse = false) {
+  const good = inverse ? score <= 35 : score >= 65;
+  const weak = inverse ? score >= 65 : score <= 35;
+  if (good) return "from-emerald-300 to-cyan-300";
+  if (weak) return "from-rose-400 to-orange-300";
+  return "from-amber-300 to-purple-300";
+}
+
 function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker: string; intradayChange: number; afterHoursChange: number }) {
   const up = intradayChange >= 0;
-  const afterUp = afterHoursChange >= 0;
   const points = buildMiniSeries(ticker, up);
-  const afterPoints = buildMiniSeries(`${ticker}-after`, afterUp, 34);
+  const afterPoints = buildMiniSeries(`${ticker}-after`, afterHoursChange >= 0, 34);
   const areaPath = `${points} L 132 58 L 0 58 Z`;
   const stroke = up ? "#80e59a" : "#f28caf";
   const glow = up ? "#5fe27e" : "#ff78a6";
   const fill = up ? "rgba(101,216,120,.34)" : "rgba(240,138,170,.34)";
-  const afterStroke = afterUp ? "#80e59a" : "#f28caf";
+  const afterStroke = "rgba(226,232,240,.9)";
 
   return (
     <svg viewBox="0 0 132 60" className="h-[70px] w-full min-w-[118px]" aria-label={`${ticker} intraday chart`}>
@@ -185,11 +290,17 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
+        <linearGradient id={`after-spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="rgba(226,232,240,.28)" />
+          <stop offset="70%" stopColor="rgba(148,163,184,.14)" />
+          <stop offset="100%" stopColor="rgba(16,16,16,0)" />
+        </linearGradient>
       </defs>
       <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
       <path d={points} fill="none" stroke={glow} strokeOpacity="0.2" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
       <path d={points} fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={afterPoints} fill="none" stroke={afterStroke} strokeDasharray="2 3" strokeOpacity="0.45" strokeWidth="1.25" transform="translate(82 0) scale(.38 1)" />
+      <path d={`${afterPoints} L 132 58 L 0 58 Z`} fill={`url(#after-spark-${ticker})`} stroke="none" transform="translate(82 0) scale(.38 1)" />
+      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.78" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" />
     </svg>
   );
 }
@@ -199,7 +310,20 @@ export function WatchlistPanel() {
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("All");
   const sectors = ["All", ...Array.from(new Set(quotes.map((quote) => quote.sector)))];
-  const filteredRows = quotes.filter((quote) => {
+  const intelByTicker = new Map(quotes.map((quote) => [quote.ticker, buildWatchlistIntel(quote, quotes)]));
+  const rankedRows = [...quotes].sort((a, b) => {
+    const left = intelByTicker.get(a.ticker)?.aiConfidenceScore ?? 0;
+    const right = intelByTicker.get(b.ticker)?.aiConfidenceScore ?? 0;
+    return right - left;
+  });
+  const leaders = rankedRows.slice(0, 3);
+  const riskAlerts = rankedRows
+    .filter((quote) => {
+      const intel = intelByTicker.get(quote.ticker);
+      return intel ? intel.riskScore >= 62 || intel.alert !== "Monitor" : false;
+    })
+    .slice(0, 4);
+  const filteredRows = rankedRows.filter((quote) => {
     const matchesQuery = `${quote.ticker} ${quote.name} ${quote.sector}`.toLowerCase().includes(query.toLowerCase());
     const matchesSector = sector === "All" || quote.sector === sector;
     return matchesQuery && matchesSector;
@@ -212,9 +336,26 @@ export function WatchlistPanel() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-white">Watchlist</h3>
-            <p className="text-xs text-slate-500">{quotes.length} tracked symbols</p>
+            <p className="text-xs text-slate-500">{quotes.length} tracked symbols · realtime institutional intelligence</p>
           </div>
           <button onClick={requestRefresh} className="rounded-md border border-white/10 px-2.5 py-1.5 text-xs text-slate-300 hover:border-cyan-300/30">Refresh</button>
+        </div>
+      </div>
+      <div className="mx-4 mt-3 grid gap-2 rounded-lg border border-cyan-300/18 bg-cyan-300/[0.035] p-3 text-xs sm:grid-cols-3">
+        <div className="rounded-md border border-white/10 bg-black/25 p-2">
+          <div className="flex items-center gap-2 text-cyan-100"><ShieldCheck size={14} /> Coverage</div>
+          <strong className="mt-1 block font-mono text-slate-100">{quotes.length}/{quotes.length} tickers</strong>
+          <p className="mt-1 text-slate-500">Stocks, ETF, Crypto, AI, Chip, Space</p>
+        </div>
+        <div className="rounded-md border border-white/10 bg-black/25 p-2">
+          <div className="flex items-center gap-2 text-emerald-200"><Sparkles size={14} /> AI Priority</div>
+          <strong className="mt-1 block font-mono text-slate-100">{leaders.map((item) => item.ticker).join(" · ")}</strong>
+          <p className="mt-1 text-slate-500">จัดอันดับจาก Momentum + Smart Money + Relative Strength</p>
+        </div>
+        <div className="rounded-md border border-white/10 bg-black/25 p-2">
+          <div className="flex items-center gap-2 text-amber-200"><AlertTriangle size={14} /> Alerts</div>
+          <strong className="mt-1 block font-mono text-slate-100">{riskAlerts.length} signals</strong>
+          <p className="mt-1 text-slate-500">{riskAlerts.slice(0, 2).map((item) => `${item.ticker}: ${intelByTicker.get(item.ticker)?.alert}`).join(" · ") || "ไม่มี alert แรง"}</p>
         </div>
       </div>
       <div className="mx-4 mt-3 flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3">
@@ -244,6 +385,7 @@ export function WatchlistPanel() {
             ไม่พบหุ้นตามตัวกรองนี้
           </div>
         ) : rows.map((quote) => {
+          const intel = intelByTicker.get(quote.ticker) ?? buildWatchlistIntel(quote, quotes);
           const afterMarket = afterMarketSnapshot(quote);
           const up = afterMarket.closeVsPrevChange >= 0;
           const afterUp = afterMarket.percent >= 0;
@@ -291,6 +433,41 @@ export function WatchlistPanel() {
                 <span className="truncate">{quote.sector}</span>
                 <span className={`truncate ${directionTone(quote.change)}`}>วันนี้ {signed(quote.change)}</span>
                 <span className="truncate text-right"><span className={rsiTone}>RSI {quote.rsi}</span> · <span className={directionTone(afterMarket.percent)}>AH {signed(afterMarket.percent)}%</span></span>
+              </div>
+              <div className="mt-3 rounded-lg border border-white/10 bg-black/25 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2 py-1 text-[11px] font-semibold text-cyan-100">{intel.priority}</span>
+                  <span className="rounded-md border border-purple-300/20 bg-purple-300/10 px-2 py-1 text-[11px] font-semibold text-purple-100">{intel.setup}</span>
+                  <span className={`rounded-md border px-2 py-1 text-[11px] font-semibold ${intel.alert === "Monitor" ? "border-white/10 bg-white/[0.035] text-slate-300" : "border-amber-300/30 bg-amber-300/10 text-amber-100"}`}>{intel.alert}</span>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {[
+                    ["Trend", intel.trendScore, false],
+                    ["Smart", intel.smartMoneyScore, false],
+                    ["Risk", intel.riskScore, true],
+                    ["Vol", intel.volatilityScore, true],
+                    ["RS", intel.relativeStrength, false],
+                    ["AI", intel.aiConfidenceScore, false]
+                  ].map(([label, score, inverse]) => (
+                    <div key={label as string} className="min-w-0">
+                      <div className="flex items-center justify-between gap-1 font-mono text-[10px]">
+                        <span className="text-slate-500">{label}</span>
+                        <strong className={scoreTone(score as number, inverse as boolean)}>{score}</strong>
+                      </div>
+                      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
+                        <div className={`h-full rounded-full bg-gradient-to-r ${scoreBar(score as number, inverse as boolean)}`} style={{ width: `${score}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 grid gap-2 text-[11px] leading-5 text-slate-400 sm:grid-cols-2">
+                  <p><b className="text-slate-200">Dark Pool:</b> {intel.darkPoolActivity}</p>
+                  <p><b className="text-slate-200">Options Flow:</b> {intel.optionsFlow}</p>
+                  <p><b className="text-slate-200">Institutional:</b> {intel.institutionalPositioning}</p>
+                  <p><b className="text-slate-200">Sector:</b> {intel.sectorRotation}</p>
+                </div>
+                <p className="mt-3 text-[11px] leading-5 text-slate-300">{intel.thesis}</p>
+                <p className="mt-1 text-[11px] leading-5 text-rose-200/90">Invalidation: {intel.invalidation}</p>
               </div>
             </button>
           );

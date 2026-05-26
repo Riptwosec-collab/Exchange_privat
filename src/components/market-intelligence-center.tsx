@@ -175,7 +175,7 @@ function quoteSummary(quote: StockQuote) {
 export function MarketIntelligenceCenter() {
   const { quotes, selectedTicker, setSelectedTicker } = useMarketStore();
   const [activeTicker, setActiveTicker] = useState(selectedTicker);
-  const watchlist = ["NVDA", "MU", "AMD", "AVGO", "TSM", "SOFI", "RKLB", "ASTS", "CRWV", "NBIS"];
+  const watchlist = quotes.map((quote) => quote.ticker);
   const selected = quotes.find((quote) => quote.ticker === activeTicker) ?? quotes[0];
   const selectedSummary = useMemo(() => quoteSummary(selected), [selected]);
   const selectedEvents = calendarEvents.filter((event) => event.related.includes(selected.ticker)).slice(0, 3);
