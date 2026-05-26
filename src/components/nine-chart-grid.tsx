@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AreaSeries, BaselineSeries, ColorType, createChart, HistogramSeries, LineStyle, LineType, type Time } from "lightweight-charts";
+import { BaselineSeries, ColorType, createChart, HistogramSeries, LineStyle, type Time } from "lightweight-charts";
 import type { Candle, StockQuote } from "@/lib/types";
 import { candles as fallbackCandles } from "@/lib/mock-data";
 import { useMarketStore } from "@/store/market-store";
@@ -360,12 +360,15 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     }
 
     if (afterHoursSeriesData.length > 1) {
-      const afterHours = chart.addSeries(AreaSeries, {
-        lineColor: afterHoursLine,
-        topColor: afterHoursTop,
-        bottomColor: afterHoursBottom,
+      const afterHours = chart.addSeries(BaselineSeries, {
+        baseValue: { type: "price", price: stats.latest?.close ?? quote.price },
+        topLineColor: afterHoursLine,
+        topFillColor1: afterHoursTop,
+        topFillColor2: afterHoursBottom,
+        bottomLineColor: afterHoursLine,
+        bottomFillColor1: afterHoursBottom,
+        bottomFillColor2: afterHoursTop,
         lineWidth: 3,
-        lineType: LineType.Curved,
         crosshairMarkerVisible: true,
         priceLineVisible: false,
         lastValueVisible: false,

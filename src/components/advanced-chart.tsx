@@ -818,12 +818,15 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     }
 
     if (afterHoursSeriesData.length > 1) {
-      const afterHoursSeries = chart.addSeries(AreaSeries, {
-        lineColor: afterHoursLine,
-        topColor: afterHoursTop,
-        bottomColor: afterHoursBottom,
+      const afterHoursSeries = chart.addSeries(BaselineSeries, {
+        baseValue: { type: "price", price: lastClose },
+        topLineColor: afterHoursLine,
+        topFillColor1: afterHoursTop,
+        topFillColor2: afterHoursBottom,
+        bottomLineColor: afterHoursLine,
+        bottomFillColor1: afterHoursBottom,
+        bottomFillColor2: afterHoursTop,
         lineWidth: 3,
-        lineType: LineType.Curved,
         crosshairMarkerVisible: true,
         priceLineVisible: false,
         lastValueVisible: false,
