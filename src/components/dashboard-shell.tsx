@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AdvancedChart } from "@/components/advanced-chart";
 import {
   AIBriefing,
@@ -13,7 +14,22 @@ import {
 import { Header } from "@/components/header";
 import { MarketTicker } from "@/components/market-ticker";
 import { MarketIntelligenceCenter } from "@/components/market-intelligence-center";
-import { Bot, ChartCandlestick, Home, ListChecks, Newspaper } from "lucide-react";
+import {
+  Bot,
+  ChartCandlestick,
+  Flame,
+  Gauge,
+  Grid3X3,
+  Home,
+  LayoutGrid,
+  LineChart,
+  ListChecks,
+  Newspaper,
+  Radar,
+  Settings,
+  WalletCards,
+  X
+} from "lucide-react";
 import {
   EnhancedCopilotPageFull,
   EnhancedHeatmapPage,
@@ -32,13 +48,28 @@ import { TopMoversPage } from "@/components/top-movers-page";
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
-const mobileSections = ["Dashboard", "Watchlist", "Charts", "Top Movers", "News AI", "Portfolio", "Heatmap", "Copilot"];
+const mobileSections = ["Dashboard", "Watchlist", "Charts", "Multi Chart", "9 Charts", "Top Movers", "News AI", "Portfolio", "Screener", "Heatmap", "Market Intelligence Center", "Copilot", "Settings"];
 const bottomNav = [
   { label: "Dashboard", icon: Home, shortLabel: "หน้าแรก" },
   { label: "Watchlist", icon: ListChecks, shortLabel: "หุ้น" },
   { label: "Charts", icon: ChartCandlestick, shortLabel: "กราฟ" },
   { label: "News AI", icon: Newspaper, shortLabel: "ข่าว" },
-  { label: "Copilot", icon: Bot, shortLabel: "AI" }
+  { label: "Menu", icon: LayoutGrid, shortLabel: "เมนู" }
+];
+const mobileMenuItems = [
+  { label: "Dashboard", icon: Home, thai: "หน้าแรก" },
+  { label: "Watchlist", icon: ListChecks, thai: "หุ้นทั้งหมด" },
+  { label: "Charts", icon: ChartCandlestick, thai: "กราฟหลัก" },
+  { label: "Multi Chart", icon: LineChart, thai: "หลายกราฟ" },
+  { label: "9 Charts", icon: Grid3X3, thai: "9 กราฟ" },
+  { label: "Top Movers", icon: Gauge, thai: "หุ้นขึ้นลง" },
+  { label: "News AI", icon: Newspaper, thai: "ข่าว AI" },
+  { label: "Portfolio", icon: WalletCards, thai: "พอร์ต" },
+  { label: "Screener", icon: Radar, thai: "สแกนหุ้น" },
+  { label: "Heatmap", icon: Flame, thai: "Heatmap" },
+  { label: "Market Intelligence Center", icon: Gauge, thai: "Market Intel" },
+  { label: "Copilot", icon: Bot, thai: "AI Copilot" },
+  { label: "Settings", icon: Settings, thai: "ตั้งค่า" }
 ];
 
 function DashboardView() {
@@ -114,6 +145,16 @@ function SectionView() {
 
 export function DashboardShell() {
   const { activeSection, setActiveSection, liveMode, lastUpdated } = useMarketStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  function openSection(section: string) {
+    if (section === "Menu") {
+      setMobileMenuOpen(true);
+      return;
+    }
+    setActiveSection(section);
+    setMobileMenuOpen(false);
+  }
 
   return (
     <main className="terminal-grid min-h-screen pb-[calc(92px+env(safe-area-inset-bottom))] lg:pb-8">
@@ -134,7 +175,7 @@ export function DashboardShell() {
           {mobileSections.map((section) => (
             <button
               key={section}
-              onClick={() => setActiveSection(section)}
+              onClick={() => openSection(section)}
               className={`shrink-0 rounded-full border px-4 py-2.5 text-sm font-extrabold ${activeSection === section ? "border-[#00e889]/45 bg-[#00e889]/16 text-white shadow-[0_0_18px_rgba(0,232,137,.12)]" : "border-white/10 bg-white/[0.035] text-slate-200"}`}
             >
               {section}
@@ -151,9 +192,9 @@ export function DashboardShell() {
               <button
                 key={item.label}
                 type="button"
-                onClick={() => setActiveSection(item.label)}
+                onClick={() => openSection(item.label)}
                 className={`flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-black transition ${
-                  active
+                  active || (item.label === "Menu" && mobileMenuOpen)
                     ? "border-[#00e889]/38 bg-[#00e889]/15 text-white"
                     : "border-transparent text-slate-400"
                 }`}
@@ -165,6 +206,47 @@ export function DashboardShell() {
           })}
         </div>
       </nav>
+      {mobileMenuOpen ? (
+        <div className="fixed inset-0 z-[60] bg-black/64 p-3 backdrop-blur-md lg:hidden">
+          <div className="ml-auto flex h-full max-h-[calc(100vh-24px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border border-white/12 bg-[#121214] shadow-[0_24px_80px_rgba(0,0,0,.55)]">
+            <div className="flex items-center justify-between border-b border-white/10 p-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#00e889]">AstraQuant</p>
+                <h3 className="text-xl font-black text-white">เมนูทั้งหมด</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white"
+                aria-label="ปิดเมนู"
+              >
+                <X size={22} />
+              </button>
+            </div>
+            <div className="grid flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto p-4">
+              {mobileMenuItems.map((item) => {
+                const active = activeSection === item.label;
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => openSection(item.label)}
+                    className={`flex min-h-[86px] flex-col items-start justify-between rounded-2xl border p-3 text-left transition ${
+                      active
+                        ? "border-[#00e889]/45 bg-[#00e889]/15 text-white"
+                        : "border-white/10 bg-white/[0.035] text-slate-200"
+                    }`}
+                  >
+                    <item.icon size={22} strokeWidth={2.6} />
+                    <span className="text-sm font-black">{item.thai}</span>
+                    <span className="text-[11px] font-bold text-slate-400">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
