@@ -315,7 +315,123 @@ textarea::placeholder {
 }
 
 @media (max-width: 640px) {
+  body {
+    font-size: 15.5px;
+    line-height: 1.52;
+    background:
+      radial-gradient(circle at 50% -20%, rgba(0, 232, 137, 0.09), transparent 34rem),
+      #101010;
+  }
+
+  .mobile-app-shell {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .mobile-header-wrap {
+    gap: 0.65rem;
+  }
+
+  .mobile-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.11em;
+    color: #9eb3ff;
+  }
+
+  .mobile-app-title {
+    font-size: clamp(1.55rem, 8vw, 2.05rem);
+    line-height: 1.08;
+  }
+
+  .mobile-status-pill {
+    border-radius: 999px;
+    padding: 0.45rem 0.68rem;
+    font-size: 0.78rem;
+  }
+
+  .mobile-search {
+    order: 5;
+    height: 48px;
+    border-radius: 16px;
+    background: #171719;
+  }
+
+  .mobile-workspace-card {
+    margin-top: 0.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.095);
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
+    padding: 14px;
+  }
+
+  .mobile-workspace-card h2 {
+    font-size: 1.28rem;
+  }
+
+  .mobile-feed-metric {
+    width: 100%;
+  }
+
+  .mobile-feed-metric .metric-card {
+    width: 100%;
+  }
+
+  .mobile-section-pills {
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    scrollbar-width: none;
+  }
+
+  .mobile-section-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-market-ticker {
+    border-top-color: rgba(255, 255, 255, 0.075);
+    border-bottom-color: rgba(255, 255, 255, 0.075);
+  }
+
+  .ticker-status {
+    gap: 0.6rem;
+    overflow: hidden;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.72rem;
+  }
+
+  .ticker-status > span:first-child {
+    max-width: 58vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ticker-status > div {
+    gap: 0.45rem;
+  }
+
+  .ticker-status button {
+    padding: 0.28rem 0.55rem;
+  }
+
+  .ticker-track {
+    gap: 0.55rem;
+    padding: 0.55rem 0.9rem;
+  }
+
+  .ticker-chip {
+    min-width: 142px;
+    gap: 0.55rem;
+    border-radius: 16px;
+    padding: 0.62rem 0.72rem;
+    font-size: 0.78rem;
+  }
+
   .glass {
+    border-color: rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    background: #151517;
     overflow-wrap: anywhere;
   }
 
@@ -326,7 +442,68 @@ textarea::placeholder {
   }
 
   .metric-card {
-    padding: 0.65rem;
+    border-radius: 18px;
+    padding: 0.82rem;
+  }
+
+  .metric-value {
+    font-size: 1.06rem;
+  }
+
+  .metric-delta {
+    font-size: 0.82rem;
+  }
+
+  .advanced-chart-host {
+    min-height: 340px;
+  }
+
+  .advanced-chart-host + div {
+    font-size: 0.78rem;
+  }
+
+  .glass :where(button, select, input) {
+    min-height: 42px;
+  }
+
+  .glass :where(.grid) {
+    gap: 0.72rem;
+  }
+
+  .glass :where(article) {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .glass :where(.rounded-lg) {
+    border-radius: 16px;
+  }
+
+  .glass :where(.rounded-md) {
+    border-radius: 13px;
+  }
+
+  .glass :where(.text-xs) {
+    font-size: 0.78rem;
+  }
+
+  .glass :where(.text-sm) {
+    font-size: 0.9rem;
+  }
+
+  .glass :where(.font-mono) {
+    font-size: 0.86rem;
+  }
+
+  .glass :where(h1, h2, h3) {
+    line-height: 1.18;
+  }
+
+  .glass :where(.overflow-x-auto) {
+    scrollbar-width: none;
+  }
+
+  .glass :where(.overflow-x-auto)::-webkit-scrollbar {
+    display: none;
   }
 }
 

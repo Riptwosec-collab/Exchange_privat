@@ -13,6 +13,7 @@ import {
 import { Header } from "@/components/header";
 import { MarketTicker } from "@/components/market-ticker";
 import { MarketIntelligenceCenter } from "@/components/market-intelligence-center";
+import { Bot, ChartCandlestick, Home, ListChecks, Newspaper } from "lucide-react";
 import {
   EnhancedCopilotPageFull,
   EnhancedHeatmapPage,
@@ -31,7 +32,14 @@ import { TopMoversPage } from "@/components/top-movers-page";
 import { Metric } from "@/components/ui";
 import { useMarketStore } from "@/store/market-store";
 
-const mobileSections = ["Dashboard", "Watchlist", "Charts", "Multi Chart", "9 Charts", "Top Movers", "News AI", "Portfolio", "Screener", "Heatmap", "Market Intelligence Center", "Copilot"];
+const mobileSections = ["Dashboard", "Watchlist", "Charts", "Top Movers", "News AI", "Portfolio", "Heatmap", "Copilot"];
+const bottomNav = [
+  { label: "Dashboard", icon: Home, shortLabel: "หน้าแรก" },
+  { label: "Watchlist", icon: ListChecks, shortLabel: "หุ้น" },
+  { label: "Charts", icon: ChartCandlestick, shortLabel: "กราฟ" },
+  { label: "News AI", icon: Newspaper, shortLabel: "ข่าว" },
+  { label: "Copilot", icon: Bot, shortLabel: "AI" }
+];
 
 function DashboardView() {
   return (
@@ -108,26 +116,26 @@ export function DashboardShell() {
   const { activeSection, setActiveSection, liveMode, lastUpdated } = useMarketStore();
 
   return (
-    <main className="terminal-grid min-h-screen pb-8">
+    <main className="terminal-grid min-h-screen pb-[calc(92px+env(safe-area-inset-bottom))] lg:pb-8">
       <Sidebar />
       <Header />
       <MarketTicker />
-      <div className="px-4 py-4 lg:ml-[102px] lg:px-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mobile-app-shell px-4 py-4 lg:ml-[102px] lg:px-6">
+        <div className="mobile-workspace-card mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Active workspace</p>
             <h2 className="mt-1 text-xl font-semibold text-white">{activeSection}</h2>
           </div>
-          <div className="flex gap-2">
+          <div className="mobile-feed-metric flex gap-2">
             <Metric label="Feed" value={liveMode === "provider" ? "Real" : "Mock"} delta={lastUpdated ?? "syncing"} tone={liveMode === "provider" ? "up" : "neutral"} />
           </div>
         </div>
-        <div className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+        <div className="mobile-section-pills mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
           {mobileSections.map((section) => (
             <button
               key={section}
               onClick={() => setActiveSection(section)}
-              className={`shrink-0 rounded-full border px-3 py-2 text-sm ${activeSection === section ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 text-slate-300"}`}
+              className={`shrink-0 rounded-full border px-4 py-2.5 text-sm font-extrabold ${activeSection === section ? "border-[#00e889]/45 bg-[#00e889]/16 text-white shadow-[0_0_18px_rgba(0,232,137,.12)]" : "border-white/10 bg-white/[0.035] text-slate-200"}`}
             >
               {section}
             </button>
@@ -135,6 +143,28 @@ export function DashboardShell() {
         </div>
         <SectionView />
       </div>
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#101010]/94 px-2 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 shadow-[0_-20px_48px_rgba(0,0,0,.42)] backdrop-blur-xl lg:hidden">
+        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+          {bottomNav.map((item) => {
+            const active = activeSection === item.label;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setActiveSection(item.label)}
+                className={`flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-black transition ${
+                  active
+                    ? "border-[#00e889]/38 bg-[#00e889]/15 text-white"
+                    : "border-transparent text-slate-400"
+                }`}
+              >
+                <item.icon size={21} strokeWidth={2.6} />
+                <span>{item.shortLabel}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </main>
   );
 }

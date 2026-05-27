@@ -42,8 +42,8 @@ export function MarketTicker() {
   }, [setQuotes, tick, refreshNonce, paused]);
 
   return (
-    <div className="overflow-hidden border-y border-white/10 bg-[#111111] lg:ml-[102px]">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-1.5 text-xs font-semibold text-slate-400">
+    <div className="mobile-market-ticker overflow-hidden border-y border-white/10 bg-[#111111] lg:ml-[102px]">
+      <div className="ticker-status flex items-center justify-between border-b border-white/10 px-4 py-1.5 text-xs font-semibold text-slate-400">
         <span>{liveMode === "provider" ? `Live Yahoo Finance quotes for ${quotes.length} symbols` : `Mock live quotes for ${quotes.length} symbols - provider unavailable`}</span>
         <div className="flex items-center gap-3">
           <span>{paused ? "Paused" : lastUpdated ? `Updated ${lastUpdated}` : "Connecting..."}</span>
@@ -59,7 +59,7 @@ export function MarketTicker() {
       <motion.div
         animate={paused ? { x: "0%" } : { x: ["0%", "-45%"] }}
         transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
-        className="flex w-max gap-3 px-4 py-2"
+        className="ticker-track flex w-max gap-3 px-4 py-2"
       >
         {[...quotes, ...quotes, ...quotes].map((quote, index) => {
           const up = quote.change >= 0;
@@ -67,7 +67,7 @@ export function MarketTicker() {
             <button
               key={`${quote.ticker}-${index}`}
               onClick={() => setSelectedTicker(quote.ticker)}
-              className="flex min-w-[190px] items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#18181a] px-3 py-2.5 font-mono text-sm"
+              className="ticker-chip flex min-w-[190px] items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#18181a] px-3 py-2.5 font-mono text-sm"
             >
               <span className="font-black text-slate-100">{quote.ticker}</span>
               <span className="font-black text-white">${quote.price.toFixed(2)}</span>
