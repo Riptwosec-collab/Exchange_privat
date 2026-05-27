@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdvancedChart } from "@/components/advanced-chart";
 import {
   AIBriefing,
@@ -147,14 +147,38 @@ export function DashboardShell() {
   const { activeSection, setActiveSection, liveMode, lastUpdated } = useMarketStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  function openSection(section: string) {
+  const openSection = useCallback((section: string) => {
     if (section === "Menu") {
       setMobileMenuOpen(true);
       return;
     }
     setActiveSection(section);
     setMobileMenuOpen(false);
-  }
+  }, [setActiveSection]);
+
+  useEffect(() => {
+    function handleNativeMobileNav(event: Event) {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const trigger = target.closest<HTMLElement>("[data-mobile-section]");
+      if (!trigger) return;
+      const section = trigger.dataset.mobileSection;
+      if (!section) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      openSection(section);
+    }
+
+    document.addEventListener("touchend", handleNativeMobileNav, { capture: true, passive: false });
+    document.addEventListener("pointerup", handleNativeMobileNav, { capture: true });
+    document.addEventListener("click", handleNativeMobileNav, { capture: true });
+    return () => {
+      document.removeEventListener("touchend", handleNativeMobileNav, { capture: true });
+      document.removeEventListener("pointerup", handleNativeMobileNav, { capture: true });
+      document.removeEventListener("click", handleNativeMobileNav, { capture: true });
+    };
+  }, [openSection]);
 
   function handleTouchSection(section: string) {
     openSection(section);
@@ -192,6 +216,7 @@ export function DashboardShell() {
             <button
               key={section}
               type="button"
+              data-mobile-section={section}
               onPointerUp={() => handleTouchSection(section)}
               onClick={() => openSection(section)}
               className={`mobile-nav-trigger shrink-0 rounded-full border px-4 py-2.5 text-sm font-extrabold ${activeSection === section ? "border-[#00e889]/45 bg-[#00e889]/16 text-white shadow-[0_0_18px_rgba(0,232,137,.12)]" : "border-white/10 bg-white/[0.035] text-slate-200"}`}
@@ -210,6 +235,7 @@ export function DashboardShell() {
               <button
                 key={item.label}
                 type="button"
+                data-mobile-section={item.label}
                 onPointerUp={() => handleTouchSection(item.label)}
                 onClick={() => openSection(item.label)}
                 className={`mobile-nav-trigger flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-black transition ${
@@ -250,6 +276,7 @@ export function DashboardShell() {
                   <button
                     key={item.label}
                     type="button"
+                    data-mobile-section={item.label}
                     onPointerUp={() => handleTouchSection(item.label)}
                     onClick={() => openSection(item.label)}
                     className={`mobile-nav-trigger flex min-h-[86px] flex-col items-start justify-between rounded-2xl border p-3 text-left transition ${
