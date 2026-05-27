@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AdvancedChart } from "@/components/advanced-chart";
 import {
   AIBriefing,
@@ -146,6 +147,19 @@ function SectionView() {
 export function DashboardShell() {
   const { activeSection, setActiveSection, liveMode, lastUpdated } = useMarketStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const section = searchParams.get("section");
+    const menu = searchParams.get("menu");
+
+    if (section && mobileSections.includes(section)) {
+      setActiveSection(section);
+      setMobileMenuOpen(false);
+    } else if (menu === "1") {
+      setMobileMenuOpen(true);
+    }
+  }, [searchParams, setActiveSection]);
 
   const openSection = useCallback((section: string) => {
     if (section === "Menu") {
@@ -154,6 +168,10 @@ export function DashboardShell() {
     }
     setActiveSection(section);
     setMobileMenuOpen(false);
+    const url = new URL(window.location.href);
+    url.searchParams.set("section", section);
+    url.searchParams.delete("menu");
+    window.history.replaceState(null, "", url);
   }, [setActiveSection]);
 
   useEffect(() => {
@@ -232,9 +250,9 @@ export function DashboardShell() {
           {bottomNav.map((item) => {
             const active = activeSection === item.label;
             return (
-              <button
+              <a
                 key={item.label}
-                type="button"
+                href={item.label === "Menu" ? "/?menu=1" : `/?section=${encodeURIComponent(item.label)}`}
                 data-mobile-section={item.label}
                 onPointerUp={() => handleTouchSection(item.label)}
                 onClick={() => openSection(item.label)}
@@ -246,7 +264,7 @@ export function DashboardShell() {
               >
                 <item.icon size={21} strokeWidth={2.6} />
                 <span>{item.shortLabel}</span>
-              </button>
+              </a>
             );
           })}
         </div>
@@ -273,9 +291,9 @@ export function DashboardShell() {
               {mobileMenuItems.map((item) => {
                 const active = activeSection === item.label;
                 return (
-                  <button
+                  <a
                     key={item.label}
-                    type="button"
+                    href={`/?section=${encodeURIComponent(item.label)}`}
                     data-mobile-section={item.label}
                     onPointerUp={() => handleTouchSection(item.label)}
                     onClick={() => openSection(item.label)}
@@ -288,7 +306,7 @@ export function DashboardShell() {
                     <item.icon size={22} strokeWidth={2.6} />
                     <span className="text-sm font-black">{item.thai}</span>
                     <span className="text-[11px] font-bold text-slate-400">{item.label}</span>
-                  </button>
+                  </a>
                 );
               })}
             </div>
