@@ -748,6 +748,28 @@ textarea::placeholder {
     border-radius: 16px;
     font-size: 0.68rem;
   }
+
+  .mobile-bottom-nav,
+  .mobile-menu-overlay,
+  .mobile-nav-trigger {
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-bottom-nav {
+    z-index: 80;
+  }
+
+  .mobile-menu-overlay {
+    z-index: 90;
+  }
+
+  .mobile-nav-trigger {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
 }
 
 .terminal-grid {
