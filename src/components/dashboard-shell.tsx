@@ -170,6 +170,18 @@ export function DashboardShell() {
           <div className="mobile-feed-metric flex gap-2">
             <Metric label="Feed" value={liveMode === "provider" ? "Real" : "Mock"} delta={lastUpdated ?? "syncing"} tone={liveMode === "provider" ? "up" : "neutral"} />
           </div>
+          <div className="mobile-page-select hidden w-full">
+            <select
+              value={activeSection}
+              onChange={(event) => openSection(event.target.value)}
+              className="h-12 w-full rounded-2xl border border-white/10 bg-[#101013] px-4 text-sm font-black text-white outline-none"
+              aria-label="เลือกหน้า"
+            >
+              {mobileMenuItems.map((item) => (
+                <option key={item.label} value={item.label}>{item.thai} · {item.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="mobile-section-pills mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
           {mobileSections.map((section) => (

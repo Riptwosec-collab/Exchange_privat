@@ -342,6 +342,10 @@ textarea::placeholder {
     padding-right: 14px;
   }
 
+  header {
+    padding-top: calc(0.75rem + env(safe-area-inset-top)) !important;
+  }
+
   .mobile-app-shell > * {
     max-width: 100%;
   }
@@ -392,6 +396,10 @@ textarea::placeholder {
 
   .mobile-feed-metric .metric-card {
     width: 100%;
+  }
+
+  .mobile-page-select {
+    display: block;
   }
 
   .mobile-section-pills {
@@ -577,7 +585,7 @@ textarea::placeholder {
   }
 
   header {
-    padding: 0.7rem 0.8rem !important;
+    padding: calc(0.72rem + env(safe-area-inset-top)) 0.8rem 0.7rem !important;
   }
 
   .mobile-header-wrap {
@@ -644,6 +652,11 @@ textarea::placeholder {
 
   .mobile-feed-metric {
     display: none;
+  }
+
+  .mobile-page-select {
+    display: block;
+    margin-top: 0.28rem;
   }
 
   .mobile-section-pills {
