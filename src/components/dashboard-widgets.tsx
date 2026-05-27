@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, ExternalLink, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sparkles, Volume2, X } from "lucide-react";
@@ -270,10 +270,10 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
   const points = buildMiniSeries(ticker, up);
   const afterPoints = buildMiniSeries(`${ticker}-after`, afterHoursChange >= 0, 34);
   const areaPath = `${points} L 132 58 L 0 58 Z`;
-  const stroke = up ? "#80e59a" : "#f28caf";
-  const glow = up ? "#5fe27e" : "#ff78a6";
-  const fill = up ? "rgba(101,216,120,.34)" : "rgba(240,138,170,.34)";
-  const afterStroke = "rgba(226,232,240,.9)";
+  const stroke = up ? "#00e889" : "#ff2f55";
+  const glow = up ? "#20ff9c" : "#ff5c7a";
+  const fill = up ? "rgba(0,232,137,.42)" : "rgba(255,47,85,.42)";
+  const afterStroke = "rgba(245,248,255,.98)";
 
   return (
     <svg viewBox="0 0 132 60" className="h-[70px] w-full min-w-[118px]" aria-label={`${ticker} intraday chart`}>
@@ -291,16 +291,16 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
           </feMerge>
         </filter>
         <linearGradient id={`after-spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="rgba(226,232,240,.28)" />
-          <stop offset="70%" stopColor="rgba(148,163,184,.14)" />
+          <stop offset="0%" stopColor="rgba(245,248,255,.28)" />
+          <stop offset="70%" stopColor="rgba(203,213,225,.16)" />
           <stop offset="100%" stopColor="rgba(16,16,16,0)" />
         </linearGradient>
       </defs>
       <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
-      <path d={points} fill="none" stroke={glow} strokeOpacity="0.2" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
-      <path d={points} fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={points} fill="none" stroke={glow} strokeOpacity="0.28" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
+      <path d={points} fill="none" stroke={stroke} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
       <path d={`${afterPoints} L 132 58 L 0 58 Z`} fill={`url(#after-spark-${ticker})`} stroke="none" transform="translate(82 0) scale(.38 1)" />
-      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.78" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" />
+      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.95" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" />
     </svg>
   );
 }
@@ -390,6 +390,25 @@ export function WatchlistPanel() {
           const up = afterMarket.closeVsPrevChange >= 0;
           const afterUp = afterMarket.percent >= 0;
           const rsiTone = quote.rsi >= 70 ? "text-rose-300" : quote.rsi <= 30 ? "text-emerald-300" : "text-slate-300";
+          const priceTone = directionTone(afterMarket.closeVsPrevChange);
+          const afterHoursTone = directionTone(afterMarket.percent);
+          const revenueTone = quote.revenueGrowth >= 0 ? "text-emerald-300" : "text-rose-300";
+          const dividendText = quote.dividendYield > 0 ? `${quote.dividendYield.toFixed(2)}%` : "ไม่มี";
+          const peText = quote.peRatio === null ? "-" : quote.peRatio.toFixed(1);
+          const detailCards = [
+            { label: "Last Price", value: `$${quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}`, tone: "text-slate-100" },
+            { label: "Prev Close", value: `$${quote.previousClose.toFixed(2)}`, tone: "text-slate-200" },
+            { label: "Today Move", value: `${directionArrow(afterMarket.closeVsPrevChange)} ${signed(afterMarket.closeVsPrevPercent)}%`, tone: priceTone },
+            { label: "After-hours", value: `${afterMarket.price.toFixed(2)} · ${signed(afterMarket.percent)}%`, tone: afterHoursTone },
+            { label: "Volume", value: quote.volume, tone: "text-amber-100" },
+            { label: "Market Cap", value: quote.marketCap, tone: "text-cyan-100" },
+            { label: "RSI", value: `${quote.rsi}`, tone: rsiTone },
+            { label: "P/E", value: peText, tone: "text-slate-100" },
+            { label: "Revenue Growth", value: `${signed(quote.revenueGrowth, 1)}%`, tone: revenueTone },
+            { label: "Dividend", value: dividendText, tone: quote.dividendYield > 0 ? "text-emerald-200" : "text-slate-300" },
+            { label: "Sector", value: quote.sector, tone: "text-violet-100" },
+            { label: "AI Stock", value: quote.isAiStock ? "ใช่" : "ไม่ใช่", tone: quote.isAiStock ? "text-cyan-100" : "text-slate-300" }
+          ];
           return (
             <button
               key={quote.ticker}
@@ -436,13 +455,25 @@ export function WatchlistPanel() {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-300">
-                  <span className="rounded-md border border-white/10 bg-black/25 px-2 py-1 truncate">{quote.sector}</span>
-                  <span className={`rounded-md border border-white/10 bg-black/25 px-2 py-1 truncate ${directionTone(quote.change)}`}>วันนี้ {signed(quote.change)}</span>
-                  <span className="rounded-md border border-white/10 bg-black/25 px-2 py-1 truncate text-right"><span className={rsiTone}>RSI {quote.rsi}</span> · <span className={directionTone(afterMarket.percent)}>AH {signed(afterMarket.percent)}%</span></span>
+                <div className="rounded-lg border border-cyan-300/14 bg-cyan-300/[0.025] p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2 border-b border-white/10 pb-2">
+                    <span className="text-xs font-semibold text-white">ข้อมูลรายหุ้น</span>
+                    <span className={`rounded-md border px-2 py-0.5 font-mono text-[11px] ${up ? "border-emerald-300/25 bg-emerald-300/10 text-emerald-100" : "border-rose-300/25 bg-rose-300/10 text-rose-100"}`}>
+                      {up ? "ราคาแข็งแรง" : "ราคาอ่อนตัว"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(112px,1fr))] gap-2">
+                    {detailCards.map((item) => (
+                      <div key={item.label} className="min-w-0 rounded-md border border-white/10 bg-black/25 p-2">
+                        <span className="block truncate text-[10px] uppercase text-slate-400">{item.label}</span>
+                        <strong className={`mt-1 block truncate font-mono text-[12px] ${item.tone}`}>{item.value}</strong>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="rounded-lg border border-white/10 bg-black/25 p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+                    <span className="text-xs font-semibold text-white">Signal Scores</span>
                     <span className="rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2 py-1 text-[11px] font-semibold text-cyan-100">{intel.priority}</span>
                     <span className="rounded-md border border-purple-300/20 bg-purple-300/10 px-2 py-1 text-[11px] font-semibold text-purple-100">{intel.setup}</span>
                     <span className={`rounded-md border px-2 py-1 text-[11px] font-semibold ${intel.alert === "Monitor" ? "border-white/10 bg-white/[0.035] text-slate-300" : "border-amber-300/30 bg-amber-300/10 text-amber-100"}`}>{intel.alert}</span>
@@ -468,13 +499,17 @@ export function WatchlistPanel() {
                     ))}
                   </div>
                   <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 text-[11px] leading-5 text-slate-300">
-                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Dark Pool:</b> {intel.darkPoolActivity}</p>
-                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Options Flow:</b> {intel.optionsFlow}</p>
-                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Institutional:</b> {intel.institutionalPositioning}</p>
-                    <p className="rounded-md border border-white/10 bg-black/25 p-2"><b className="text-slate-100">Sector:</b> {intel.sectorRotation}</p>
+                    <p className="rounded-md border border-slate-200/15 bg-slate-200/[0.045] p-2"><b className="block text-slate-100">Dark Pool</b>{intel.darkPoolActivity}</p>
+                    <p className="rounded-md border border-emerald-300/15 bg-emerald-300/[0.045] p-2"><b className="block text-emerald-100">Options Flow</b>{intel.optionsFlow}</p>
+                    <p className="rounded-md border border-blue-300/15 bg-blue-300/[0.045] p-2"><b className="block text-blue-100">Institutional</b>{intel.institutionalPositioning}</p>
+                    <p className="rounded-md border border-violet-300/15 bg-violet-300/[0.045] p-2"><b className="block text-violet-100">Sector Rotation</b>{intel.sectorRotation}</p>
+                    <p className="rounded-md border border-cyan-300/15 bg-cyan-300/[0.045] p-2"><b className="block text-cyan-100">Peer Context</b>{intel.peerContext}</p>
+                    <p className="rounded-md border border-amber-300/15 bg-amber-300/[0.045] p-2"><b className="block text-amber-100">News / AI Sentiment</b>{intel.newsSentiment} · {intel.aiSentiment}</p>
                   </div>
-                  <p className="mt-3 rounded-md border border-cyan-300/12 bg-cyan-300/[0.035] p-2 text-[11px] leading-5 text-slate-200">{intel.thesis}</p>
-                  <p className="mt-2 rounded-md border border-rose-300/15 bg-rose-300/[0.04] p-2 text-[11px] leading-5 text-rose-100">Invalidation: {intel.invalidation}</p>
+                  <div className="mt-3 grid gap-2 md:grid-cols-2">
+                    <p className="rounded-md border border-cyan-300/12 bg-cyan-300/[0.035] p-2 text-[11px] leading-5 text-slate-200"><b className="block text-cyan-100">AI Thesis</b>{intel.thesis}</p>
+                    <p className="rounded-md border border-rose-300/15 bg-rose-300/[0.04] p-2 text-[11px] leading-5 text-rose-100"><b className="block">Risk / Invalidation</b>{intel.invalidation}</p>
+                  </div>
                 </div>
               </div>
             </button>
@@ -652,7 +687,7 @@ export function PortfolioPanel() {
             <XAxis dataKey="month" stroke="#64748b" />
             <YAxis stroke="#64748b" hide />
             <Tooltip contentStyle={{ background: "#08111f", border: "1px solid rgba(255,255,255,.12)", color: "#fff" }} />
-            <Area dataKey="value" stroke="#22d3ee" fill="url(#growth)" strokeWidth={2} />
+            <Area dataKey="value" stroke="#00d9ff" fill="url(#growth)" strokeWidth={3} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

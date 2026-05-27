@@ -1,0 +1,40 @@
+{
+  "name": "AstraQuant Stock Intelligence",
+  "short_name": "AstraQuant",
+  "description": "Institutional-grade AI stock copilot for private market intelligence.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "background_color": "#101010",
+  "theme_color": "#101010",
+  "orientation": "any",
+  "categories": ["finance", "productivity", "business"],
+  "lang": "th",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/astraquant-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Advanced Chart",
+      "short_name": "Chart",
+      "description": "เปิดกราฟขั้นสูงพร้อม indicators",
+      "url": "/?view=advanced-chart",
+      "icons": [{ "src": "/icons/astraquant-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Watchlist",
+      "short_name": "Watchlist",
+      "description": "เปิด Watchlist Intelligence",
+      "url": "/?view=watchlist",
+      "icons": [{ "src": "/icons/astraquant-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}

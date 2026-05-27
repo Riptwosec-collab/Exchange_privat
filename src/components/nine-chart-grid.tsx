@@ -33,10 +33,11 @@ const indicatorLabels: Array<{ key: IndicatorKey; label: string }> = [
   { key: "adx", label: "ADX" }
 ];
 const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
-const gridGreen = "#18e08a";
-const afterHoursLine = "rgba(226, 232, 240, 0.92)";
-const afterHoursTop = "rgba(148, 163, 184, 0.34)";
-const afterHoursBottom = "rgba(15, 23, 42, 0.08)";
+const gridGreen = "#00e889";
+const gridRed = "#ff2f55";
+const afterHoursLine = "rgba(245, 248, 255, 0.98)";
+const afterHoursTop = "rgba(203, 213, 225, 0.3)";
+const afterHoursBottom = "rgba(203, 213, 225, 0.06)";
 
 function signed(value: number, digits = 2) {
   return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
@@ -335,12 +336,12 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     const baseline = chart.addSeries(BaselineSeries, {
       baseValue: { type: "price", price: firstClose },
       topLineColor: gridGreen,
-      topFillColor1: "rgba(24, 224, 138, 0.36)",
-      topFillColor2: "rgba(24, 224, 138, 0.04)",
-      bottomLineColor: "#ef3340",
-      bottomFillColor1: "rgba(239, 51, 64, 0.04)",
-      bottomFillColor2: "rgba(239, 51, 64, 0.30)",
-      lineWidth: 2
+      topFillColor1: "rgba(0, 232, 137, 0.46)",
+      topFillColor2: "rgba(0, 232, 137, 0.08)",
+      bottomLineColor: gridRed,
+      bottomFillColor1: "rgba(255, 47, 85, 0.08)",
+      bottomFillColor2: "rgba(255, 47, 85, 0.48)",
+      lineWidth: 3
     });
     baseline.setData(normalized.map((candle) => ({ time: candle.time, value: candle.close })));
 
@@ -354,7 +355,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         normalized.map((candle) => ({
           time: candle.time,
           value: candle.volume,
-          color: candle.close >= candle.open ? "rgba(24, 224, 138, 0.62)" : "rgba(239, 51, 64, 0.58)"
+          color: candle.close >= candle.open ? "rgba(0, 232, 137, 0.78)" : "rgba(255, 47, 85, 0.72)"
         }))
       );
     }
@@ -368,7 +369,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         bottomLineColor: afterHoursLine,
         bottomFillColor1: afterHoursBottom,
         bottomFillColor2: afterHoursTop,
-        lineWidth: 3,
+        lineWidth: 4,
         crosshairMarkerVisible: true,
         priceLineVisible: false,
         lastValueVisible: false,

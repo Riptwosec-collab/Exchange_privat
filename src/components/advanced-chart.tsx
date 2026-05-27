@@ -27,12 +27,13 @@ type ChartMode = (typeof chartModes)[number]["key"];
 type IndicatorKey = "levels" | "ad" | "rsi" | "macd" | "ema" | "volume" | "atr" | "adx";
 type IndicatorVisibility = Record<IndicatorKey, boolean>;
 const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
-const freshGreen = "#18e08a";
-const freshGreenSoft = "rgba(24, 224, 138, 0.34)";
-const freshGreenFaint = "rgba(24, 224, 138, 0.05)";
-const afterHoursLine = "rgba(226, 232, 240, 0.92)";
-const afterHoursTop = "rgba(148, 163, 184, 0.36)";
-const afterHoursBottom = "rgba(15, 23, 42, 0.08)";
+const freshGreen = "#00e889";
+const chartRed = "#ff2f55";
+const freshGreenSoft = "rgba(0, 232, 137, 0.42)";
+const freshGreenFaint = "rgba(0, 232, 137, 0.08)";
+const afterHoursLine = "rgba(245, 248, 255, 0.98)";
+const afterHoursTop = "rgba(203, 213, 225, 0.32)";
+const afterHoursBottom = "rgba(203, 213, 225, 0.06)";
 
 const defaultIndicatorVisibility: IndicatorVisibility = {
   levels: true,
@@ -62,13 +63,13 @@ function signed(value: number, digits = 2) {
 
 function toneClass(value: number) {
   if (value > 0) return "text-[#18e08a]";
-  if (value < 0) return "text-[#ff3366]";
+  if (value < 0) return "text-[#ff2f55]";
   return "text-slate-300";
 }
 
 function badgeClass(value: number) {
   if (value > 0) return "border-[#18e08a]/35 bg-[#18e08a]/12 text-[#9ff7c9]";
-  if (value < 0) return "border-[#ff3366]/35 bg-[#ff3366]/12 text-[#ff9db6]";
+  if (value < 0) return "border-[#ff2f55]/35 bg-[#ff2f55]/12 text-[#ff9db6]";
   return "border-white/10 bg-white/[0.045] text-slate-300";
 }
 
@@ -76,7 +77,7 @@ function statusTone(score: number, inverse = false) {
   const high = inverse ? score <= 35 : score >= 65;
   const low = inverse ? score >= 65 : score <= 35;
   if (high) return "text-[#18e08a]";
-  if (low) return "text-[#ff3366]";
+  if (low) return "text-[#ff2f55]";
   return "text-amber-200";
 }
 
@@ -471,8 +472,8 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
         <line x1="0" x2={width} y1="35" y2="35" stroke="rgba(226,232,240,.34)" strokeDasharray="4 5" />
         <line x1="0" x2={width} y1="75" y2="75" stroke="rgba(226,232,240,.18)" strokeDasharray="4 5" />
         <line x1="0" x2={width} y1="115" y2="115" stroke="rgba(226,232,240,.34)" strokeDasharray="4 5" />
-        <path d={buildPolyline(rsi, width, height, 0, 100)} fill="none" stroke="#7c5ac7" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
-        <path d={buildPolyline(rsiMa, width, height, 0, 100)} fill="none" stroke="#d6bd2a" strokeWidth="1.7" vectorEffect="non-scaling-stroke" />
+        <path d={buildPolyline(rsi, width, height, 0, 100)} fill="none" stroke="#9b7cff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <path d={buildPolyline(rsiMa, width, height, 0, 100)} fill="none" stroke="#ffd400" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         <EndValueLabel values={rsi} label="RSI" color="#7c5ac7" min={0} max={100} />
         <EndValueLabel values={rsiMa} label="MA" color="#facc15" min={0} max={100} />
       </IndicatorPane> : null}
@@ -491,8 +492,8 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
           const y = value >= 0 ? 75 - barHeight : 75;
           return <rect key={index} x={x} y={y} width={Math.max(1.5, width / macd.histogram.length - 1)} height={barHeight} fill={value >= 0 ? "rgba(0,150,136,.45)" : "rgba(239,51,64,.45)"} />;
         })}
-        <path d={buildPolyline(macd.macd, width, height, -macdMax, macdMax)} fill="none" stroke="#2563eb" strokeWidth="2.1" vectorEffect="non-scaling-stroke" />
-        <path d={buildPolyline(macd.signal, width, height, -macdMax, macdMax)} fill="none" stroke="#f97316" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
+        <path d={buildPolyline(macd.macd, width, height, -macdMax, macdMax)} fill="none" stroke="#2f7bff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <path d={buildPolyline(macd.signal, width, height, -macdMax, macdMax)} fill="none" stroke="#ff8a1f" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         <EndValueLabel values={macd.macd} label="MACD" color="#2563eb" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
         <EndValueLabel values={macd.signal} label="SIG" color="#f97316" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
         <EndValueLabel values={macd.histogram} label="HIST" color={(latestMacd ?? 0) >= (latestSignal ?? 0) ? "#18e08a" : "#ef3340"} min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
@@ -504,7 +505,7 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
           rightLabels={[{ label: "A/D", className: (metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "bg-emerald-500 text-slate-950" : "bg-rose-500 text-white" }]}
           height={108}
         >
-          <path d={buildPolyline(ad, width, height)} fill="none" stroke={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#18e08a" : "#ef3340"} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+          <path d={buildPolyline(ad, width, height)} fill="none" stroke={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#00e889" : "#ff2f55"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
           <EndValueLabel values={ad} label="A/D" color={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#18e08a" : "#ef3340"} height={height} formatter={(value) => formatCompact(value)} />
         </IndicatorPane> : null}
         {visible.atr ? <IndicatorPane
@@ -512,7 +513,7 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
           rightLabels={[{ label: "ATR", className: "bg-amber-400 text-slate-950" }]}
           height={108}
         >
-          <path d={buildPolyline(atr, width, height)} fill="none" stroke="#f59e0b" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+          <path d={buildPolyline(atr, width, height)} fill="none" stroke="#ffb020" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
           <EndValueLabel values={atr} label="ATR" color="#f59e0b" height={height} />
         </IndicatorPane> : null}
         {visible.adx ? <IndicatorPane
@@ -521,7 +522,7 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
           height={108}
         >
           <line x1="0" x2={width} y1="75" y2="75" stroke="rgba(226,232,240,.3)" strokeDasharray="4 5" />
-          <path d={buildPolyline(adx, width, height, 0, 60)} fill="none" stroke="#22d3ee" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+          <path d={buildPolyline(adx, width, height, 0, 60)} fill="none" stroke="#25e6ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
           <EndValueLabel values={adx} label="ADX" color="#22d3ee" min={0} max={60} height={height} />
         </IndicatorPane> : null}
       </div> : null}
@@ -721,13 +722,13 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     const firstClose = normalizedCandles[0]?.close ?? 0;
     const lastClose = normalizedCandles.at(-1)?.close ?? firstClose;
     const isUpTrend = lastClose >= firstClose;
-    const lineColor = isUpTrend ? freshGreen : "#ff3366";
-    const softLineColor = isUpTrend ? "#00e676" : "#ff5c8a";
+    const lineColor = isUpTrend ? freshGreen : chartRed;
+    const softLineColor = isUpTrend ? "#19ff9a" : "#ff5c7a";
     const upFill = freshGreenSoft;
-    const downFill = "rgba(255, 51, 102, 0.34)";
+    const downFill = "rgba(255, 47, 85, 0.42)";
     const transparentFill = "rgba(15, 23, 42, 0)";
 
-    const addLineSeries = (lineType: LineType, color = lineColor, width: 2 | 3 | 4 = 3) => {
+    const addLineSeries = (lineType: LineType, color = lineColor, width: 2 | 3 | 4 = 4) => {
       const series = chart.addSeries(LineSeries, { color, lineWidth: width, lineType, lineStyle: LineStyle.Solid, crosshairMarkerVisible: true, pointMarkersVisible: chartMode === "Trend" });
       series.setData(closeSeriesData);
       return series;
@@ -738,7 +739,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         lineColor: color,
         topColor,
         bottomColor: transparentFill,
-        lineWidth: 3,
+        lineWidth: 4,
         lineType: chartMode === "Smooth" ? LineType.Curved : LineType.Simple,
         crosshairMarkerVisible: true,
         priceLineColor: color
@@ -750,7 +751,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     let primarySeries: any = null;
 
     if (chartMode === "Bars") {
-      const series = chart.addSeries(BarSeries, { upColor: freshGreen, downColor: "#ff3366", openVisible: true, thinBars: false });
+      const series = chart.addSeries(BarSeries, { upColor: freshGreen, downColor: chartRed, openVisible: true, thinBars: false });
       series.setData(normalizedCandles);
       primarySeries = series;
     } else if (chartMode === "Line") {
@@ -763,31 +764,31 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         topLineColor: freshGreen,
         topFillColor1: "rgba(24, 224, 138, 0.42)",
         topFillColor2: freshGreenFaint,
-        bottomLineColor: "#ff3366",
-        bottomFillColor1: "rgba(255, 51, 102, 0.05)",
-        bottomFillColor2: "rgba(255, 51, 102, 0.42)",
-        lineWidth: 3
+        bottomLineColor: chartRed,
+        bottomFillColor1: "rgba(255, 47, 85, 0.08)",
+        bottomFillColor2: "rgba(255, 47, 85, 0.5)",
+        lineWidth: 4
       });
       series.setData(closeSeriesData);
       primarySeries = series;
     } else if (chartMode === "Smooth") {
-      primarySeries = addAreaSeries(softLineColor, isUpTrend ? "rgba(0, 230, 118, 0.42)" : "rgba(255, 92, 138, 0.42)");
+      primarySeries = addAreaSeries(softLineColor, isUpTrend ? "rgba(0, 232, 137, 0.46)" : "rgba(255, 92, 122, 0.46)");
     } else if (chartMode === "Step") {
-      primarySeries = addLineSeries(LineType.WithSteps, isUpTrend ? freshGreen : "#ff5c8a", 3);
+      primarySeries = addLineSeries(LineType.WithSteps, isUpTrend ? freshGreen : "#ff5c7a", 4);
     } else if (chartMode === "Hollow") {
-      const series = chart.addSeries(CandlestickSeries, { upColor: "rgba(15, 23, 42, 0)", downColor: "#ff3366", borderVisible: true, borderUpColor: freshGreen, borderDownColor: "#ff3366", wickUpColor: freshGreen, wickDownColor: "#ff3366" });
+      const series = chart.addSeries(CandlestickSeries, { upColor: "rgba(15, 23, 42, 0)", downColor: chartRed, borderVisible: true, borderUpColor: freshGreen, borderDownColor: chartRed, wickUpColor: freshGreen, wickDownColor: chartRed });
       series.setData(normalizedCandles);
       primarySeries = series;
     } else if (chartMode === "Trend") {
-      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(24, 224, 138, 0.24)" : "rgba(255, 51, 102, 0.24)");
+      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(0, 232, 137, 0.3)" : "rgba(255, 47, 85, 0.3)");
       if (indicatorVisibility.ema) {
-        const trendSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dashed, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
+        const trendSeries = chart.addSeries(LineSeries, { color: "#ffd400", lineWidth: 3, lineStyle: LineStyle.Dashed, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
         trendSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
       }
     } else if (chartMode === "Volume") {
-      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(24, 224, 138, 0.18)" : "rgba(255, 51, 102, 0.18)");
+      primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(0, 232, 137, 0.26)" : "rgba(255, 47, 85, 0.26)");
     } else {
-      const series = chart.addSeries(CandlestickSeries, { upColor: freshGreen, downColor: "#ff3366", borderVisible: false, wickUpColor: freshGreen, wickDownColor: "#ff3366" });
+      const series = chart.addSeries(CandlestickSeries, { upColor: freshGreen, downColor: chartRed, borderVisible: false, wickUpColor: freshGreen, wickDownColor: chartRed });
       series.setData(normalizedCandles);
       primarySeries = series;
     }
@@ -807,13 +808,13 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         chartData.map((candle) => ({
           time: candle.time as Time,
           value: candle.volume,
-          color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(24,224,138,.62)" : "rgba(24,224,138,.24)") : chartMode === "Volume" ? "rgba(255,51,102,.58)" : "rgba(255,51,102,.2)"
+          color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(0,232,137,.82)" : "rgba(0,232,137,.52)") : chartMode === "Volume" ? "rgba(255,47,85,.78)" : "rgba(255,47,85,.48)"
         }))
       );
     }
 
     if (indicatorVisibility.ema && !["Trend", "Volume"].includes(chartMode)) {
-      const maSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 2, lineStyle: LineStyle.Dotted, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
+      const maSeries = chart.addSeries(LineSeries, { color: "#ffd400", lineWidth: 3, lineStyle: LineStyle.Dotted, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
       maSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
     }
 
@@ -826,7 +827,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         bottomLineColor: afterHoursLine,
         bottomFillColor1: afterHoursBottom,
         bottomFillColor2: afterHoursTop,
-        lineWidth: 3,
+        lineWidth: 4,
         crosshairMarkerVisible: true,
         priceLineVisible: false,
         lastValueVisible: false,

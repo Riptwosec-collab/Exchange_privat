@@ -78,7 +78,7 @@ function MiniSignalChart({ quote, timeframe, mode, strategy }: { quote: StockQuo
       {mode === "Line" || mode === "Area" ? (
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
           {mode === "Area" ? <polygon points={areaPoints} fill="rgba(34,211,238,.16)" /> : null}
-          <polyline points={points} fill="none" stroke={quote.changePercent >= 0 ? "#34d399" : "#fb7185"} strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
+          <polyline points={points} fill="none" stroke={quote.changePercent >= 0 ? "#00e889" : "#ff2f55"} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         </svg>
       ) : null}
       {mode === "Range" ? (
@@ -96,7 +96,7 @@ function MiniSignalChart({ quote, timeframe, mode, strategy }: { quote: StockQuo
             const bottom = mode === "Volume" ? 96 : scale(item.low);
             const bodyTop = scale(Math.max(item.open, item.close));
             const bodyHeight = Math.max(6, Math.abs(scale(item.open) - scale(item.close)));
-            if (mode === "Volume") return <span key={index} className={`flex-1 rounded-t ${up ? "bg-emerald-300/55" : "bg-rose-300/55"}`} style={{ height: `${100 - top}%` }} />;
+            if (mode === "Volume") return <span key={index} className={`flex-1 rounded-t ${up ? "bg-[#00e889]/75" : "bg-[#ff2f55]/70"}`} style={{ height: `${100 - top}%` }} />;
             if (mode === "Bars") return <span key={index} className={`relative flex-1 ${up ? "bg-emerald-300/70" : "bg-rose-300/70"}`} style={{ height: `${bottom - top}%`, marginTop: `${top}%` }} />;
             return <span key={index} className="relative flex-1" style={{ height: "100%" }}><span className={`absolute left-1/2 w-px -translate-x-1/2 ${up ? "bg-emerald-300/60" : "bg-rose-300/60"}`} style={{ top: `${top}%`, height: `${bottom - top}%` }} /><span className={`absolute left-0 right-0 rounded-sm ${up ? "bg-emerald-300/80" : "bg-rose-300/80"}`} style={{ top: `${bodyTop}%`, height: `${bodyHeight}%` }} /></span>;
           })}
@@ -843,4 +843,3 @@ export function EnhancedWhalesPage() {
     </Panel>
   );
 }
-
