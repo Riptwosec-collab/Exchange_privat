@@ -444,8 +444,7 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
   const width = 1000;
   const mainHeight = compact ? 310 : 430;
   const rsiHeight = compact ? 0 : 170;
-  const pmoHeight = compact ? 0 : 170;
-  const totalHeight = mainHeight + rsiHeight + pmoHeight;
+  const totalHeight = mainHeight + rsiHeight;
   const values = candles.map((candle) => candle.close);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -463,84 +462,71 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
   const volumeMax = Math.max(1, ...candles.map((candle) => candle.volume));
   const rsi = calculateRsiSeries(candles);
   const rsiMa = calculateEmaSeries(rsi.map((value) => value ?? 50), 9);
-  const pmo = calculateMacdSeries(candles);
-  const pmoMax = Math.max(0.01, ...pmo.macd.map(Math.abs), ...pmo.signal.map(Math.abs));
   const latestRsi = rsi.at(-1) ?? 0;
   const latestRsiMa = rsiMa.at(-1) ?? 0;
-  const latestPmo = pmo.macd.at(-1) ?? 0;
-  const latestSignal = pmo.signal.at(-1) ?? 0;
   const priceLabels = [high, latest?.high ?? max, latest?.close ?? max, latest?.low ?? min, low]
     .map((value) => Number(value.toFixed(2)))
     .filter((value, index, rows) => rows.indexOf(value) === index);
 
   return (
-    <div className="exact-trading-graph overflow-hidden rounded-[28px] border border-white/8 bg-black">
-      <div className="flex flex-wrap items-start justify-between gap-3 px-4 pb-2 pt-4">
+    <div className="exact-trading-graph overflow-hidden rounded-[24px] border border-white/8 bg-[#050507]">
+      <div className="flex items-start justify-between gap-3 px-4 pb-2 pt-4">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">{symbol.slice(0, 1)}</span>
-            <h3 className="truncate text-xl font-black text-slate-200">{stockUniverse.find((item) => item.ticker === symbol)?.name ?? symbol}</h3>
+            <h3 className="truncate text-base font-black text-slate-200 sm:text-xl">{stockUniverse.find((item) => item.ticker === symbol)?.name ?? symbol}</h3>
           </div>
           <p className="mt-1 font-mono text-sm text-teal-300">
             {latest ? `${latest.close.toFixed(2)} ${change >= 0 ? "+" : ""}${change.toFixed(2)} (${((change / Math.max(0.01, previous?.close ?? latest.close)) * 100).toFixed(2)}%)` : "-"}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1 font-mono text-xs">
+        <div className="grid shrink-0 grid-cols-1 gap-1 font-mono text-[11px]">
           <span className="rounded bg-slate-700/85 px-2 py-1 text-white">High {latest?.high.toFixed(2) ?? "-"}</span>
           <span className="rounded bg-teal-500/85 px-2 py-1 text-white">{latest?.close.toFixed(2) ?? "-"}</span>
-          <span className="rounded bg-rose-500/85 px-2 py-1 text-white">Ask {(latest ? latest.close * 0.992 : 0).toFixed(2)}</span>
-          <span className="rounded bg-blue-600/85 px-2 py-1 text-white">Bid {(latest ? latest.close * 0.986 : 0).toFixed(2)}</span>
         </div>
       </div>
-      <div className="exact-trading-graph-scroll overflow-x-auto overflow-y-hidden">
-      <svg viewBox={`0 0 ${width} ${totalHeight}`} preserveAspectRatio="xMidYMid meet" className={compact ? "h-auto min-w-[560px] w-full" : "h-auto min-w-[820px] w-full"}>
-        <defs>
-          <linearGradient id={`exact-fill-${symbol}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor={areaColor} />
-            <stop offset="62%" stopColor={areaColor} />
-            <stop offset="100%" stopColor="rgba(0,0,0,0)" />
-          </linearGradient>
-        </defs>
-        {Array.from({ length: 9 }, (_, index) => <line key={`v-${index}`} x1={index * (width / 8)} x2={index * (width / 8)} y1="0" y2={totalHeight} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
-        {Array.from({ length: compact ? 8 : 15 }, (_, index) => <line key={`h-${index}`} x1="0" x2={width} y1={index * (totalHeight / (compact ? 7 : 14))} y2={index * (totalHeight / (compact ? 7 : 14))} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
-        {priceLabels.map((value) => {
-          const y = mainHeight - ((value - low) / Math.max(0.01, high - low)) * mainHeight;
-          return <text key={value} x="965" y={Math.max(18, Math.min(mainHeight - 8, y))} fill="#a8a8b2" fontSize="19" fontFamily="monospace">{value.toFixed(2)}</text>;
-        })}
-        <path d={areaPath} fill={`url(#exact-fill-${symbol})`} />
-        <path d={linePath} fill="none" stroke={lineColor} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-        {candles.map((candle, index) => {
-          const x = (index / Math.max(1, candles.length - 1)) * width;
-          const height = Math.max(3, (candle.volume / volumeMax) * 62);
-          return <rect key={index} x={x} y={mainHeight - height} width={Math.max(1.3, width / candles.length - 2)} height={height} fill={candle.close >= candle.open ? "rgba(86,199,164,.18)" : "rgba(240,138,173,.18)"} />;
-        })}
+      <div className="px-2 pb-2">
+        <div className="relative overflow-hidden rounded-2xl bg-black">
+          <svg viewBox={`0 0 ${width} ${mainHeight}`} preserveAspectRatio="none" className={compact ? "h-[230px] w-full sm:h-[260px]" : "h-[280px] w-full sm:h-[330px]"}>
+            <defs>
+              <linearGradient id={`exact-fill-${symbol}`} x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor={areaColor} />
+                <stop offset="62%" stopColor={areaColor} />
+                <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+              </linearGradient>
+            </defs>
+            {Array.from({ length: 7 }, (_, index) => <line key={`v-${index}`} x1={index * (width / 6)} x2={index * (width / 6)} y1="0" y2={mainHeight} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
+            {Array.from({ length: 6 }, (_, index) => <line key={`h-${index}`} x1="0" x2={width} y1={index * (mainHeight / 5)} y2={index * (mainHeight / 5)} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
+            <path d={areaPath} fill={`url(#exact-fill-${symbol})`} />
+            <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            {candles.map((candle, index) => {
+              const x = (index / Math.max(1, candles.length - 1)) * width;
+              const height = Math.max(3, (candle.volume / volumeMax) * 54);
+              return <rect key={index} x={x} y={mainHeight - height} width={Math.max(1.4, width / candles.length - 3)} height={height} fill={candle.close >= candle.open ? "rgba(86,199,164,.16)" : "rgba(240,138,173,.16)"} />;
+            })}
+          </svg>
+          <div className="pointer-events-none absolute right-2 top-2 grid gap-1 font-mono text-[11px]">
+            {priceLabels.slice(0, 4).map((value) => <span key={value} className="rounded bg-black/58 px-1.5 py-0.5 text-slate-300">{value.toFixed(2)}</span>)}
+          </div>
+        </div>
         {!compact ? (
-          <>
-            <g transform={`translate(0 ${mainHeight})`}>
-              <rect x="0" y="0" width={width} height={rsiHeight} fill="rgba(20,16,35,.56)" />
-              <text x="24" y="34" fill="#b8b8c2" fontSize="22" fontFamily="monospace">RSI 14 close</text>
-              <line x1="0" x2={width} y1="44" y2="44" stroke="rgba(255,255,255,.38)" strokeDasharray="9 9" />
-              <line x1="0" x2={width} y1="126" y2="126" stroke="rgba(255,255,255,.38)" strokeDasharray="9 9" />
-              <path d={buildPolyline(rsi, width, rsiHeight, 0, 100)} fill="none" stroke="#9b7cf8" strokeWidth="2.1" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <path d={buildPolyline(rsiMa, width, rsiHeight, 0, 100)} fill="none" stroke="#f3db57" strokeWidth="1.8" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <rect x="780" y="12" width="190" height="28" rx="4" fill="#7c5ac7" />
-              <text x="794" y="33" fill="#fff" fontSize="20" fontFamily="monospace">RSI {latestRsi.toFixed(2)}</text>
-              <rect x="730" y="46" width="240" height="28" rx="4" fill="#f7dc4f" />
-              <text x="744" y="67" fill="#111" fontSize="20" fontFamily="monospace">RSI-based MA {latestRsiMa.toFixed(2)}</text>
-            </g>
-            <g transform={`translate(0 ${mainHeight + rsiHeight})`}>
-              <text x="24" y="34" fill="#b8b8c2" fontSize="22" fontFamily="monospace">PMO close 35 20 10</text>
-              <line x1="0" x2={width} y1={pmoHeight / 2} y2={pmoHeight / 2} stroke="rgba(255,255,255,.38)" strokeDasharray="9 9" />
-              <path d={buildPolyline(pmo.macd, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#4f7dff" strokeWidth="2.1" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <path d={buildPolyline(pmo.signal, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#ff8a3d" strokeWidth="1.8" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <rect x="778" y="12" width="192" height="28" rx="4" fill="#2f6dff" />
-              <text x="794" y="33" fill="#fff" fontSize="20" fontFamily="monospace">PMO {latestPmo.toFixed(2)}</text>
-              <rect x="748" y="46" width="222" height="28" rx="4" fill="#ff7d22" />
-              <text x="762" y="67" fill="#fff" fontSize="20" fontFamily="monospace">Signal {latestSignal.toFixed(2)}</text>
-            </g>
-          </>
+          <div className="mt-2 overflow-hidden rounded-2xl border border-white/8 bg-[#0b0912]">
+            <div className="flex items-center justify-between px-3 py-2 text-xs font-bold text-slate-400">
+              <span>RSI 14 close</span>
+              <span className="rounded bg-violet-500 px-2 py-1 font-mono text-white">RSI {latestRsi.toFixed(2)}</span>
+            </div>
+            <svg viewBox={`0 0 ${width} ${rsiHeight}`} preserveAspectRatio="none" className="h-[105px] w-full sm:h-[120px]">
+              <rect x="0" y="0" width={width} height={rsiHeight} fill="rgba(20,16,35,.42)" />
+              <line x1="0" x2={width} y1="42" y2="42" stroke="rgba(255,255,255,.28)" strokeDasharray="8 8" />
+              <line x1="0" x2={width} y1="118" y2="118" stroke="rgba(255,255,255,.28)" strokeDasharray="8 8" />
+              <path d={buildPolyline(rsi, width, rsiHeight, 0, 100)} fill="none" stroke="#9b7cf8" strokeWidth="1.55" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={buildPolyline(rsiMa, width, rsiHeight, 0, 100)} fill="none" stroke="#f3db57" strokeWidth="1.25" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+            </svg>
+            <div className="flex justify-end gap-2 px-3 pb-2 text-[11px] font-bold">
+              <span className="rounded bg-yellow-300 px-2 py-1 text-slate-950">RSI MA {latestRsiMa.toFixed(2)}</span>
+            </div>
+          </div>
         ) : null}
-      </svg>
       </div>
     </div>
   );

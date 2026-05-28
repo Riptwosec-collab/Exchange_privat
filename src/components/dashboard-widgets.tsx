@@ -310,10 +310,10 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
         />
       ))}
       <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
-      <path d={points} fill="none" stroke={glow} strokeOpacity="0.28" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
-      <path d={points} fill="none" stroke={stroke} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={points} fill="none" stroke={glow} strokeOpacity="0.22" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
+      <path d={points} fill="none" stroke={stroke} strokeWidth="2.15" strokeLinecap="round" strokeLinejoin="round" />
       <path d={`${afterPoints} L 132 58 L 0 58 Z`} fill={`url(#after-spark-${ticker})`} stroke="none" transform="translate(82 0) scale(.38 1)" />
-      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.95" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" />
+      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.9" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" />
     </svg>
   );
 }
@@ -398,30 +398,8 @@ export function WatchlistPanel() {
             ไม่พบหุ้นตามตัวกรองนี้
           </div>
         ) : rows.map((quote) => {
-          const intel = intelByTicker.get(quote.ticker) ?? buildWatchlistIntel(quote, quotes);
           const afterMarket = afterMarketSnapshot(quote);
-          const up = afterMarket.closeVsPrevChange >= 0;
-          const afterUp = afterMarket.percent >= 0;
-          const rsiTone = quote.rsi >= 70 ? "text-rose-300" : quote.rsi <= 30 ? "text-emerald-300" : "text-slate-300";
-          const priceTone = directionTone(afterMarket.closeVsPrevChange);
-          const afterHoursTone = directionTone(afterMarket.percent);
-          const revenueTone = quote.revenueGrowth >= 0 ? "text-emerald-300" : "text-rose-300";
-          const dividendText = quote.dividendYield > 0 ? `${quote.dividendYield.toFixed(2)}%` : "ไม่มี";
-          const peText = quote.peRatio === null ? "-" : quote.peRatio.toFixed(1);
-          const detailCards = [
-            { label: "Last Price", value: `$${quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}`, tone: "text-slate-100" },
-            { label: "Prev Close", value: `$${quote.previousClose.toFixed(2)}`, tone: "text-slate-200" },
-            { label: "Today Move", value: `${directionArrow(afterMarket.closeVsPrevChange)} ${signed(afterMarket.closeVsPrevPercent)}%`, tone: priceTone },
-            { label: "After-hours", value: `${afterMarket.price.toFixed(2)} · ${signed(afterMarket.percent)}%`, tone: afterHoursTone },
-            { label: "Volume", value: quote.volume, tone: "text-amber-100" },
-            { label: "Market Cap", value: quote.marketCap, tone: "text-cyan-100" },
-            { label: "RSI", value: `${quote.rsi}`, tone: rsiTone },
-            { label: "P/E", value: peText, tone: "text-slate-100" },
-            { label: "Revenue Growth", value: `${signed(quote.revenueGrowth, 1)}%`, tone: revenueTone },
-            { label: "Dividend", value: dividendText, tone: quote.dividendYield > 0 ? "text-emerald-200" : "text-slate-300" },
-            { label: "Sector", value: quote.sector, tone: "text-violet-100" },
-            { label: "AI Stock", value: quote.isAiStock ? "ใช่" : "ไม่ใช่", tone: quote.isAiStock ? "text-cyan-100" : "text-slate-300" }
-          ];
+          const intel = intelByTicker.get(quote.ticker) ?? buildWatchlistIntel(quote, quotes);
           return (
             <button
               key={quote.ticker}
@@ -432,97 +410,37 @@ export function WatchlistPanel() {
                   : "border-white/10 bg-[#0b0f14] hover:border-cyan-300/25 hover:bg-white/[0.045]"
               }`}
             >
-              <div className="grid gap-3">
-                <div className="rounded-lg border border-white/10 bg-black/25 p-3">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-md border border-violet-300/25 bg-violet-400/14 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
-                      หุ้นสหรัฐฯ
-                    </span>
-                    <span className="text-[11px] text-slate-300">
-                      เทียบเมื่อวาน {quote.previousClose.toFixed(2)}
-                      <span className={`ml-1 font-mono ${directionTone(afterMarket.closeVsPrevChange)}`}>
-                        {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
+              <div className="grid grid-cols-[minmax(0,1fr)_132px_auto] items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <StockLogo quote={quote} size="md" />
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <strong className="block truncate font-mono text-base font-black text-slate-50">{quote.ticker}</strong>
+                      <span className="shrink-0 rounded-full border border-violet-300/25 bg-violet-400/14 px-2 py-0.5 text-[10px] font-bold text-violet-100">
+                        หุ้นสหรัฐฯ
                       </span>
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] items-stretch gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <StockLogo quote={quote} size="lg" />
-                      <div className="min-w-0">
-                        <strong className="block truncate text-lg font-semibold text-slate-100">{quote.ticker}</strong>
-                        <p className="truncate text-xs text-slate-300">{quote.name}</p>
-                      </div>
                     </div>
-                    <div className="min-w-0 rounded-md border border-cyan-300/14 bg-cyan-300/[0.035] px-2 py-1">
-                      <MiniMarketChart ticker={quote.ticker} intradayChange={afterMarket.closeVsPrevChange} afterHoursChange={afterMarket.percent} />
-                    </div>
-                    <div className="rounded-md border border-white/10 bg-black/30 p-3 text-right font-mono">
-                      <p className="text-[11px] font-semibold text-slate-300">
-                        หลังตลาดปิด <span className="text-slate-100">{afterMarket.price.toFixed(2)}</span>
-                        <span className={`ml-1 ${directionTone(afterMarket.percent)}`}>{directionArrow(afterMarket.percent)} {signed(afterMarket.percent)}%</span>
-                      </p>
-                      <p className="mt-1 text-xl font-semibold text-slate-100">{quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })} <span className="text-sm font-normal text-slate-300">USD</span></p>
-                      <span className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${directionBadge(afterMarket.closeVsPrevChange)}`}>
-                        {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
-                      </span>
+                    <p className="mt-1 truncate text-xs leading-4 text-slate-500">{quote.name}</p>
+                    <div className="mt-1 flex min-w-0 items-center gap-2 text-[11px] text-slate-500">
+                      <span className="truncate">{intel.priority}</span>
+                      <span className={directionTone(afterMarket.percent)}>หลังตลาด {directionArrow(afterMarket.percent)} {signed(afterMarket.percent)}%</span>
                     </div>
                   </div>
                 </div>
-                <div className="rounded-lg border border-cyan-300/14 bg-cyan-300/[0.025] p-3">
-                  <div className="mb-2 flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-                    <span className="text-xs font-semibold text-white">ข้อมูลรายหุ้น</span>
-                    <span className={`rounded-md border px-2 py-0.5 font-mono text-[11px] ${up ? "border-emerald-300/25 bg-emerald-300/10 text-emerald-100" : "border-rose-300/25 bg-rose-300/10 text-rose-100"}`}>
-                      {up ? "ราคาแข็งแรง" : "ราคาอ่อนตัว"}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[repeat(auto-fit,minmax(112px,1fr))] gap-2">
-                    {detailCards.map((item) => (
-                      <div key={item.label} className="min-w-0 rounded-md border border-white/10 bg-black/25 p-2">
-                        <span className="block truncate text-[10px] uppercase text-slate-400">{item.label}</span>
-                        <strong className={`mt-1 block truncate font-mono text-[12px] ${item.tone}`}>{item.value}</strong>
-                      </div>
-                    ))}
-                  </div>
+
+                <div className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-black/35 px-1.5 py-1">
+                  <MiniMarketChart ticker={quote.ticker} intradayChange={afterMarket.closeVsPrevChange} afterHoursChange={afterMarket.percent} />
                 </div>
-                <div className="rounded-lg border border-white/10 bg-black/25 p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
-                    <span className="text-xs font-semibold text-white">Signal Scores</span>
-                    <span className="rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2 py-1 text-[11px] font-semibold text-cyan-100">{intel.priority}</span>
-                    <span className="rounded-md border border-purple-300/20 bg-purple-300/10 px-2 py-1 text-[11px] font-semibold text-purple-100">{intel.setup}</span>
-                    <span className={`rounded-md border px-2 py-1 text-[11px] font-semibold ${intel.alert === "Monitor" ? "border-white/10 bg-white/[0.035] text-slate-300" : "border-amber-300/30 bg-amber-300/10 text-amber-100"}`}>{intel.alert}</span>
-                  </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {[
-                      ["Trend", intel.trendScore, false],
-                      ["Smart", intel.smartMoneyScore, false],
-                      ["Risk", intel.riskScore, true],
-                      ["Vol", intel.volatilityScore, true],
-                      ["RS", intel.relativeStrength, false],
-                      ["AI", intel.aiConfidenceScore, false]
-                    ].map(([label, score, inverse]) => (
-                      <div key={label as string} className="min-w-0 rounded-md border border-white/10 bg-white/[0.035] p-2">
-                        <div className="flex items-center justify-between gap-1 font-mono text-[10px]">
-                          <span className="text-slate-400">{label}</span>
-                          <strong className={scoreTone(score as number, inverse as boolean)}>{score}</strong>
-                        </div>
-                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
-                          <div className={`h-full rounded-full bg-gradient-to-r ${scoreBar(score as number, inverse as boolean)}`} style={{ width: `${score}%` }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2 text-[11px] leading-5 text-slate-300">
-                    <p className="rounded-md border border-slate-200/15 bg-slate-200/[0.045] p-2"><b className="block text-slate-100">Dark Pool</b>{intel.darkPoolActivity}</p>
-                    <p className="rounded-md border border-emerald-300/15 bg-emerald-300/[0.045] p-2"><b className="block text-emerald-100">Options Flow</b>{intel.optionsFlow}</p>
-                    <p className="rounded-md border border-blue-300/15 bg-blue-300/[0.045] p-2"><b className="block text-blue-100">Institutional</b>{intel.institutionalPositioning}</p>
-                    <p className="rounded-md border border-violet-300/15 bg-violet-300/[0.045] p-2"><b className="block text-violet-100">Sector Rotation</b>{intel.sectorRotation}</p>
-                    <p className="rounded-md border border-cyan-300/15 bg-cyan-300/[0.045] p-2"><b className="block text-cyan-100">Peer Context</b>{intel.peerContext}</p>
-                    <p className="rounded-md border border-amber-300/15 bg-amber-300/[0.045] p-2"><b className="block text-amber-100">News / AI Sentiment</b>{intel.newsSentiment} · {intel.aiSentiment}</p>
-                  </div>
-                  <div className="mt-3 grid gap-2 md:grid-cols-2">
-                    <p className="rounded-md border border-cyan-300/12 bg-cyan-300/[0.035] p-2 text-[11px] leading-5 text-slate-200"><b className="block text-cyan-100">AI Thesis</b>{intel.thesis}</p>
-                    <p className="rounded-md border border-rose-300/15 bg-rose-300/[0.04] p-2 text-[11px] leading-5 text-rose-100"><b className="block">Risk / Invalidation</b>{intel.invalidation}</p>
-                  </div>
+
+                <div className="min-w-[104px] text-right font-mono">
+                  <p className="text-lg font-black leading-none text-slate-50">
+                    {quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                    <span className="ml-1 text-xs font-semibold text-slate-500">USD</span>
+                  </p>
+                  <span className={`mt-2 inline-flex rounded-lg px-2 py-1 text-xs font-black ${directionBadge(afterMarket.closeVsPrevChange)}`}>
+                    {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
+                  </span>
+                  <p className="mt-1 text-[11px] text-slate-500">Prev {quote.previousClose.toFixed(2)}</p>
                 </div>
               </div>
             </button>

@@ -916,39 +916,15 @@ textarea::placeholder {
   border-radius: 16px;
 }
 
-.aq-watchlist-row > .grid > :nth-child(n+2) {
-  display: none;
-}
-
 .aq-watchlist-panel > .mt-2 {
   max-height: 780px;
-  gap: 0;
+  gap: 0.75rem;
   padding-top: 0.5rem;
 }
 
 .aq-watchlist-row {
-  border-radius: 0;
-  border-left-width: 0;
-  border-right-width: 0;
-  border-top-width: 0;
+  border-radius: 18px;
   box-shadow: none;
-}
-
-.aq-watchlist-row > .grid > :first-child {
-  border: 0;
-  background: transparent;
-  padding: 0.8rem 0.35rem;
-}
-
-.aq-watchlist-row > .grid > :first-child > :first-child {
-  margin-bottom: 0.35rem;
-}
-
-.aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] {
-  display: grid;
-  grid-template-columns: minmax(150px, 1.4fr) minmax(132px, 0.9fr) minmax(118px, auto);
-  align-items: center;
-  gap: 0.85rem;
 }
 
 .aq-watchlist-row .font-mono,
@@ -959,13 +935,8 @@ textarea::placeholder {
   font-stretch: normal;
 }
 
-.aq-watchlist-panel > .mt-2 .aq-watchlist-row:first-child {
-  border-top-width: 1px;
-  border-radius: 18px 18px 0 0;
-}
-
-.aq-watchlist-panel > .mt-2 .aq-watchlist-row:last-child {
-  border-radius: 0 0 18px 18px;
+.aq-watchlist-row svg {
+  max-height: 56px;
 }
 
 @media (max-width: 640px) {
@@ -980,32 +951,35 @@ textarea::placeholder {
     padding-left: 0.5rem;
   }
 
-  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] {
-    grid-template-columns: minmax(118px, 1fr) minmax(96px, 118px) minmax(86px, auto) !important;
+  .aq-watchlist-row {
+    padding: 0.85rem;
+  }
+
+  .aq-watchlist-row > .grid {
+    grid-template-columns: minmax(0, 1fr) 94px !important;
+    row-gap: 0.65rem;
+  }
+
+  .aq-watchlist-row > .grid > :nth-child(3) {
+    grid-column: 1 / -1;
+    display: flex;
+    min-width: 0;
     align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    text-align: left;
   }
 
-  .aq-watchlist-row > .grid > :first-child {
-    padding: 0.7rem 0.15rem;
+  .aq-watchlist-row > .grid > :nth-child(3) p:first-child {
+    font-size: 1rem;
   }
 
-  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(2) {
-    min-width: 96px;
+  .aq-watchlist-row > .grid > :nth-child(3) p:last-child {
+    margin-top: 0;
+    white-space: nowrap;
   }
 
-  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) {
-    padding: 0.35rem;
-  }
-
-  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) p:first-of-type {
-    display: none;
-  }
-
-  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) p:nth-of-type(2) {
-    font-size: 0.95rem;
-  }
-
-  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) span {
-    font-size: 0.72rem;
+  .aq-watchlist-row svg {
+    max-height: 50px;
   }
 }
