@@ -714,45 +714,54 @@ export function ScreenerPanel() {
           </button>
         ))}
       </div>
-      <div className="mt-4 overflow-x-auto scrollbar-thin">
-        <table className="w-full min-w-[980px] text-sm">
-          <thead className="text-left text-xs uppercase tracking-[0.16em] text-slate-500">
-            <tr>
-              <th className="py-2">หุ้น</th>
-              <th>Market Cap</th>
-              <th>P/E</th>
-              <th>Revenue Growth</th>
-              <th>RSI</th>
-              <th>Breakout</th>
-              <th>AI Stocks</th>
-              <th>Dividend</th>
-              <th>Momentum</th>
-            </tr>
-          </thead>
-          <tbody>
-            {quotes.map((quote) => (
-              <tr key={quote.ticker} className="border-t border-white/10">
-                <td className="py-3">
-                  <div className="flex items-center gap-2">
-                    <StockLogo quote={quote} size="sm" />
-                    <div>
-                      <p className="font-mono text-white">{quote.ticker}</p>
-                      <p className="text-xs text-slate-500">{quote.sector}</p>
+      <div className="mt-4 space-y-2">
+        {quotes.map((quote) => {
+          const growthTone = quote.revenueGrowth >= 0 ? "text-emerald-300" : "text-rose-300";
+          const breakoutTone = quote.breakoutScore >= 70 ? "bg-emerald-400/14 text-emerald-200" : quote.breakoutScore <= 35 ? "bg-rose-400/14 text-rose-200" : "bg-slate-400/12 text-slate-200";
+          const momentumTone = quote.momentumScore >= 70 ? "bg-emerald-400/14 text-emerald-200" : quote.momentumScore <= 35 ? "bg-rose-400/14 text-rose-200" : "bg-slate-400/12 text-slate-200";
+          return (
+            <article key={quote.ticker} className="rounded-2xl border border-white/10 bg-[#0b0f14] p-3">
+              <div className="flex min-w-0 items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <StockLogo quote={quote} size="md" />
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <p className="truncate font-mono text-base font-black text-white">{quote.ticker}</p>
+                      {quote.isAiStock ? <span className="shrink-0 rounded-full bg-cyan-300/14 px-2 py-0.5 text-[10px] font-bold text-cyan-100">AI</span> : null}
                     </div>
+                    <p className="mt-0.5 truncate text-xs text-slate-500">{quote.name}</p>
                   </div>
-                </td>
-                <td className="font-mono text-slate-200">{quote.marketCap}</td>
-                <td className="font-mono text-slate-200">{formatPe(quote.peRatio)}</td>
-                <td className={quote.revenueGrowth >= 0 ? "font-mono text-emerald-300" : "font-mono text-rose-300"}>{formatSignedPercent(quote.revenueGrowth)}</td>
-                <td className="font-mono text-slate-200">{quote.rsi}</td>
-                <td><StatusPill tone={quote.breakoutScore >= 70 ? "up" : quote.breakoutScore <= 35 ? "down" : "neutral"}>{quote.breakoutScore}/100</StatusPill></td>
-                <td className="text-slate-300">{quote.isAiStock ? "ใช่" : "ไม่ใช่"}</td>
-                <td className="font-mono text-slate-300">{quote.dividendYield.toFixed(2)}%</td>
-                <td><StatusPill tone={quote.momentumScore >= 70 ? "up" : quote.momentumScore <= 35 ? "down" : "neutral"}>{quote.momentumScore}/100</StatusPill></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="font-mono text-sm font-black text-slate-100">{quote.marketCap}</p>
+                  <p className={`mt-0.5 font-mono text-xs font-bold ${growthTone}`}>{formatSignedPercent(quote.revenueGrowth)}</p>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                <div className="rounded-xl border border-white/8 bg-white/[0.035] p-2">
+                  <p className="text-[10px] font-bold text-slate-500">P/E</p>
+                  <p className="mt-1 truncate font-mono text-sm font-bold text-slate-100">{formatPe(quote.peRatio)}</p>
+                </div>
+                <div className="rounded-xl border border-white/8 bg-white/[0.035] p-2">
+                  <p className="text-[10px] font-bold text-slate-500">RSI</p>
+                  <p className="mt-1 font-mono text-sm font-bold text-slate-100">{quote.rsi}</p>
+                </div>
+                <div className={`rounded-xl p-2 ${breakoutTone}`}>
+                  <p className="text-[10px] font-bold opacity-70">Break</p>
+                  <p className="mt-1 font-mono text-sm font-black">{quote.breakoutScore}</p>
+                </div>
+                <div className={`rounded-xl p-2 ${momentumTone}`}>
+                  <p className="text-[10px] font-bold opacity-70">Momo</p>
+                  <p className="mt-1 font-mono text-sm font-black">{quote.momentumScore}</p>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-3 text-xs text-slate-500">
+                <span className="truncate">{quote.sector}</span>
+                <span className="font-mono">Dividend {quote.dividendYield.toFixed(2)}%</span>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </Panel>
   );
