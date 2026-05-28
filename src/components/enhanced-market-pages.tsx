@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { generatedNews, portfolio as starterPortfolio } from "@/lib/mock-data";
 import type { PortfolioHolding, StockQuote } from "@/lib/types";
 import { useMarketStore } from "@/store/market-store";
+import { MarketSparkline } from "./market-sparkline";
 import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
 
@@ -789,18 +790,87 @@ export function EnhancedPortfolioPage() {
     return { ...holding, currentPrice, value, cost, pnl: value - cost, roi: ((value - cost) / cost) * 100 };
   });
   const total = rows.reduce((sum, row) => sum + row.value, 0);
+  const cost = rows.reduce((sum, row) => sum + row.cost, 0);
+  const pnl = total - cost;
+  const roi = cost ? (pnl / cost) * 100 : 0;
+  const best = rows.length ? rows.reduce((winner, row) => (row.roi > winner.roi ? row : winner), rows[0]) : null;
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="space-y-4">
+        <Panel className="overflow-hidden p-0">
+          <div className="bg-gradient-to-br from-[#4b2367] via-[#3a214f] to-[#1f2026] p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-black text-slate-300">มูลค่าสินทรัพย์ทั้งหมด</p>
+                <h2 className="mt-2 text-4xl font-black tracking-tight text-white">
+                  {total.toLocaleString("en-US", { maximumFractionDigits: 2 })} <span className="text-xl">USD</span>
+                </h2>
+                <p className="mt-1 text-sm font-bold text-slate-300">ต้นทุน {cost.toLocaleString("en-US", { maximumFractionDigits: 2 })} USD</p>
+              </div>
+              <button onClick={requestRefresh} className="flex h-11 items-center gap-2 rounded-2xl border border-white/12 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/15">
+                <RefreshCw size={15} />Refresh
+              </button>
+            </div>
+            <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-black/28">
+              <div className="h-full rounded-full bg-[#78ea8d]" style={{ width: `${Math.max(8, Math.min(100, 50 + roi))}%` }} />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <Metric label="P/L" value={`${pnl >= 0 ? "+" : ""}${pnl.toLocaleString("en-US", { maximumFractionDigits: 0 })}`} delta={`${roi >= 0 ? "+" : ""}${roi.toFixed(2)}%`} tone={pnl >= 0 ? "up" : "down"} />
+              <Metric label="Positions" value={`${rows.length}`} delta="assets" tone="neutral" />
+              <Metric label="Best" value={best?.ticker ?? "-"} delta={best ? `${best.roi.toFixed(1)}%` : "-"} tone="up" />
+            </div>
+          </div>
+        </Panel>
+
+        <Panel className="p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-300">Portfolio</p>
+              <h3 className="mt-1 text-xl font-black text-white">สินทรัพย์ของฉัน</h3>
+            </div>
+            <StatusPill tone={roi >= 0 ? "up" : "down"}>{roi >= 0 ? "กำไร" : "ขาดทุน"} {Math.abs(roi).toFixed(2)}%</StatusPill>
+          </div>
+          <div className="mt-4 divide-y divide-white/8">
+            {rows.map((row) => {
+              const live = quotes.find((quote) => quote.ticker === row.ticker);
+              const tone = row.pnl >= 0 ? "text-emerald-300" : "text-rose-300";
+              return (
+                <div key={row.ticker} className="grid grid-cols-[minmax(0,1fr)_120px_auto] items-center gap-3 py-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    {live ? <StockLogo quote={live} size="md" /> : <div className="h-11 w-11 rounded-full bg-white/8" />}
+                    <div className="min-w-0">
+                      <p className="font-mono text-lg font-black text-white">{row.ticker}</p>
+                      <p className="truncate text-xs font-bold text-slate-500">{row.sector} · {row.quantity} shares</p>
+                    </div>
+                  </div>
+                  <MarketSparkline id={row.ticker} change={row.roi} className="h-14 w-full" />
+                  <div className="text-right">
+                    <p className="font-mono text-lg font-black text-white">${row.value.toLocaleString("en-US", { maximumFractionDigits: 2 })}</p>
+                    <p className={`mt-1 font-mono text-sm font-black ${tone}`}>{row.roi >= 0 ? "↗" : "↘"} {row.roi.toFixed(2)}%</p>
+                    <p className={`font-mono text-xs ${tone}`}>({row.pnl >= 0 ? "+" : ""}${row.pnl.toFixed(2)})</p>
+                  </div>
+                  <button onClick={() => setHoldings((current) => current.filter((item) => item.ticker !== row.ticker))} className="col-span-3 justify-self-end text-xs font-bold text-slate-500 hover:text-rose-300">Remove</button>
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+      </div>
       <Panel className="p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-semibold text-white">Portfolio Tracker watchlist realtime</h2>
-          <button onClick={requestRefresh} className="flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300"><RefreshCw size={15} />Refresh</button>
+        <h3 className="font-semibold text-white">Add / Update Position</h3>
+        <div className="mt-4 space-y-3">
+          <select value={form.ticker} onChange={(event) => setForm({ ...form, ticker: event.target.value })} className="h-11 w-full rounded-2xl border border-white/10 bg-[#15161b] px-3 text-slate-100">
+            {quotes.map((quote) => <option key={quote.ticker} value={quote.ticker}>{quote.ticker} - {quote.name}</option>)}
+          </select>
+          {(["quantity", "buyPrice", "targetPrice", "stopLoss"] as const).map((key) => (
+            <input key={key} type="number" value={form[key]} onChange={(event) => setForm({ ...form, [key]: Number(event.target.value) })} className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-3 text-slate-100 outline-none" placeholder={key} />
+          ))}
+          <button onClick={() => { const quote = quotes.find((item) => item.ticker === form.ticker) ?? quotes[0]; setHoldings((current) => [...current.filter((item) => item.ticker !== form.ticker), { ...form, currentPrice: quote.price, sector: quote.sector, currency: form.ticker.endsWith(".BK") ? "THB" : "USD" }]); }} className="w-full rounded-2xl bg-white px-3 py-3 font-black text-slate-950 transition hover:bg-violet-100">
+            Save Position
+          </button>
         </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-3"><Metric label="Total Value" value={`$${total.toLocaleString("en-US", { maximumFractionDigits: 0 })}`} delta="live marks" tone="up" /><Metric label="Positions" value={`${rows.length}`} delta="editable" tone="neutral" /><Metric label="Best ROI" value={`${rows.length ? Math.max(...rows.map((row) => row.roi)).toFixed(1) : "0"}%`} delta="top" tone="up" /></div>
-        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[780px] text-sm"><thead className="text-left text-xs uppercase tracking-[0.16em] text-slate-500"><tr><th className="py-2">Ticker</th><th>Qty</th><th>Avg Cost</th><th>Live Price</th><th>Prev</th><th>P/L</th><th>ROI</th><th></th></tr></thead><tbody>{rows.map((row) => { const live = quotes.find((quote) => quote.ticker === row.ticker); return <tr key={row.ticker} className="border-t border-white/10"><td className="py-3 font-mono text-white">{row.ticker}</td><td>{row.quantity}</td><td>${row.buyPrice.toFixed(2)}</td><td>${row.currentPrice.toFixed(2)}</td><td>${(live?.previousClose ?? row.currentPrice - row.pnl / Math.max(1, row.quantity)).toFixed(2)}</td><td className={row.pnl >= 0 ? "text-emerald-300" : "text-rose-300"}>${row.pnl.toFixed(0)}</td><td className={row.roi >= 0 ? "text-emerald-300" : "text-rose-300"}>{row.roi.toFixed(1)}%</td><td><button onClick={() => setHoldings((current) => current.filter((item) => item.ticker !== row.ticker))} className="text-slate-500 hover:text-rose-300">Remove</button></td></tr>; })}</tbody></table></div>
       </Panel>
-      <Panel className="p-4"><h3 className="font-semibold text-white">Add / Update Position</h3><div className="mt-4 space-y-3"><select value={form.ticker} onChange={(event) => setForm({ ...form, ticker: event.target.value })} className="h-10 w-full rounded-md border border-white/10 bg-slate-950 px-3 text-slate-100">{quotes.map((quote) => <option key={quote.ticker} value={quote.ticker}>{quote.ticker} - {quote.name}</option>)}</select>{(["quantity", "buyPrice", "targetPrice", "stopLoss"] as const).map((key) => <input key={key} type="number" value={form[key]} onChange={(event) => setForm({ ...form, [key]: Number(event.target.value) })} className="h-10 w-full rounded-md border border-white/10 bg-white/[0.03] px-3 text-slate-100 outline-none" placeholder={key} />)}<button onClick={() => { const quote = quotes.find((item) => item.ticker === form.ticker) ?? quotes[0]; setHoldings((current) => [...current.filter((item) => item.ticker !== form.ticker), { ...form, currentPrice: quote.price, sector: quote.sector, currency: form.ticker.endsWith(".BK") ? "THB" : "USD" }]); }} className="w-full rounded-md bg-cyan-300 px-3 py-2 font-medium text-slate-950">Save Position</button></div></Panel>
     </div>
   );
 }

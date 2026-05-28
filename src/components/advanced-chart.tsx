@@ -27,13 +27,13 @@ type ChartMode = (typeof chartModes)[number]["key"];
 type IndicatorKey = "levels" | "ad" | "rsi" | "macd" | "ema" | "volume" | "atr" | "adx";
 type IndicatorVisibility = Record<IndicatorKey, boolean>;
 const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
-const freshGreen = "#00e889";
-const chartRed = "#ff2f55";
-const freshGreenSoft = "rgba(0, 232, 137, 0.42)";
-const freshGreenFaint = "rgba(0, 232, 137, 0.08)";
-const afterHoursLine = "rgba(245, 248, 255, 0.98)";
-const afterHoursTop = "rgba(203, 213, 225, 0.32)";
-const afterHoursBottom = "rgba(203, 213, 225, 0.06)";
+const freshGreen = "#68df7c";
+const chartRed = "#f385ad";
+const freshGreenSoft = "rgba(104, 223, 124, 0.28)";
+const freshGreenFaint = "rgba(104, 223, 124, 0.08)";
+const afterHoursLine = "rgba(185, 140, 255, 0.96)";
+const afterHoursTop = "rgba(185, 140, 255, 0.22)";
+const afterHoursBottom = "rgba(185, 140, 255, 0.04)";
 
 const defaultIndicatorVisibility: IndicatorVisibility = {
   levels: true,
@@ -440,6 +440,110 @@ function IndicatorPane({ title, rightLabels, children, height = 150 }: { title: 
   );
 }
 
+function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Candle[]; symbol: string; compact?: boolean }) {
+  const width = 1000;
+  const mainHeight = compact ? 310 : 430;
+  const rsiHeight = compact ? 0 : 170;
+  const pmoHeight = compact ? 0 : 170;
+  const totalHeight = mainHeight + rsiHeight + pmoHeight;
+  const values = candles.map((candle) => candle.close);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const pad = Math.max(0.01, (max - min) * 0.14);
+  const low = min - pad;
+  const high = max + pad;
+  const latest = candles.at(-1);
+  const previous = candles.at(-2) ?? latest;
+  const change = latest && previous ? latest.close - previous.close : 0;
+  const up = change >= 0;
+  const lineColor = up ? "#56c7a4" : "#f08aad";
+  const areaColor = up ? "rgba(86,199,164,.18)" : "rgba(240,138,173,.20)";
+  const linePath = buildPolyline(values, width, mainHeight, low, high);
+  const areaPath = `${linePath} L ${width} ${mainHeight} L 0 ${mainHeight} Z`;
+  const volumeMax = Math.max(1, ...candles.map((candle) => candle.volume));
+  const rsi = calculateRsiSeries(candles);
+  const rsiMa = calculateEmaSeries(rsi.map((value) => value ?? 50), 9);
+  const pmo = calculateMacdSeries(candles);
+  const pmoMax = Math.max(0.01, ...pmo.macd.map(Math.abs), ...pmo.signal.map(Math.abs));
+  const latestRsi = rsi.at(-1) ?? 0;
+  const latestRsiMa = rsiMa.at(-1) ?? 0;
+  const latestPmo = pmo.macd.at(-1) ?? 0;
+  const latestSignal = pmo.signal.at(-1) ?? 0;
+  const priceLabels = [high, latest?.high ?? max, latest?.close ?? max, latest?.low ?? min, low]
+    .map((value) => Number(value.toFixed(2)))
+    .filter((value, index, rows) => rows.indexOf(value) === index);
+
+  return (
+    <div className="exact-trading-graph overflow-hidden rounded-[28px] border border-white/8 bg-black">
+      <div className="flex flex-wrap items-start justify-between gap-3 px-4 pb-2 pt-4">
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">{symbol.slice(0, 1)}</span>
+            <h3 className="truncate text-xl font-black text-slate-200">{stockUniverse.find((item) => item.ticker === symbol)?.name ?? symbol}</h3>
+          </div>
+          <p className="mt-1 font-mono text-sm text-teal-300">
+            {latest ? `${latest.close.toFixed(2)} ${change >= 0 ? "+" : ""}${change.toFixed(2)} (${((change / Math.max(0.01, previous?.close ?? latest.close)) * 100).toFixed(2)}%)` : "-"}
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1 font-mono text-xs">
+          <span className="rounded bg-slate-700/85 px-2 py-1 text-white">High {latest?.high.toFixed(2) ?? "-"}</span>
+          <span className="rounded bg-teal-500/85 px-2 py-1 text-white">{latest?.close.toFixed(2) ?? "-"}</span>
+          <span className="rounded bg-rose-500/85 px-2 py-1 text-white">Ask {(latest ? latest.close * 0.992 : 0).toFixed(2)}</span>
+          <span className="rounded bg-blue-600/85 px-2 py-1 text-white">Bid {(latest ? latest.close * 0.986 : 0).toFixed(2)}</span>
+        </div>
+      </div>
+      <svg viewBox={`0 0 ${width} ${totalHeight}`} preserveAspectRatio="none" className={compact ? "h-[360px] w-full" : "h-[760px] w-full"}>
+        <defs>
+          <linearGradient id={`exact-fill-${symbol}`} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor={areaColor} />
+            <stop offset="62%" stopColor={areaColor} />
+            <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+          </linearGradient>
+        </defs>
+        {Array.from({ length: 9 }, (_, index) => <line key={`v-${index}`} x1={index * (width / 8)} x2={index * (width / 8)} y1="0" y2={totalHeight} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
+        {Array.from({ length: compact ? 8 : 15 }, (_, index) => <line key={`h-${index}`} x1="0" x2={width} y1={index * (totalHeight / (compact ? 7 : 14))} y2={index * (totalHeight / (compact ? 7 : 14))} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
+        {priceLabels.map((value) => {
+          const y = mainHeight - ((value - low) / Math.max(0.01, high - low)) * mainHeight;
+          return <text key={value} x="965" y={Math.max(18, Math.min(mainHeight - 8, y))} fill="#a8a8b2" fontSize="19" fontFamily="monospace">{value.toFixed(2)}</text>;
+        })}
+        <path d={areaPath} fill={`url(#exact-fill-${symbol})`} />
+        <path d={linePath} fill="none" stroke={lineColor} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        {candles.map((candle, index) => {
+          const x = (index / Math.max(1, candles.length - 1)) * width;
+          const height = Math.max(3, (candle.volume / volumeMax) * 62);
+          return <rect key={index} x={x} y={mainHeight - height} width={Math.max(1.3, width / candles.length - 2)} height={height} fill={candle.close >= candle.open ? "rgba(86,199,164,.18)" : "rgba(240,138,173,.18)"} />;
+        })}
+        {!compact ? (
+          <>
+            <g transform={`translate(0 ${mainHeight})`}>
+              <rect x="0" y="0" width={width} height={rsiHeight} fill="rgba(20,16,35,.56)" />
+              <text x="24" y="34" fill="#b8b8c2" fontSize="22" fontFamily="monospace">RSI 14 close</text>
+              <line x1="0" x2={width} y1="44" y2="44" stroke="rgba(255,255,255,.38)" strokeDasharray="9 9" />
+              <line x1="0" x2={width} y1="126" y2="126" stroke="rgba(255,255,255,.38)" strokeDasharray="9 9" />
+              <path d={buildPolyline(rsi, width, rsiHeight, 0, 100)} fill="none" stroke="#9b7cf8" strokeWidth="2.1" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={buildPolyline(rsiMa, width, rsiHeight, 0, 100)} fill="none" stroke="#f3db57" strokeWidth="1.8" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <rect x="780" y="12" width="190" height="28" rx="4" fill="#7c5ac7" />
+              <text x="794" y="33" fill="#fff" fontSize="20" fontFamily="monospace">RSI {latestRsi.toFixed(2)}</text>
+              <rect x="730" y="46" width="240" height="28" rx="4" fill="#f7dc4f" />
+              <text x="744" y="67" fill="#111" fontSize="20" fontFamily="monospace">RSI-based MA {latestRsiMa.toFixed(2)}</text>
+            </g>
+            <g transform={`translate(0 ${mainHeight + rsiHeight})`}>
+              <text x="24" y="34" fill="#b8b8c2" fontSize="22" fontFamily="monospace">PMO close 35 20 10</text>
+              <line x1="0" x2={width} y1={pmoHeight / 2} y2={pmoHeight / 2} stroke="rgba(255,255,255,.38)" strokeDasharray="9 9" />
+              <path d={buildPolyline(pmo.macd, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#4f7dff" strokeWidth="2.1" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={buildPolyline(pmo.signal, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#ff8a3d" strokeWidth="1.8" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <rect x="778" y="12" width="192" height="28" rx="4" fill="#2f6dff" />
+              <text x="794" y="33" fill="#fff" fontSize="20" fontFamily="monospace">PMO {latestPmo.toFixed(2)}</text>
+              <rect x="748" y="46" width="222" height="28" rx="4" fill="#ff7d22" />
+              <text x="762" y="67" fill="#fff" fontSize="20" fontFamily="monospace">Signal {latestSignal.toFixed(2)}</text>
+            </g>
+          </>
+        ) : null}
+      </svg>
+    </div>
+  );
+}
+
 function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Candle[]; metrics: ReturnType<typeof calculateDashboardMetrics>; visible: IndicatorVisibility }) {
   const width = 1000;
   const height = 150;
@@ -554,9 +658,9 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
   const [symbolSearch, setSymbolSearch] = useState("");
   const [showTools, setShowTools] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [chartMode, setChartMode] = useState<ChartMode>("Baseline");
+  const [chartMode, setChartMode] = useState<ChartMode>("Area");
   const [hoverQuote, setHoverQuote] = useState<HoverQuote | null>(null);
-  const [showAdvancedIndicators, setShowAdvancedIndicators] = useState(true);
+  const [showAdvancedIndicators, setShowAdvancedIndicators] = useState(false);
   const [indicatorVisibility, setIndicatorVisibility] = useState<IndicatorVisibility>(defaultIndicatorVisibility);
   const technicals = useMemo(() => calculateTechnicals(chartData), [chartData]);
   const marketMetrics = useMemo(() => calculateDashboardMetrics(chartData, activeTicker), [chartData, activeTicker]);
@@ -696,11 +800,11 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     if (!containerRef.current) return;
     const chartElement = containerRef.current;
     const chart = createChart(containerRef.current, {
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#e2e8f0", fontFamily: tradingThaiFont },
-      grid: { vertLines: { color: "rgba(255, 255, 255, 0.042)" }, horzLines: { color: "rgba(255, 255, 255, 0.052)" } },
-      rightPriceScale: { borderColor: "rgba(255, 255, 255, 0.12)", scaleMargins: { top: 0.08, bottom: chartMode === "Volume" ? 0.34 : 0.22 } },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#a3a3ad", fontFamily: tradingThaiFont },
+      grid: { vertLines: { color: "rgba(255, 255, 255, 0.06)" }, horzLines: { color: "rgba(255, 255, 255, 0.06)" } },
+      rightPriceScale: { borderColor: "rgba(255, 255, 255, 0.1)", scaleMargins: { top: 0.08, bottom: chartMode === "Volume" ? 0.34 : 0.22 } },
       timeScale: {
-        borderColor: "rgba(255, 255, 255, 0.12)",
+        borderColor: "rgba(255, 255, 255, 0.1)",
         fixRightEdge: true,
         lockVisibleTimeRangeOnResize: true,
         rightBarStaysOnScroll: true,
@@ -709,8 +813,8 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         minBarSpacing: 4
       },
       crosshair: {
-        vertLine: { color: "rgba(226, 232, 240, 0.42)", style: LineStyle.Dashed, labelBackgroundColor: "#111827" },
-        horzLine: { color: "rgba(226, 232, 240, 0.26)", style: LineStyle.Dotted, labelBackgroundColor: "#111827" }
+        vertLine: { color: "rgba(226, 232, 240, 0.34)", style: LineStyle.Dashed, labelBackgroundColor: "#2a173c" },
+        horzLine: { color: "rgba(226, 232, 240, 0.24)", style: LineStyle.Dotted, labelBackgroundColor: "#2a173c" }
       },
       width: chartElement.clientWidth,
       height: chartElement.clientHeight
@@ -723,10 +827,10 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     const lastClose = normalizedCandles.at(-1)?.close ?? firstClose;
     const isUpTrend = lastClose >= firstClose;
     const lineColor = isUpTrend ? freshGreen : chartRed;
-    const softLineColor = isUpTrend ? "#19ff9a" : "#ff5c7a";
+    const softLineColor = isUpTrend ? "#8df0a0" : "#ff9ab9";
     const upFill = freshGreenSoft;
-    const downFill = "rgba(255, 47, 85, 0.42)";
-    const transparentFill = "rgba(15, 23, 42, 0)";
+    const downFill = "rgba(243, 133, 173, 0.38)";
+    const transparentFill = "rgba(15, 16, 20, 0)";
 
     const addLineSeries = (lineType: LineType, color = lineColor, width: 2 | 3 | 4 = 4) => {
       const series = chart.addSeries(LineSeries, { color, lineWidth: width, lineType, lineStyle: LineStyle.Solid, crosshairMarkerVisible: true, pointMarkersVisible: chartMode === "Trend" });
@@ -739,7 +843,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         lineColor: color,
         topColor,
         bottomColor: transparentFill,
-        lineWidth: 4,
+        lineWidth: 3,
         lineType: chartMode === "Smooth" ? LineType.Curved : LineType.Simple,
         crosshairMarkerVisible: true,
         priceLineColor: color
@@ -762,12 +866,12 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       const series = chart.addSeries(BaselineSeries, {
         baseValue: { type: "price", price: firstClose },
         topLineColor: freshGreen,
-        topFillColor1: "rgba(24, 224, 138, 0.42)",
+        topFillColor1: "rgba(104, 223, 124, 0.34)",
         topFillColor2: freshGreenFaint,
         bottomLineColor: chartRed,
-        bottomFillColor1: "rgba(255, 47, 85, 0.08)",
-        bottomFillColor2: "rgba(255, 47, 85, 0.5)",
-        lineWidth: 4
+        bottomFillColor1: "rgba(243, 133, 173, 0.08)",
+        bottomFillColor2: "rgba(243, 133, 173, 0.5)",
+        lineWidth: 3
       });
       series.setData(closeSeriesData);
       primarySeries = series;
@@ -803,12 +907,12 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     }
 
     if (indicatorVisibility.volume) {
-      const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(24, 224, 138, 0.28)", priceFormat: { type: "volume" }, priceScaleId: "", priceLineVisible: false, lastValueVisible: false });
+      const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(104, 223, 124, 0.24)", priceFormat: { type: "volume" }, priceScaleId: "", priceLineVisible: false, lastValueVisible: false });
       volumeSeries.setData(
         chartData.map((candle) => ({
           time: candle.time as Time,
           value: candle.volume,
-          color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(0,232,137,.82)" : "rgba(0,232,137,.52)") : chartMode === "Volume" ? "rgba(255,47,85,.78)" : "rgba(255,47,85,.48)"
+          color: candle.close >= candle.open ? (chartMode === "Volume" ? "rgba(104,223,124,.82)" : "rgba(104,223,124,.34)") : chartMode === "Volume" ? "rgba(243,133,173,.78)" : "rgba(243,133,173,.42)"
         }))
       );
     }
@@ -926,30 +1030,30 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
   ];
 
   return (
-    <div className={`glass flex ${fillViewport || isFullscreen ? "h-full min-h-[calc(100vh-190px)]" : ""} flex-col rounded-lg ${compact ? "p-3" : "p-4"} ${isFullscreen ? "fixed inset-3 z-50 min-h-0 overflow-auto" : ""}`}>
+    <div className={`aq-chart-card glass flex ${fillViewport || isFullscreen ? "h-full min-h-[calc(100vh-190px)]" : ""} flex-col ${compact ? "p-3" : "p-4"} ${isFullscreen ? "fixed inset-3 z-50 min-h-0 overflow-auto" : ""}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Advanced Chart · {provider.toUpperCase()}</p>
           <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
-            <h2 className={`${compact ? "text-base" : "text-xl"} font-semibold text-white`}>{activeTicker} {activeChartMode}</h2>
-            <span className={`font-mono text-sm ${toneClass(priceChange)}`}>
+            <h2 className={`${compact ? "text-2xl" : "text-4xl"} font-black tracking-tight text-white`}>{activeTicker}</h2>
+            <span className={`font-mono text-lg font-black ${toneClass(priceChange)}`}>
               {marketMetrics.latest ? `$${marketMetrics.latest.close.toFixed(2)} ${signed(priceChange)} (${signed(priceChangePercent)}%)` : "-"}
             </span>
-            <span className={`rounded-md border px-2 py-1 font-mono text-xs ${badgeClass(marketMetrics.afterHours.percent)}`}>
+            <span className={`rounded-full border px-3 py-1 font-mono text-xs font-black ${badgeClass(marketMetrics.afterHours.percent)}`}>
               หลังตลาดปิด ${marketMetrics.afterHours.price.toFixed(2)} {signed(marketMetrics.afterHours.percent)}%
             </span>
           </div>
         </div>
         <div className={`flex flex-wrap items-center gap-2 ${compact ? "hidden" : ""}`}>
-          <input value={symbolSearch} onChange={(event) => setSymbolSearch(event.target.value)} className="h-8 w-36 rounded-md border border-white/10 bg-slate-950 px-2 text-sm text-slate-100 outline-none" placeholder="Search watchlist" />
-          <select value={selectedTicker} onChange={(event) => setSelectedTicker(event.target.value)} className="h-8 w-44 rounded-md border border-white/10 bg-slate-950 px-2 text-sm text-slate-100 outline-none">
+          <input value={symbolSearch} onChange={(event) => setSymbolSearch(event.target.value)} className="h-10 w-36 rounded-2xl border border-white/10 bg-[#15161b] px-3 text-sm text-slate-100 outline-none" placeholder="Search watchlist" />
+          <select value={selectedTicker} onChange={(event) => setSelectedTicker(event.target.value)} className="h-10 w-44 rounded-2xl border border-white/10 bg-[#15161b] px-3 text-sm text-slate-100 outline-none">
             {symbolOptions.map((stock) => <option key={stock.ticker} value={stock.ticker}>{stock.ticker} - {stock.name}</option>)}
           </select>
-          <select value={chartMode} onChange={(event) => setChartMode(event.target.value as ChartMode)} className="h-8 w-32 rounded-md border border-[#18e08a]/25 bg-slate-950 px-2 text-sm text-slate-100 outline-none hover:border-[#18e08a]/60" title="Chart style">
+          <select value={chartMode} onChange={(event) => setChartMode(event.target.value as ChartMode)} className="h-10 w-32 rounded-2xl border border-violet-400/25 bg-[#15161b] px-3 text-sm text-slate-100 outline-none hover:border-violet-400/60" title="Chart style">
             {chartModes.map((mode) => <option key={mode.key} value={mode.key}>{mode.label}</option>)}
           </select>
           {timeframes.map((item) => (
-            <button key={item} onClick={() => setTimeframe(item)} className={`h-8 rounded-md px-3 text-sm transition ${timeframe === item ? "bg-[#18e08a] text-slate-950" : "border border-white/10 text-slate-300 hover:border-[#18e08a]/40"}`}>{item}</button>
+            <button key={item} onClick={() => setTimeframe(item)} className={`h-10 rounded-full px-4 text-sm font-black transition ${timeframe === item ? "bg-violet-600 text-white" : "border border-white/10 text-slate-300 hover:border-violet-400/40"}`}>{item}</button>
           ))}
           <button title="Refresh chart" onClick={() => { requestRefresh(); refreshCandles(); }} className="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 text-slate-300"><RefreshCw size={16} /></button>
           <button title="Drawing tools" onClick={() => setShowTools((value) => !value)} className="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 text-slate-300"><PenLine size={16} /></button>
@@ -971,7 +1075,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         ))}
       </div>
       <div className={`relative w-full shrink-0 ${compact ? "mt-3" : "mt-4"}`}>
-        <div ref={containerRef} className={`advanced-chart-host w-full overflow-hidden ${chartHeightClass}`} />
+        <ExactTradingGraph candles={chartData} symbol={activeTicker} compact={compact} />
         {hoverQuote ? (
           <div
             className="pointer-events-none absolute z-20 w-[230px] rounded-md border border-white/15 bg-[#101318]/95 p-3 text-xs text-slate-300 shadow-[0_18px_44px_rgba(0,0,0,.38)]"

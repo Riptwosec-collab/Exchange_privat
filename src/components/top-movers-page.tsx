@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, RefreshCw, Search } from "lucide-react";
 import { useMarketStore } from "@/store/market-store";
+import { MarketSparkline } from "./market-sparkline";
 import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
 
@@ -52,7 +53,7 @@ export function TopMoversPage() {
           <button
             key={quote.ticker}
             onClick={() => setSelectedTicker(quote.ticker)}
-            className="grid w-full grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-white/10 bg-white/[0.035] p-3 text-left transition hover:border-cyan-300/35 hover:bg-white/[0.055]"
+            className="grid w-full grid-cols-[32px_minmax(0,1fr)_120px_auto] items-center gap-3 rounded-2xl border border-white/10 bg-[#15161b] p-3 text-left transition hover:border-violet-300/35 hover:bg-white/[0.055]"
           >
             <span className="font-mono text-xs text-slate-500">#{index + 1}</span>
             <div className="flex min-w-0 items-center gap-3">
@@ -66,6 +67,7 @@ export function TopMoversPage() {
                 <p className="mt-1 text-xs text-slate-400">เมื่อวาน ${quote.previousClose.toFixed(2)} → ตอนนี้ ${quote.price.toFixed(2)}</p>
               </div>
             </div>
+            <MarketSparkline id={quote.ticker} change={quote.percentChange} className="h-14 w-full" />
             <div className="text-right font-mono">
               <p className={`flex items-center justify-end gap-1 text-lg font-semibold ${moveTone(quote.dollarChange)}`}>
                 <Icon size={17} /> {signed(quote.percentChange)}%

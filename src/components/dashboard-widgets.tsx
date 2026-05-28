@@ -266,6 +266,7 @@ function scoreBar(score: number, inverse = false) {
 }
 
 function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker: string; intradayChange: number; afterHoursChange: number }) {
+  const seed = ticker.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const up = intradayChange >= 0;
   const points = buildMiniSeries(ticker, up);
   const afterPoints = buildMiniSeries(`${ticker}-after`, afterHoursChange >= 0, 34);
@@ -276,7 +277,7 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
   const afterStroke = "rgba(245,248,255,.98)";
 
   return (
-    <svg viewBox="0 0 132 60" className="h-[70px] w-full min-w-[118px]" aria-label={`${ticker} intraday chart`}>
+    <svg viewBox="0 0 132 60" className="h-[70px] w-full min-w-[118px] rounded-xl bg-[#050507]" aria-label={`${ticker} intraday chart`}>
       <defs>
         <linearGradient id={`spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor={fill} />
@@ -296,6 +297,18 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
           <stop offset="100%" stopColor="rgba(16,16,16,0)" />
         </linearGradient>
       </defs>
+      {[22, 44, 66, 88, 110].map((x) => <line key={`v-${x}`} x1={x} x2={x} y1="0" y2="60" stroke="rgba(255,255,255,.055)" strokeWidth="0.8" />)}
+      {[15, 30, 45].map((y) => <line key={`h-${y}`} x1="0" x2="132" y1={y} y2={y} stroke="rgba(255,255,255,.055)" strokeWidth="0.8" />)}
+      {Array.from({ length: 36 }, (_, index) => (
+        <rect
+          key={index}
+          x={index * 3.7}
+          y={57 - (3 + Math.abs(Math.sin(index + seed)) * 15)}
+          width="1.7"
+          height={3 + Math.abs(Math.sin(index + seed)) * 15}
+          fill={up ? "rgba(104,223,124,.20)" : "rgba(243,133,173,.24)"}
+        />
+      ))}
       <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
       <path d={points} fill="none" stroke={glow} strokeOpacity="0.28" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
       <path d={points} fill="none" stroke={stroke} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -331,7 +344,7 @@ export function WatchlistPanel() {
   const rows = filteredRows;
 
   return (
-    <Panel className="flex max-h-[1420px] flex-col overflow-hidden p-0 ring-1 ring-cyan-300/10">
+    <Panel className="aq-watchlist-panel flex max-h-[1420px] flex-col overflow-hidden p-0 ring-1 ring-violet-300/10">
       <div className="border-b border-white/10 bg-black/20 px-4 py-3">
         <div className="flex items-center justify-between">
           <div>

@@ -33,11 +33,11 @@ const indicatorLabels: Array<{ key: IndicatorKey; label: string }> = [
   { key: "adx", label: "ADX" }
 ];
 const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
-const gridGreen = "#00e889";
-const gridRed = "#ff2f55";
-const afterHoursLine = "rgba(245, 248, 255, 0.98)";
-const afterHoursTop = "rgba(203, 213, 225, 0.3)";
-const afterHoursBottom = "rgba(203, 213, 225, 0.06)";
+const gridGreen = "#68df7c";
+const gridRed = "#f385ad";
+const afterHoursLine = "rgba(185, 140, 255, 0.96)";
+const afterHoursTop = "rgba(185, 140, 255, 0.22)";
+const afterHoursBottom = "rgba(185, 140, 255, 0.04)";
 
 function signed(value: number, digits = 2) {
   return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
@@ -302,13 +302,13 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     };
     const chart = createChart(element, {
       layout: {
-        background: { type: ColorType.Solid, color: "#0b0d0f" },
-        textColor: "rgba(226, 232, 240, 0.88)",
+        background: { type: ColorType.Solid, color: "#050507" },
+        textColor: "rgba(226, 232, 240, 0.86)",
         fontFamily: tradingThaiFont
       },
       grid: {
-        vertLines: { color: "rgba(255, 255, 255, 0.042)" },
-        horzLines: { color: "rgba(255, 255, 255, 0.052)" }
+        vertLines: { color: "rgba(255, 255, 255, 0.06)" },
+        horzLines: { color: "rgba(255, 255, 255, 0.06)" }
       },
       rightPriceScale: {
         borderVisible: false,
@@ -324,8 +324,8 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         minBarSpacing: 1
       },
       crosshair: {
-        vertLine: { color: "rgba(226, 232, 240, 0.42)", style: LineStyle.Dashed, labelBackgroundColor: "#111827" },
-        horzLine: { color: "rgba(239, 68, 68, 0.38)", style: LineStyle.Dotted, labelBackgroundColor: "#111827" }
+        vertLine: { color: "rgba(226, 232, 240, 0.36)", style: LineStyle.Dashed, labelBackgroundColor: "#2a173c" },
+        horzLine: { color: "rgba(243, 133, 173, 0.36)", style: LineStyle.Dotted, labelBackgroundColor: "#2a173c" }
       },
       width: Math.max(1, Math.floor(element.getBoundingClientRect().width)),
       height: Math.max(1, Math.floor(element.getBoundingClientRect().height))
@@ -336,11 +336,11 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     const baseline = chart.addSeries(BaselineSeries, {
       baseValue: { type: "price", price: firstClose },
       topLineColor: gridGreen,
-      topFillColor1: "rgba(0, 232, 137, 0.46)",
-      topFillColor2: "rgba(0, 232, 137, 0.08)",
+      topFillColor1: "rgba(104, 223, 124, 0.34)",
+      topFillColor2: "rgba(104, 223, 124, 0.08)",
       bottomLineColor: gridRed,
-      bottomFillColor1: "rgba(255, 47, 85, 0.08)",
-      bottomFillColor2: "rgba(255, 47, 85, 0.48)",
+      bottomFillColor1: "rgba(243, 133, 173, 0.08)",
+      bottomFillColor2: "rgba(243, 133, 173, 0.5)",
       lineWidth: 3
     });
     baseline.setData(normalized.map((candle) => ({ time: candle.time, value: candle.close })));
@@ -355,7 +355,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         normalized.map((candle) => ({
           time: candle.time,
           value: candle.volume,
-          color: candle.close >= candle.open ? "rgba(0, 232, 137, 0.78)" : "rgba(255, 47, 85, 0.72)"
+          color: candle.close >= candle.open ? "rgba(104, 223, 124, 0.62)" : "rgba(243, 133, 173, 0.64)"
         }))
       );
     }

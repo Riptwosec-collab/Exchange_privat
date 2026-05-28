@@ -10,5 +10,14 @@ export async function POST(request: Request) {
     const signal = candle.close > previous.close ? 1 : -0.35;
     return capital + signal * Math.abs(candle.close - previous.close) * 18;
   }, startingCapital);
-  return NextResponse.json({ ticker: body.ticker ?? "NVDA", strategy: body.strategy ?? "MA crossover + RSI confirmation", startingCapital, endingCapital: Number(endingCapital.toFixed(2)), returnPercent: Number((((endingCapital - startingCapital) / startingCapital) * 100).toFixed(2)), maxDrawdown: -8.4, winRate: 58.2 });
+
+  return NextResponse.json({
+    ticker: body.ticker ?? "NVDA",
+    strategy: body.strategy ?? "MA crossover + RSI confirmation",
+    startingCapital,
+    endingCapital: Number(endingCapital.toFixed(2)),
+    returnPercent: Number((((endingCapital - startingCapital) / startingCapital) * 100).toFixed(2)),
+    maxDrawdown: -8.4,
+    winRate: 58.2
+  });
 }

@@ -40,11 +40,17 @@ export function Sidebar() {
   const { activeSection, setActiveSection } = useMarketStore();
 
   return (
-    <aside className="glass fixed left-3 top-3 z-40 hidden h-[calc(100vh-24px)] w-[78px] rounded-lg p-3 lg:flex lg:flex-col">
-      <div className="flex h-12 items-center justify-center rounded-md bg-cyan-400/12 text-cyan-200 ring-1 ring-cyan-300/20">
-        <Globe2 size={24} />
+    <aside className="glass fixed left-4 top-4 z-40 hidden h-[calc(100vh-32px)] w-[260px] rounded-2xl p-4 lg:flex lg:flex-col">
+      <div className="flex items-center gap-3 rounded-2xl border border-violet-400/18 bg-violet-500/14 p-3 text-violet-200">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-black/20">
+          <Globe2 size={23} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-300">AstraQuant</p>
+          <p className="truncate text-sm font-extrabold text-white">Market App</p>
+        </div>
       </div>
-      <nav className="mt-6 flex flex-1 flex-col gap-2">
+      <nav className="mt-5 flex flex-1 flex-col gap-1.5 overflow-y-auto pr-1 scrollbar-thin">
         {nav.map((item, index) => {
           const active = activeSection === item.label;
           return (
@@ -55,21 +61,26 @@ export function Sidebar() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.03 }}
             title={item.label}
-            className={`flex h-11 items-center justify-center rounded-md border text-slate-400 transition hover:border-cyan-300/30 hover:bg-cyan-300/10 hover:text-cyan-100 ${
-              active ? "border-cyan-300/35 bg-cyan-300/12 text-cyan-100" : "border-transparent"
+            className={`flex min-h-11 items-center gap-3 rounded-xl border px-3 text-left text-sm font-bold transition ${
+              active
+                ? "border-violet-400/28 bg-violet-500/22 text-white"
+                : "border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-white"
             }`}
           >
             <item.icon size={20} />
+            <span className="truncate">{item.label}</span>
           </motion.button>
           );
         })}
       </nav>
-      <button title="Secure dashboard" className="flex h-11 items-center justify-center rounded-md border border-white/10 text-slate-400">
-        <Lock size={18} />
-      </button>
-      <button title="Notification center" className="mt-2 flex h-11 items-center justify-center rounded-md border border-purple-300/25 bg-purple-400/10 text-purple-100">
-        <Bell size={18} />
-      </button>
+      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
+        <button title="Secure dashboard" className="flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 transition hover:bg-white/[0.07]">
+          <Lock size={18} />
+        </button>
+        <button title="Notification center" className="flex h-11 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-500/16 text-violet-200 transition hover:bg-violet-500/22">
+          <Bell size={18} />
+        </button>
+      </div>
     </aside>
   );
 }

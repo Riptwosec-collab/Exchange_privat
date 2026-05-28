@@ -75,26 +75,24 @@ const mobileMenuItems = [
 
 function DashboardView() {
   return (
-    <div className="grid gap-4 2xl:grid-cols-[390px_minmax(0,1fr)_360px]">
-      <aside className="space-y-4 2xl:sticky 2xl:top-4 2xl:self-start">
-        <WatchlistPanel />
-      </aside>
-      <section className="min-w-0">
-        <div className="mb-4">
-          <MarketOverview />
-        </div>
+    <div className="space-y-4">
+      <section className="min-w-0 space-y-4">
+        <MarketOverview />
         <AdvancedChart />
-        <div className="min-w-0 space-y-4">
+      </section>
+      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_380px]">
+        <section className="min-w-0 space-y-4">
+          <WatchlistPanel />
           <EnhancedHeatmapPanel />
           <ScreenerPanel />
-        </div>
-      </section>
-      <aside className="min-w-0 space-y-4">
-        <AIBriefing />
-        <NewsFeed />
-        <MoversPanel />
-        <AllocationDonut />
-      </aside>
+        </section>
+        <aside className="min-w-0 space-y-4 2xl:sticky 2xl:top-4 2xl:self-start">
+          <AIBriefing />
+          <NewsFeed />
+          <MoversPanel />
+          <AllocationDonut />
+        </aside>
+      </div>
     </div>
   );
 }
@@ -207,8 +205,8 @@ export function DashboardShell() {
       <Sidebar />
       <Header />
       <MarketTicker />
-      <div className="mobile-app-shell px-4 py-4 lg:ml-[102px] lg:px-6">
-        <div className="mobile-workspace-card mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mobile-app-shell px-4 py-4 lg:ml-[292px] lg:px-6">
+        <div className="mobile-workspace-card mb-4 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/8 bg-[#1a1b22]/86 p-4 backdrop-blur">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Active workspace</p>
             <h2 className="mt-1 text-xl font-semibold text-white">{activeSection}</h2>
@@ -220,7 +218,7 @@ export function DashboardShell() {
             <select
               value={activeSection}
               onChange={(event) => openSection(event.target.value)}
-              className="h-12 w-full rounded-2xl border border-white/10 bg-[#101013] px-4 text-sm font-black text-white outline-none"
+              className="h-12 w-full rounded-2xl border border-white/10 bg-[#14151a] px-4 text-sm font-black text-white outline-none"
               aria-label="\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e2b\u0e19\u0e49\u0e32"
             >
               {mobileMenuItems.map((item) => (
@@ -237,7 +235,7 @@ export function DashboardShell() {
               data-mobile-section={section}
               onPointerUp={() => handleTouchSection(section)}
               onClick={() => openSection(section)}
-              className={`mobile-nav-trigger shrink-0 rounded-full border px-4 py-2.5 text-sm font-extrabold ${activeSection === section ? "border-[#00e889]/45 bg-[#00e889]/16 text-white shadow-[0_0_18px_rgba(0,232,137,.12)]" : "border-white/10 bg-white/[0.035] text-slate-200"}`}
+              className={`mobile-nav-trigger shrink-0 rounded-full border px-4 py-2.5 text-sm font-extrabold ${activeSection === section ? "border-violet-400/35 bg-violet-500/26 text-white" : "border-white/10 bg-white/[0.045] text-slate-300"}`}
             >
               {section}
             </button>
@@ -245,7 +243,7 @@ export function DashboardShell() {
         </div>
         <SectionView />
       </div>
-      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#101010]/94 px-2 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 shadow-[0_-20px_48px_rgba(0,0,0,.42)] backdrop-blur-xl lg:hidden">
+      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#202124]/96 px-2 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_42px_rgba(0,0,0,.28)] backdrop-blur-xl lg:hidden">
         <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
           {bottomNav.map((item) => {
             const active = activeSection === item.label;
@@ -258,8 +256,8 @@ export function DashboardShell() {
                 onClick={() => openSection(item.label)}
                 className={`mobile-nav-trigger flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl border text-[11px] font-black transition ${
                   active || (item.label === "Menu" && mobileMenuOpen)
-                    ? "border-[#00e889]/38 bg-[#00e889]/15 text-white"
-                    : "border-transparent text-slate-400"
+                    ? "border-violet-400/28 bg-violet-500/20 text-white"
+                    : "border-transparent text-slate-500"
                 }`}
               >
                 <item.icon size={21} strokeWidth={2.6} />
@@ -271,17 +269,17 @@ export function DashboardShell() {
       </nav>
       {mobileMenuOpen ? (
         <div className="mobile-menu-overlay fixed inset-0 z-[60] bg-black/64 p-3 backdrop-blur-md lg:hidden">
-          <div className="ml-auto flex h-full max-h-[calc(100vh-24px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border border-white/12 bg-[#121214] shadow-[0_24px_80px_rgba(0,0,0,.55)]">
+          <div className="ml-auto flex h-full max-h-[calc(100vh-24px)] w-full max-w-md flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#15161b] shadow-[0_24px_80px_rgba(0,0,0,.5)]">
             <div className="flex items-center justify-between border-b border-white/10 p-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#00e889]">AstraQuant</p>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-300">AstraQuant</p>
                 <h3 className="text-xl font-black text-white">\u0e40\u0e21\u0e19\u0e39\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14</h3>
               </div>
               <button
                 type="button"
                 onPointerUp={() => setMobileMenuOpen(false)}
                 onClick={() => setMobileMenuOpen(false)}
-                className="mobile-nav-trigger flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white"
+                className="mobile-nav-trigger flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-white"
                 aria-label="\u0e1b\u0e34\u0e14\u0e40\u0e21\u0e19\u0e39"
               >
                 <X size={22} />
@@ -299,13 +297,13 @@ export function DashboardShell() {
                     onClick={() => openSection(item.label)}
                     className={`mobile-nav-trigger flex min-h-[86px] flex-col items-start justify-between rounded-2xl border p-3 text-left transition ${
                       active
-                        ? "border-[#00e889]/45 bg-[#00e889]/15 text-white"
-                        : "border-white/10 bg-white/[0.035] text-slate-200"
+                        ? "border-violet-400/35 bg-violet-500/22 text-white"
+                        : "border-white/10 bg-white/[0.045] text-slate-300"
                     }`}
                   >
                     <item.icon size={22} strokeWidth={2.6} />
                     <span className="text-sm font-black">{item.thai}</span>
-                    <span className="text-[11px] font-bold text-slate-400">{item.label}</span>
+                    <span className="text-[11px] font-bold text-slate-500">{item.label}</span>
                   </a>
                 );
               })}
