@@ -443,8 +443,8 @@ function IndicatorPane({ title, rightLabels, children, height = 150 }: { title: 
 function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Candle[]; symbol: string; compact?: boolean }) {
   const width = 1000;
   const mainHeight = compact ? 310 : 430;
-  const rsiHeight = compact ? 0 : 170;
-  const totalHeight = mainHeight + rsiHeight;
+  const rsiHeight = compact ? 0 : 150;
+  const pmoHeight = compact ? 0 : 132;
   const values = candles.map((candle) => candle.close);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -462,68 +462,111 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
   const volumeMax = Math.max(1, ...candles.map((candle) => candle.volume));
   const rsi = calculateRsiSeries(candles);
   const rsiMa = calculateEmaSeries(rsi.map((value) => value ?? 50), 9);
+  const pmo = calculateMacdSeries(candles);
+  const pmoMax = Math.max(0.01, ...pmo.macd.map(Math.abs), ...pmo.signal.map(Math.abs));
   const latestRsi = rsi.at(-1) ?? 0;
   const latestRsiMa = rsiMa.at(-1) ?? 0;
-  const priceLabels = [high, latest?.high ?? max, latest?.close ?? max, latest?.low ?? min, low]
-    .map((value) => Number(value.toFixed(2)))
-    .filter((value, index, rows) => rows.indexOf(value) === index);
+  const latestPmo = pmo.macd.at(-1) ?? 0;
+  const latestSignal = pmo.signal.at(-1) ?? 0;
+  const yForPrice = (value: number) => `${Math.max(4, Math.min(90, ((high - value) / Math.max(0.01, high - low)) * 100))}%`;
+  const priceLabels = [
+    { label: "High", value: latest?.high ?? high, top: "7%", className: "bg-blue-600/85 text-white" },
+    { label: "Last", value: latest?.close ?? max, top: "17%", className: "bg-teal-500/85 text-white" }
+  ];
 
   return (
-    <div className="exact-trading-graph overflow-hidden rounded-[24px] border border-white/8 bg-[#050507]">
-      <div className="flex items-start justify-between gap-3 px-4 pb-2 pt-4">
+    <div className="exact-trading-graph overflow-hidden rounded-[22px] border border-white/8 bg-[#050507]">
+      <div className="flex items-start justify-between gap-3 px-3 pb-1.5 pt-3 sm:px-4 sm:pt-4">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">{symbol.slice(0, 1)}</span>
-            <h3 className="truncate text-base font-black text-slate-200 sm:text-xl">{stockUniverse.find((item) => item.ticker === symbol)?.name ?? symbol}</h3>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white sm:h-6 sm:w-6 sm:text-[9px]">{symbol.slice(0, 1)}</span>
+            <h3 className="truncate text-sm font-black leading-5 text-slate-200 sm:text-lg">{stockUniverse.find((item) => item.ticker === symbol)?.name ?? symbol}</h3>
           </div>
-          <p className="mt-1 font-mono text-sm text-teal-300">
+          <p className="mt-0.5 font-mono text-xs text-teal-300 sm:text-sm">
             {latest ? `${latest.close.toFixed(2)} ${change >= 0 ? "+" : ""}${change.toFixed(2)} (${((change / Math.max(0.01, previous?.close ?? latest.close)) * 100).toFixed(2)}%)` : "-"}
           </p>
         </div>
-        <div className="grid shrink-0 grid-cols-1 gap-1 font-mono text-[11px]">
-          <span className="rounded bg-slate-700/85 px-2 py-1 text-white">High {latest?.high.toFixed(2) ?? "-"}</span>
-          <span className="rounded bg-teal-500/85 px-2 py-1 text-white">{latest?.close.toFixed(2) ?? "-"}</span>
+        <div className="shrink-0 rounded-full border border-teal-300/20 bg-teal-300/10 px-2 py-1 text-[10px] font-bold text-teal-100 sm:text-[11px]">
+          Real-time
         </div>
       </div>
-      <div className="px-2 pb-2">
-        <div className="relative overflow-hidden rounded-2xl bg-black">
-          <svg viewBox={`0 0 ${width} ${mainHeight}`} preserveAspectRatio="none" className={compact ? "h-[230px] w-full sm:h-[260px]" : "h-[280px] w-full sm:h-[330px]"}>
+      <div className="px-1.5 pb-2 sm:px-2">
+        <div className="relative overflow-hidden rounded-t-2xl bg-black">
+          <svg viewBox={`0 0 ${width} ${mainHeight}`} preserveAspectRatio="none" className={compact ? "h-[255px] w-full sm:h-[282px]" : "h-[315px] w-full sm:h-[350px]"}>
             <defs>
               <linearGradient id={`exact-fill-${symbol}`} x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0%" stopColor={areaColor} />
-                <stop offset="62%" stopColor={areaColor} />
+                <stop offset="58%" stopColor={areaColor} />
                 <stop offset="100%" stopColor="rgba(0,0,0,0)" />
               </linearGradient>
             </defs>
-            {Array.from({ length: 7 }, (_, index) => <line key={`v-${index}`} x1={index * (width / 6)} x2={index * (width / 6)} y1="0" y2={mainHeight} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
-            {Array.from({ length: 6 }, (_, index) => <line key={`h-${index}`} x1="0" x2={width} y1={index * (mainHeight / 5)} y2={index * (mainHeight / 5)} stroke="rgba(255,255,255,.055)" strokeWidth="1" />)}
+            {Array.from({ length: 6 }, (_, index) => <line key={`v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={mainHeight} stroke="rgba(255,255,255,.052)" strokeWidth="1" />)}
+            {Array.from({ length: 5 }, (_, index) => <line key={`h-${index}`} x1="0" x2={width} y1={index * (mainHeight / 4)} y2={index * (mainHeight / 4)} stroke="rgba(255,255,255,.052)" strokeWidth="1" />)}
             <path d={areaPath} fill={`url(#exact-fill-${symbol})`} />
-            <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
             {candles.map((candle, index) => {
               const x = (index / Math.max(1, candles.length - 1)) * width;
-              const height = Math.max(3, (candle.volume / volumeMax) * 54);
-              return <rect key={index} x={x} y={mainHeight - height} width={Math.max(1.4, width / candles.length - 3)} height={height} fill={candle.close >= candle.open ? "rgba(86,199,164,.16)" : "rgba(240,138,173,.16)"} />;
+              const height = Math.max(2, (candle.volume / volumeMax) * 44);
+              return <rect key={index} x={x} y={mainHeight - height} width={Math.max(1.2, width / candles.length - 3)} height={height} fill={candle.close >= candle.open ? "rgba(86,199,164,.14)" : "rgba(240,138,173,.14)"} />;
             })}
           </svg>
-          <div className="pointer-events-none absolute right-2 top-2 grid gap-1 font-mono text-[11px]">
-            {priceLabels.slice(0, 4).map((value) => <span key={value} className="rounded bg-black/58 px-1.5 py-0.5 text-slate-300">{value.toFixed(2)}</span>)}
+          <div className="pointer-events-none absolute inset-y-2 right-1.5 w-20 font-mono text-[10px] sm:text-[11px]">
+            {priceLabels.map((item) => (
+              <span
+                key={item.label}
+                className={`absolute right-0 -translate-y-1/2 rounded px-1.5 py-0.5 shadow-sm ${item.className}`}
+                style={{ top: item.top ?? yForPrice(item.value) }}
+              >
+                {item.label === "Last" ? item.value.toFixed(2) : `${item.label} ${item.value.toFixed(2)}`}
+              </span>
+            ))}
           </div>
+          {!compact ? (
+            <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-teal-500/82 px-2 py-0.5 font-mono text-[10px] font-bold text-white sm:text-[11px]">
+              Volume {formatCompact(latest?.volume ?? 0)}
+            </div>
+          ) : null}
+          {!compact ? (
+            <div className="absolute left-3 top-3 text-xs font-bold text-slate-300">
+              Vol
+            </div>
+          ) : null}
         </div>
         {!compact ? (
-          <div className="mt-2 overflow-hidden rounded-2xl border border-white/8 bg-[#0b0912]">
-            <div className="flex items-center justify-between px-3 py-2 text-xs font-bold text-slate-400">
-              <span>RSI 14 close</span>
-              <span className="rounded bg-violet-500 px-2 py-1 font-mono text-white">RSI {latestRsi.toFixed(2)}</span>
+          <div className="relative overflow-hidden border-t border-white/8 bg-[#09070f]">
+            <div className="absolute left-3 top-2 z-10 text-xs font-bold text-slate-300">RSI 14 close</div>
+            <div className="pointer-events-none absolute right-2 top-2 z-10 grid gap-1 font-mono text-[10px] font-bold sm:text-[11px]">
+              <span className="rounded bg-violet-500 px-2 py-0.5 text-white">RSI {latestRsi.toFixed(2)}</span>
+              <span className="rounded bg-yellow-300 px-2 py-0.5 text-slate-950">RSI-based MA {latestRsiMa.toFixed(2)}</span>
             </div>
-            <svg viewBox={`0 0 ${width} ${rsiHeight}`} preserveAspectRatio="none" className="h-[105px] w-full sm:h-[120px]">
-              <rect x="0" y="0" width={width} height={rsiHeight} fill="rgba(20,16,35,.42)" />
-              <line x1="0" x2={width} y1="42" y2="42" stroke="rgba(255,255,255,.28)" strokeDasharray="8 8" />
-              <line x1="0" x2={width} y1="118" y2="118" stroke="rgba(255,255,255,.28)" strokeDasharray="8 8" />
-              <path d={buildPolyline(rsi, width, rsiHeight, 0, 100)} fill="none" stroke="#9b7cf8" strokeWidth="1.55" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <path d={buildPolyline(rsiMa, width, rsiHeight, 0, 100)} fill="none" stroke="#f3db57" strokeWidth="1.25" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+            <svg viewBox={`0 0 ${width} ${rsiHeight}`} preserveAspectRatio="none" className="h-[118px] w-full sm:h-[130px]">
+              <rect x="0" y="0" width={width} height={rsiHeight} fill="rgba(20,16,35,.36)" />
+              {Array.from({ length: 6 }, (_, index) => <line key={`rsi-v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={rsiHeight} stroke="rgba(255,255,255,.045)" strokeWidth="1" />)}
+              <line x1="0" x2={width} y1={rsiHeight * 0.3} y2={rsiHeight * 0.3} stroke="rgba(255,255,255,.24)" strokeDasharray="8 8" />
+              <line x1="0" x2={width} y1={rsiHeight * 0.7} y2={rsiHeight * 0.7} stroke="rgba(255,255,255,.24)" strokeDasharray="8 8" />
+              <path d={buildPolyline(rsi, width, rsiHeight, 0, 100)} fill="none" stroke="#9b7cf8" strokeWidth="1.45" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={buildPolyline(rsiMa, width, rsiHeight, 0, 100)} fill="none" stroke="#f3db57" strokeWidth="1.15" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
             </svg>
-            <div className="flex justify-end gap-2 px-3 pb-2 text-[11px] font-bold">
-              <span className="rounded bg-yellow-300 px-2 py-1 text-slate-950">RSI MA {latestRsiMa.toFixed(2)}</span>
+          </div>
+        ) : null}
+        {!compact ? (
+          <div className="relative overflow-hidden rounded-b-2xl border-t border-white/8 bg-black">
+            <div className="absolute left-3 top-2 z-10 text-xs font-bold text-slate-300">PMO close 35 20 10</div>
+            <div className="pointer-events-none absolute right-2 top-2 z-10 grid gap-1 font-mono text-[10px] font-bold sm:text-[11px]">
+              <span className="rounded bg-blue-600 px-2 py-0.5 text-white">PMO {latestPmo.toFixed(2)}</span>
+              <span className="rounded bg-orange-500 px-2 py-0.5 text-white">Signal {latestSignal.toFixed(2)}</span>
+            </div>
+            <svg viewBox={`0 0 ${width} ${pmoHeight}`} preserveAspectRatio="none" className="h-[110px] w-full sm:h-[122px]">
+              {Array.from({ length: 6 }, (_, index) => <line key={`pmo-v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={pmoHeight} stroke="rgba(255,255,255,.045)" strokeWidth="1" />)}
+              <line x1="0" x2={width} y1={pmoHeight / 2} y2={pmoHeight / 2} stroke="rgba(255,255,255,.24)" strokeDasharray="8 8" />
+              <path d={buildPolyline(pmo.macd, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#3b73ff" strokeWidth="1.45" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={buildPolyline(pmo.signal, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#ff8a1f" strokeWidth="1.15" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+            </svg>
+            <div className="flex justify-between px-3 pb-2 font-mono text-[10px] font-bold text-slate-500 sm:text-[11px]">
+              <span>Jul</span>
+              <span>2025</span>
+              <span>Jul</span>
+              <span>2026</span>
             </div>
           </div>
         ) : null}
