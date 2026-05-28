@@ -433,7 +433,7 @@ function IndicatorPane({ title, rightLabels, children, height = 150 }: { title: 
           <span key={item.label} className={`rounded px-1.5 py-0.5 font-mono text-[10px] ${item.className}`}>{item.label}</span>
         ))}
       </div>
-      <svg viewBox="0 0 1000 150" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+      <svg viewBox="0 0 1000 150" preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full">
         {children}
       </svg>
     </div>
@@ -492,7 +492,8 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
           <span className="rounded bg-blue-600/85 px-2 py-1 text-white">Bid {(latest ? latest.close * 0.986 : 0).toFixed(2)}</span>
         </div>
       </div>
-      <svg viewBox={`0 0 ${width} ${totalHeight}`} preserveAspectRatio="none" className={compact ? "h-[360px] w-full" : "h-[760px] w-full"}>
+      <div className="exact-trading-graph-scroll overflow-x-auto overflow-y-hidden">
+      <svg viewBox={`0 0 ${width} ${totalHeight}`} preserveAspectRatio="xMidYMid meet" className={compact ? "h-auto min-w-[560px] w-full" : "h-auto min-w-[820px] w-full"}>
         <defs>
           <linearGradient id={`exact-fill-${symbol}`} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor={areaColor} />
@@ -540,6 +541,7 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
           </>
         ) : null}
       </svg>
+      </div>
     </div>
   );
 }

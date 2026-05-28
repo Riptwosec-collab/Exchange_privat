@@ -31,7 +31,7 @@ export function MarketSparkline({
   const gradientId = `spark-${id.replace(/[^a-zA-Z0-9_-]/g, "-")}-${up ? "up" : "down"}`;
 
   return (
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className={`${className} overflow-visible rounded-xl bg-[#0b0b0e]`} aria-label={`${id} sparkline`}>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" className={`${className} overflow-visible rounded-xl bg-[#0b0b0e]`} aria-label={`${id} sparkline`}>
       <defs>
         <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor={fill} />

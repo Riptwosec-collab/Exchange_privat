@@ -882,6 +882,26 @@ textarea::placeholder {
   overflow: hidden;
 }
 
+.exact-trading-graph {
+  contain: layout paint;
+}
+
+.exact-trading-graph-scroll {
+  scrollbar-width: none;
+}
+
+.exact-trading-graph-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.exact-trading-graph svg text {
+  font-stretch: normal;
+  letter-spacing: 0;
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.34);
+  stroke-width: 0.4px;
+}
+
 .aq-chart-card .advanced-chart-host {
   min-height: 520px;
   background:
@@ -896,7 +916,7 @@ textarea::placeholder {
   border-radius: 16px;
 }
 
-.aq-watchlist-panel > .mt-2 button > .grid > :nth-child(n+2) {
+.aq-watchlist-row > .grid > :nth-child(n+2) {
   display: none;
 }
 
@@ -906,7 +926,7 @@ textarea::placeholder {
   padding-top: 0.5rem;
 }
 
-.aq-watchlist-panel > .mt-2 button {
+.aq-watchlist-row {
   border-radius: 0;
   border-left-width: 0;
   border-right-width: 0;
@@ -914,12 +934,37 @@ textarea::placeholder {
   box-shadow: none;
 }
 
-.aq-watchlist-panel > .mt-2 button:first-child {
+.aq-watchlist-row > .grid > :first-child {
+  border: 0;
+  background: transparent;
+  padding: 0.8rem 0.35rem;
+}
+
+.aq-watchlist-row > .grid > :first-child > :first-child {
+  margin-bottom: 0.35rem;
+}
+
+.aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.4fr) minmax(132px, 0.9fr) minmax(118px, auto);
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.aq-watchlist-row .font-mono,
+.aq-watchlist-row strong,
+.aq-watchlist-row p,
+.aq-watchlist-row span {
+  letter-spacing: 0;
+  font-stretch: normal;
+}
+
+.aq-watchlist-panel > .mt-2 .aq-watchlist-row:first-child {
   border-top-width: 1px;
   border-radius: 18px 18px 0 0;
 }
 
-.aq-watchlist-panel > .mt-2 button:last-child {
+.aq-watchlist-panel > .mt-2 .aq-watchlist-row:last-child {
   border-radius: 0 0 18px 18px;
 }
 
@@ -929,12 +974,38 @@ textarea::placeholder {
     height: 56vh !important;
   }
 
-  .aq-watchlist-panel .grid-cols-\[repeat\(auto-fit\,minmax\(180px\,1fr\)\)\] {
-    grid-template-columns: minmax(0, 1fr) minmax(96px, 132px) auto !important;
+  .exact-trading-graph-scroll {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] {
+    grid-template-columns: minmax(118px, 1fr) minmax(96px, 118px) minmax(86px, auto) !important;
     align-items: center;
   }
 
-  .aq-watchlist-panel .grid-cols-\[repeat\(auto-fit\,minmax\(180px\,1fr\)\)\] > :nth-child(2) {
+  .aq-watchlist-row > .grid > :first-child {
+    padding: 0.7rem 0.15rem;
+  }
+
+  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(2) {
     min-width: 96px;
+  }
+
+  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) {
+    padding: 0.35rem;
+  }
+
+  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) p:first-of-type {
+    display: none;
+  }
+
+  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) p:nth-of-type(2) {
+    font-size: 0.95rem;
+  }
+
+  .aq-watchlist-row [class*="grid-cols-[repeat(auto-fit"] > :nth-child(3) span {
+    font-size: 0.72rem;
   }
 }

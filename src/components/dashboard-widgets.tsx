@@ -277,7 +277,7 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
   const afterStroke = "rgba(245,248,255,.98)";
 
   return (
-    <svg viewBox="0 0 132 60" className="h-[70px] w-full min-w-[118px] rounded-xl bg-[#050507]" aria-label={`${ticker} intraday chart`}>
+    <svg viewBox="0 0 132 60" preserveAspectRatio="xMidYMid meet" className="h-[70px] w-full min-w-[118px] rounded-xl bg-[#050507]" aria-label={`${ticker} intraday chart`}>
       <defs>
         <linearGradient id={`spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor={fill} />
@@ -426,7 +426,7 @@ export function WatchlistPanel() {
             <button
               key={quote.ticker}
               onClick={() => setSelectedTicker(quote.ticker)}
-              className={`w-full rounded-xl border p-3 text-left shadow-[0_16px_40px_rgba(0,0,0,.26)] transition ${
+              className={`aq-watchlist-row w-full rounded-xl border p-3 text-left shadow-[0_16px_40px_rgba(0,0,0,.26)] transition ${
                 selectedTicker === quote.ticker
                   ? "border-cyan-300/45 bg-cyan-300/[0.075] ring-1 ring-cyan-300/25"
                   : "border-white/10 bg-[#0b0f14] hover:border-cyan-300/25 hover:bg-white/[0.045]"
