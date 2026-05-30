@@ -12,11 +12,14 @@ type MarketStore = {
   liveMode: "mock" | "provider";
   lastUpdated: string | null;
   refreshNonce: number;
+  autoRefreshPaused: boolean;
   setActiveSection: (section: string) => void;
   setSelectedTicker: (ticker: string) => void;
   setTimeframe: (timeframe: string) => void;
   setQuotes: (quotes: StockQuote[], liveMode?: "mock" | "provider") => void;
   requestRefresh: () => void;
+  setAutoRefreshPaused: (paused: boolean) => void;
+  toggleAutoRefresh: () => void;
   tick: () => void;
 };
 
@@ -28,10 +31,13 @@ export const useMarketStore = create<MarketStore>((set) => ({
   liveMode: "mock",
   lastUpdated: null,
   refreshNonce: 0,
+  autoRefreshPaused: false,
   setActiveSection: (activeSection) => set({ activeSection }),
   setSelectedTicker: (selectedTicker) => set({ selectedTicker }),
   setTimeframe: (timeframe) => set({ timeframe }),
   requestRefresh: () => set((state) => ({ refreshNonce: state.refreshNonce + 1 })),
+  setAutoRefreshPaused: (autoRefreshPaused) => set({ autoRefreshPaused }),
+  toggleAutoRefresh: () => set((state) => ({ autoRefreshPaused: !state.autoRefreshPaused })),
   setQuotes: (quotes, liveMode = "provider") =>
     set({
       quotes,
