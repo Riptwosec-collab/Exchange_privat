@@ -18,7 +18,7 @@ const calendarGuide = {
   gdp: "บอกภาพเศรษฐกิจและ risk-on/risk-off"
 };
 const settingsOptions = {
-  theme: ["Blue", "Green", "Rose", "Black", "Cream"],
+  theme: ["Technology", "Space", "Luxury", "Obsidian", "Pearl"],
   currency: ["USD", "THB"],
   language: ["TH", "EN"],
   refresh: ["5s", "15s", "30s"],
@@ -27,11 +27,11 @@ const settingsOptions = {
 };
 
 const themeSwatches: Record<AppTheme, string[]> = {
-  Blue: ["#080b10", "#2962ff", "#22c55e", "#8b5cf6"],
-  Green: ["#04120d", "#00d084", "#8bff6a", "#19f7d0"],
-  Rose: ["#120712", "#ff4fd8", "#22e0c7", "#f97316"],
-  Black: ["#000000", "#facc15", "#00ff88", "#ffffff"],
-  Cream: ["#fff7e8", "#c27a19", "#047857", "#dc8a3d"]
+  Technology: ["#050b18", "#00b8ff", "#2df8c8", "#7dd3fc"],
+  Space: ["#020817", "#38bdf8", "#f8fafc", "#f59e0b"],
+  Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
+  Obsidian: ["#000000", "#facc15", "#00ff88", "#ffffff"],
+  Pearl: ["#fff7e8", "#c27a19", "#047857", "#dc8a3d"]
 };
 
 function sentimentThai(sentiment: NewsArticle["sentiment"]) {

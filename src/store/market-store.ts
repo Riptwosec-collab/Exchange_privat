@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { watchlist } from "@/lib/mock-data";
 import type { StockQuote } from "@/lib/types";
 
-export type AppTheme = "Blue" | "Green" | "Rose" | "Black" | "Cream";
+export type AppTheme = "Technology" | "Space" | "Luxury" | "Obsidian" | "Pearl";
 
 type MarketStore = {
   activeSection: string;
@@ -26,7 +26,7 @@ type MarketStore = {
 
 export const useMarketStore = create<MarketStore>((set) => ({
   activeSection: "Dashboard",
-  appTheme: "Blue",
+  appTheme: "Technology",
   quotes: watchlist,
   selectedTicker: "NVDA",
   timeframe: "1D",
