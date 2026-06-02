@@ -46,3 +46,35 @@ body, html, .dark {
 .recharts-grid, .lightweight-charts-grid {
   stroke: var(--tv-grid);
 }
+
+.aq-watchlist-row {
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.aq-watchlist-row .font-mono,
+.aq-watchlist-row strong,
+.aq-watchlist-row p,
+.aq-watchlist-row span {
+  letter-spacing: 0;
+  font-stretch: normal;
+}
+
+.aq-watchlist-row svg {
+  max-height: 72px;
+}
+
+@media (max-width: 640px) {
+  .aq-watchlist-row {
+    padding: 0.85rem;
+  }
+
+  .aq-watchlist-row > .grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 0.75rem;
+  }
+
+  .aq-watchlist-row svg {
+    max-height: 72px;
+  }
+}
