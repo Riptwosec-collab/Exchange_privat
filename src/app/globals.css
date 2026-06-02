@@ -318,6 +318,44 @@ textarea::placeholder {
   transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
+.terminal-grid .ticker-chip {
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.16), rgba(var(--accent-2-rgb), 0.08)),
+    color-mix(in srgb, var(--panel) 88%, #000 12%) !important;
+  border-color: rgba(var(--accent-rgb), 0.26) !important;
+  color: var(--foreground);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.terminal-grid .ticker-symbol,
+.terminal-grid .ticker-price,
+.terminal-grid .ticker-change {
+  color: var(--foreground);
+  letter-spacing: 0;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.terminal-grid .ticker-symbol {
+  color: var(--foreground);
+}
+
+.terminal-grid .ticker-price {
+  color: color-mix(in srgb, var(--foreground) 92%, var(--accent-text) 8%);
+  opacity: 0.96;
+}
+
+.terminal-grid .ticker-change.is-up {
+  color: var(--success-text);
+}
+
+.terminal-grid .ticker-change.is-down {
+  color: var(--danger-text);
+}
+
 .terminal-grid :where(.ticker-chip, .metric-card, .market-heatmap-card, article):hover {
   border-color: rgba(var(--accent-rgb), 0.4) !important;
   box-shadow:
@@ -1407,6 +1445,16 @@ textarea::placeholder {
   border-color: rgba(250, 204, 21, 0.14) !important;
 }
 
+.terminal-grid[data-theme="obsidian"] .ticker-chip {
+  background:
+    linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(254, 243, 199, 0.08)),
+    #080706 !important;
+}
+
+.terminal-grid[data-theme="obsidian"] .ticker-change.is-up {
+  color: #fef3c7;
+}
+
 .terminal-grid[data-theme="obsidian"] :where(.text-cyan-100, .text-cyan-200, .text-cyan-300, .text-violet-100, .text-violet-200, .text-purple-300) {
   color: #fff3a3 !important;
 }
@@ -1445,6 +1493,32 @@ textarea::placeholder {
   background-color: #ead9bd !important;
   border-color: rgba(93, 72, 45, 0.22) !important;
   color: #1f2933 !important;
+}
+
+.terminal-grid[data-theme="pearl"] .ticker-chip {
+  background:
+    linear-gradient(135deg, rgba(168, 98, 18, 0.18), rgba(15, 107, 80, 0.08)),
+    #d7bd91 !important;
+  border-color: rgba(93, 72, 45, 0.28) !important;
+}
+
+.terminal-grid[data-theme="pearl"] .ticker-symbol,
+.terminal-grid[data-theme="pearl"] .ticker-price,
+.terminal-grid[data-theme="pearl"] .ticker-change {
+  text-shadow: none;
+}
+
+.terminal-grid[data-theme="pearl"] .ticker-symbol,
+.terminal-grid[data-theme="pearl"] .ticker-price {
+  color: #1f2933;
+}
+
+.terminal-grid[data-theme="pearl"] .ticker-change.is-up {
+  color: #064937;
+}
+
+.terminal-grid[data-theme="pearl"] .ticker-change.is-down {
+  color: #741027;
 }
 
 .terminal-grid[data-theme="pearl"] :where(.bg-black\/20, .bg-black\/25, .bg-black\/30, .bg-black\/35, .bg-black\/45, .bg-white\/\[0\.03\], .bg-white\/\[0\.035\], .bg-white\/\[0\.04\], .bg-white\/\[0\.045\], .bg-white\/\[0\.055\]) {

@@ -69,9 +69,9 @@ export function MarketTicker() {
               onClick={() => setSelectedTicker(quote.ticker)}
               className="ticker-chip flex min-w-[190px] items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#1b1c23] px-3 py-2.5 font-mono text-sm transition hover:border-violet-400/28 hover:bg-violet-500/10"
             >
-              <span className="font-black text-slate-100">{quote.ticker}</span>
-              <span className="font-black text-white">${quote.price.toFixed(2)}</span>
-              <span className={`font-black ${up ? "text-emerald-300" : "text-rose-300"}`}>{up ? "+" : ""}{quote.changePercent.toFixed(2)}%</span>
+              <span className="ticker-symbol font-black">{quote.ticker}</span>
+              <span className="ticker-price font-black">${quote.price.toFixed(2)}</span>
+              <span className={`ticker-change font-black ${up ? "is-up" : "is-down"}`}>{up ? "+" : ""}{quote.changePercent.toFixed(2)}%</span>
             </button>
           );
         })}
