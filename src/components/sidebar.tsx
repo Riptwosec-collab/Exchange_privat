@@ -66,11 +66,11 @@ const brandThemeStyles: Record<AppTheme, {
     notify: { background: "rgba(214,168,79,.16)", borderColor: "rgba(214,168,79,.32)", color: "#fff2c6" }
   },
   Obsidian: {
-    card: { background: "linear-gradient(135deg, rgba(250,204,21,.18), rgba(0,255,136,.1)), #070707", borderColor: "rgba(250,204,21,.36)", color: "#fff3a3", boxShadow: "0 18px 48px rgba(250,204,21,.13)" },
-    mark: { background: "rgba(250,204,21,.14)", color: "#fff3a3" },
-    eyebrow: { color: "#fff3a3" },
-    title: { color: "#f8fafc" },
-    notify: { background: "rgba(250,204,21,.14)", borderColor: "rgba(250,204,21,.3)", color: "#fff3a3" }
+    card: { background: "linear-gradient(135deg, rgba(245,158,11,.22), rgba(254,243,199,.08)), #080706", borderColor: "rgba(245,158,11,.42)", color: "#fde68a", boxShadow: "0 18px 48px rgba(245,158,11,.15)" },
+    mark: { background: "rgba(245,158,11,.16)", color: "#fde68a" },
+    eyebrow: { color: "#fde68a" },
+    title: { color: "#fff7df" },
+    notify: { background: "rgba(245,158,11,.14)", borderColor: "rgba(245,158,11,.32)", color: "#fde68a" }
   },
   Pearl: {
     card: { background: "linear-gradient(135deg, rgba(194,122,25,.16), rgba(4,120,87,.08)), #fff7e8", borderColor: "rgba(117,89,50,.28)", color: "#7a4310", boxShadow: "0 16px 38px rgba(117,89,50,.16)" },

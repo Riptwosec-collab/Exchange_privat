@@ -116,29 +116,29 @@
 
 .terminal-grid[data-theme="obsidian"] {
   --background: #000000;
-  --foreground: #f8fafc;
-  --panel: #070707;
-  --panel-soft: #111111;
-  --border-soft: rgba(250, 204, 21, 0.2);
-  --accent: #facc15;
-  --accent-text: #fff3a3;
-  --accent-rgb: 250, 204, 21;
-  --accent-soft: rgba(250, 204, 21, 0.18);
-  --accent-2: #00ff88;
-  --accent-2-rgb: 0, 255, 136;
-  --accent-3: #ffffff;
-  --theme-glow: rgba(250, 204, 21, 0.24);
-  --success: #00ff88;
-  --success-text: #c8ffdf;
-  --success-rgb: 0, 255, 136;
-  --danger: #ff2d55;
-  --danger-text: #ffc2cc;
-  --danger-rgb: 255, 45, 85;
-  --warning: #facc15;
+  --foreground: #fff7df;
+  --panel: #080706;
+  --panel-soft: #15110a;
+  --border-soft: rgba(245, 158, 11, 0.24);
+  --accent: #f59e0b;
+  --accent-text: #fde68a;
+  --accent-rgb: 245, 158, 11;
+  --accent-soft: rgba(245, 158, 11, 0.2);
+  --accent-2: #fef3c7;
+  --accent-2-rgb: 254, 243, 199;
+  --accent-3: #92400e;
+  --theme-glow: rgba(245, 158, 11, 0.28);
+  --success: #eab308;
+  --success-text: #fef3c7;
+  --success-rgb: 234, 179, 8;
+  --danger: #dc2626;
+  --danger-text: #fecaca;
+  --danger-rgb: 220, 38, 38;
+  --warning: #d97706;
   --chart-bg: #000000;
-  --chart-panel: #070707;
+  --chart-panel: #080706;
   --surface-strong: #000000;
-  --surface-soft: #0d0d0d;
+  --surface-soft: #15110a;
 }
 
 .terminal-grid[data-theme="pearl"] {
@@ -1073,10 +1073,10 @@ textarea::placeholder {
 
 .terminal-grid[data-theme="obsidian"] {
   background:
-    radial-gradient(circle at 20% -8%, rgba(250, 204, 21, 0.16), transparent 32rem),
-    radial-gradient(circle at 86% 4%, rgba(0, 255, 136, 0.1), transparent 28rem),
-    repeating-linear-gradient(90deg, rgba(250, 204, 21, 0.025) 0 1px, transparent 1px 92px),
-    linear-gradient(180deg, #050505 0%, #000 54%, #020202 100%);
+    radial-gradient(circle at 18% -8%, rgba(245, 158, 11, 0.2), transparent 32rem),
+    radial-gradient(circle at 86% 4%, rgba(254, 243, 199, 0.08), transparent 26rem),
+    repeating-linear-gradient(90deg, rgba(245, 158, 11, 0.03) 0 1px, transparent 1px 92px),
+    linear-gradient(180deg, #080706 0%, #000 54%, #050301 100%);
 }
 
 .terminal-grid[data-theme="pearl"] {
