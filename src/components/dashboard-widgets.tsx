@@ -273,19 +273,19 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
   const areaPath = `${points} L 132 58 L 0 58 Z`;
   const stroke = up ? "#00e889" : "#ff2f55";
   const glow = up ? "#20ff9c" : "#ff5c7a";
-  const fill = up ? "rgba(0,232,137,.26)" : "rgba(255,47,85,.26)";
+  const fill = up ? "rgba(0,232,137,.42)" : "rgba(255,47,85,.42)";
   const afterStroke = "rgba(245,248,255,.98)";
 
   return (
-    <svg viewBox="0 0 132 60" preserveAspectRatio="xMidYMid meet" shapeRendering="geometricPrecision" className="h-[72px] w-full min-w-[118px] rounded-xl bg-[#050507]" aria-label={`${ticker} intraday chart`}>
+    <svg viewBox="0 0 132 60" preserveAspectRatio="xMidYMid meet" className="h-[70px] w-full min-w-[118px] rounded-xl bg-[#050507]" aria-label={`${ticker} intraday chart`}>
       <defs>
         <linearGradient id={`spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor={fill} />
           <stop offset="55%" stopColor={fill} />
           <stop offset="100%" stopColor="rgba(16,16,16,0)" />
         </linearGradient>
-        <filter id={`spark-glow-${ticker}`} x="-8%" y="-28%" width="116%" height="156%">
-          <feGaussianBlur stdDeviation="0.85" result="blur" />
+        <filter id={`spark-glow-${ticker}`} x="-10%" y="-40%" width="120%" height="180%">
+          <feGaussianBlur stdDeviation="1.6" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -297,8 +297,8 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
           <stop offset="100%" stopColor="rgba(16,16,16,0)" />
         </linearGradient>
       </defs>
-      {[22, 44, 66, 88, 110].map((x) => <line key={`v-${x}`} x1={x} x2={x} y1="0" y2="60" stroke="rgba(255,255,255,.045)" strokeWidth="0.6" vectorEffect="non-scaling-stroke" />)}
-      {[15, 30, 45].map((y) => <line key={`h-${y}`} x1="0" x2="132" y1={y} y2={y} stroke="rgba(255,255,255,.045)" strokeWidth="0.6" vectorEffect="non-scaling-stroke" />)}
+      {[22, 44, 66, 88, 110].map((x) => <line key={`v-${x}`} x1={x} x2={x} y1="0" y2="60" stroke="rgba(255,255,255,.055)" strokeWidth="0.8" />)}
+      {[15, 30, 45].map((y) => <line key={`h-${y}`} x1="0" x2="132" y1={y} y2={y} stroke="rgba(255,255,255,.055)" strokeWidth="0.8" />)}
       {Array.from({ length: 36 }, (_, index) => (
         <rect
           key={index}
@@ -306,14 +306,14 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
           y={57 - (3 + Math.abs(Math.sin(index + seed)) * 15)}
           width="1.7"
           height={3 + Math.abs(Math.sin(index + seed)) * 15}
-          fill={up ? "rgba(104,223,124,.16)" : "rgba(243,133,173,.18)"}
+          fill={up ? "rgba(104,223,124,.20)" : "rgba(243,133,173,.24)"}
         />
       ))}
       <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
-      <path d={points} fill="none" stroke={glow} strokeOpacity="0.16" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} vectorEffect="non-scaling-stroke" />
-      <path d={points} fill="none" stroke={stroke} strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      <path d={points} fill="none" stroke={glow} strokeOpacity="0.22" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
+      <path d={points} fill="none" stroke={stroke} strokeWidth="2.15" strokeLinecap="round" strokeLinejoin="round" />
       <path d={`${afterPoints} L 132 58 L 0 58 Z`} fill={`url(#after-spark-${ticker})`} stroke="none" transform="translate(82 0) scale(.38 1)" />
-      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.92" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" vectorEffect="non-scaling-stroke" />
+      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.9" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" />
     </svg>
   );
 }
@@ -399,6 +399,7 @@ export function WatchlistPanel() {
           </div>
         ) : rows.map((quote) => {
           const afterMarket = afterMarketSnapshot(quote);
+          const intel = intelByTicker.get(quote.ticker) ?? buildWatchlistIntel(quote, quotes);
           return (
             <button
               key={quote.ticker}
@@ -409,40 +410,37 @@ export function WatchlistPanel() {
                   : "border-white/10 bg-[#0b0f14] hover:border-cyan-300/25 hover:bg-white/[0.045]"
               }`}
             >
-              <div className="grid gap-3">
-                <div className="rounded-lg border border-white/10 bg-black/25 p-3">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-md border border-violet-300/25 bg-violet-400/14 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
-                      หุ้นสหรัฐฯ
-                    </span>
-                    <span className="text-right text-[11px] font-semibold text-slate-300">
-                      เทียบเมื่อวาน {quote.previousClose.toFixed(2)}
-                      <span className={`ml-1 font-mono ${directionTone(afterMarket.closeVsPrevChange)}`}>
-                        {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
-                      </span>
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[minmax(142px,1fr)_minmax(142px,0.86fr)] items-center gap-3">
-                    <div className="relative min-w-0 rounded-xl border border-cyan-300/14 bg-cyan-300/[0.035] px-2 py-1">
-                      <div className="absolute left-2 top-1/2 z-10 -translate-y-1/2">
-                        <StockLogo quote={quote} size="lg" />
-                      </div>
-                      <MiniMarketChart ticker={quote.ticker} intradayChange={afterMarket.closeVsPrevChange} afterHoursChange={afterMarket.percent} />
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-black/30 p-3 text-right font-mono">
-                      <p className="text-[11px] font-semibold text-slate-300">
-                        หลังตลาดปิด <span className="text-slate-100">{afterMarket.price.toFixed(2)}</span>
-                        <span className={`ml-1 ${directionTone(afterMarket.percent)}`}>{directionArrow(afterMarket.percent)} {signed(afterMarket.percent)}%</span>
-                      </p>
-                      <p className="mt-2 text-xl font-black text-slate-100">
-                        {quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}
-                        <span className="ml-1 text-sm font-normal text-slate-300">USD</span>
-                      </p>
-                      <span className={`mt-2 inline-flex rounded-md px-2.5 py-1 text-sm font-black ${directionBadge(afterMarket.closeVsPrevChange)}`}>
-                        {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
+              <div className="grid grid-cols-[minmax(0,1fr)_132px_auto] items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <StockLogo quote={quote} size="md" />
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <strong className="block truncate font-mono text-base font-black text-slate-50">{quote.ticker}</strong>
+                      <span className="shrink-0 rounded-full border border-violet-300/25 bg-violet-400/14 px-2 py-0.5 text-[10px] font-bold text-violet-100">
+                        หุ้นสหรัฐฯ
                       </span>
                     </div>
+                    <p className="mt-1 truncate text-xs leading-4 text-slate-500">{quote.name}</p>
+                    <div className="mt-1 flex min-w-0 items-center gap-2 text-[11px] text-slate-500">
+                      <span className="truncate">{intel.priority}</span>
+                      <span className={directionTone(afterMarket.percent)}>หลังตลาด {directionArrow(afterMarket.percent)} {signed(afterMarket.percent)}%</span>
+                    </div>
                   </div>
+                </div>
+
+                <div className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-black/35 px-1.5 py-1">
+                  <MiniMarketChart ticker={quote.ticker} intradayChange={afterMarket.closeVsPrevChange} afterHoursChange={afterMarket.percent} />
+                </div>
+
+                <div className="min-w-[104px] text-right font-mono">
+                  <p className="text-lg font-black leading-none text-slate-50">
+                    {quote.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                    <span className="ml-1 text-xs font-semibold text-slate-500">USD</span>
+                  </p>
+                  <span className={`mt-2 inline-flex rounded-lg px-2 py-1 text-xs font-black ${directionBadge(afterMarket.closeVsPrevChange)}`}>
+                    {directionArrow(afterMarket.closeVsPrevChange)} {signed(afterMarket.closeVsPrevPercent)}%
+                  </span>
+                  <p className="mt-1 text-[11px] text-slate-500">Prev {quote.previousClose.toFixed(2)}</p>
                 </div>
               </div>
             </button>

@@ -7,7 +7,7 @@ export function Panel({
   children: ReactNode;
   className?: string;
 }) {
-  return <section className={`glass rounded-xl text-slate-200 ${className} overflow-visible`}>{children}</section>;
+  return <section className={`glass rounded-xl text-slate-200 ${className}`}>{children}</section>;
 }
 
 export function Metric({
