@@ -781,7 +781,7 @@ export function EnhancedCopilotPageFull() {
 export function EnhancedPortfolioPage() {
   const { quotes, requestRefresh } = useMarketStore();
   const [holdings, setHoldings] = useState<PortfolioHolding[]>(starterPortfolio);
-  const [form, setForm] = useState({ ticker: "NVDA", quantity: 1, buyPrice: 100, targetPrice: 150, stopLoss: 90 });
+  const [form, setForm] = useState({ ticker: "NVDA", quantity: "1", buyPrice: "100", targetPrice: "150", stopLoss: "90" });
   const rows = holdings.map((holding) => {
     const live = quotes.find((quote) => quote.ticker === holding.ticker);
     const currentPrice = live?.price ?? holding.currentPrice;
@@ -794,6 +794,14 @@ export function EnhancedPortfolioPage() {
   const pnl = total - cost;
   const roi = cost ? (pnl / cost) * 100 : 0;
   const best = rows.length ? rows.reduce((winner, row) => (row.roi > winner.roi ? row : winner), rows[0]) : null;
+  const quantityText = (value: number) => value.toLocaleString("en-US", { maximumFractionDigits: 6 });
+  const numericForm = {
+    quantity: Number.parseFloat(form.quantity),
+    buyPrice: Number.parseFloat(form.buyPrice),
+    targetPrice: Number.parseFloat(form.targetPrice),
+    stopLoss: Number.parseFloat(form.stopLoss)
+  };
+  const canSave = Object.values(numericForm).every(Number.isFinite) && numericForm.quantity > 0;
 
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -841,7 +849,7 @@ export function EnhancedPortfolioPage() {
                     {live ? <StockLogo quote={live} size="md" /> : <div className="h-11 w-11 rounded-full bg-white/8" />}
                     <div className="min-w-0">
                       <p className="font-mono text-lg font-black text-white">{row.ticker}</p>
-                      <p className="truncate text-xs font-bold text-slate-500">{row.sector} · {row.quantity} shares</p>
+                      <p className="truncate text-xs font-bold text-slate-500">{row.sector} · {quantityText(row.quantity)} shares</p>
                     </div>
                   </div>
                   <MarketSparkline id={row.ticker} change={row.roi} className="h-14 w-full" />
@@ -864,9 +872,9 @@ export function EnhancedPortfolioPage() {
             {quotes.map((quote) => <option key={quote.ticker} value={quote.ticker}>{quote.ticker} - {quote.name}</option>)}
           </select>
           {(["quantity", "buyPrice", "targetPrice", "stopLoss"] as const).map((key) => (
-            <input key={key} type="number" value={form[key]} onChange={(event) => setForm({ ...form, [key]: Number(event.target.value) })} className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-3 text-slate-100 outline-none" placeholder={key} />
+            <input key={key} type="number" inputMode="decimal" step={key === "quantity" ? "0.000001" : "0.01"} min={key === "quantity" ? "0.000001" : "0"} value={form[key]} onChange={(event) => setForm({ ...form, [key]: event.target.value })} className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-3 text-slate-100 outline-none" placeholder={key} />
           ))}
-          <button onClick={() => { const quote = quotes.find((item) => item.ticker === form.ticker) ?? quotes[0]; setHoldings((current) => [...current.filter((item) => item.ticker !== form.ticker), { ...form, currentPrice: quote.price, sector: quote.sector, currency: form.ticker.endsWith(".BK") ? "THB" : "USD" }]); }} className="w-full rounded-2xl bg-white px-3 py-3 font-black text-slate-950 transition hover:bg-violet-100">
+          <button disabled={!canSave} onClick={() => { if (!canSave) return; const quote = quotes.find((item) => item.ticker === form.ticker) ?? quotes[0]; setHoldings((current) => [...current.filter((item) => item.ticker !== form.ticker), { ticker: form.ticker, ...numericForm, currentPrice: quote.price, sector: quote.sector, currency: form.ticker.endsWith(".BK") ? "THB" : "USD" }]); }} className="w-full rounded-2xl bg-white px-3 py-3 font-black text-slate-950 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-45">
             Save Position
           </button>
         </div>
