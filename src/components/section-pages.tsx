@@ -29,7 +29,7 @@ const settingsOptions = {
 
 const themeSwatches: Record<AppTheme, string[]> = {
   Technology: ["#12080a", "#ef4444", "#f6c177", "#94a3b8"],
-  Space: ["#020817", "#38bdf8", "#f8fafc", "#f59e0b"],
+  Space: ["#05051a", "#22d3ee", "#a78bfa", "#fbbf24"],
   Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
   Obsidian: ["#000000", "#f59e0b", "#fef3c7", "#92400e"],
   Pearl: ["#ead9bd", "#a86212", "#0f6b50", "#c6782f"]
@@ -54,13 +54,13 @@ const settingsAlertThemeStyles: Record<AppTheme, {
     statusDisabled: { color: "#ffe4e9" }
   },
   Space: {
-    enabled: { background: "linear-gradient(135deg, rgba(56,189,248,.16), rgba(248,250,252,.07)), #0d1b35", borderColor: "rgba(56,189,248,.4)", boxShadow: "0 14px 34px rgba(56,189,248,.12)" },
-    disabled: { background: "linear-gradient(135deg, rgba(251,113,133,.1), rgba(245,158,11,.05)), #071225", borderColor: "rgba(245,158,11,.22)" },
-    iconEnabled: { color: "#d9f4ff" },
-    iconDisabled: { color: "#f59e0b" },
-    title: { color: "#eef6ff" },
-    statusEnabled: { color: "#d9f4ff" },
-    statusDisabled: { color: "#f59e0b" }
+    enabled: { background: "linear-gradient(135deg, rgba(34,211,238,.17), rgba(167,139,250,.12)), #151b45", borderColor: "rgba(34,211,238,.42)", boxShadow: "0 14px 36px rgba(34,211,238,.13)" },
+    disabled: { background: "linear-gradient(135deg, rgba(251,113,133,.10), rgba(251,191,36,.06)), #0b102d", borderColor: "rgba(251,191,36,.24)" },
+    iconEnabled: { color: "#cffafe" },
+    iconDisabled: { color: "#fbbf24" },
+    title: { color: "#eef2ff" },
+    statusEnabled: { color: "#ddd6fe" },
+    statusDisabled: { color: "#fbbf24" }
   },
   Luxury: {
     enabled: { background: "linear-gradient(135deg, rgba(214,168,79,.18), rgba(127,29,29,.12)), #27190d", borderColor: "rgba(214,168,79,.44)", boxShadow: "0 16px 36px rgba(214,168,79,.12)" },

@@ -63,29 +63,29 @@
 }
 
 .terminal-grid[data-theme="space"] {
-  --background: #020817;
-  --foreground: #eef6ff;
-  --panel: #071225;
-  --panel-soft: #0d1b35;
-  --border-soft: rgba(56, 189, 248, 0.2);
-  --accent: #38bdf8;
-  --accent-text: #d9f4ff;
-  --accent-rgb: 56, 189, 248;
-  --accent-soft: rgba(56, 189, 248, 0.2);
-  --accent-2: #f8fafc;
-  --accent-2-rgb: 248, 250, 252;
-  --accent-3: #f59e0b;
-  --theme-glow: rgba(56, 189, 248, 0.24);
-  --success: #34d399;
-  --success-text: #d1fae5;
-  --success-rgb: 52, 211, 153;
+  --background: #05051a;
+  --foreground: #eef2ff;
+  --panel: #0b102d;
+  --panel-soft: #151b45;
+  --border-soft: rgba(34, 211, 238, 0.22);
+  --accent: #22d3ee;
+  --accent-text: #cffafe;
+  --accent-rgb: 34, 211, 238;
+  --accent-soft: rgba(34, 211, 238, 0.2);
+  --accent-2: #a78bfa;
+  --accent-2-rgb: 167, 139, 250;
+  --accent-3: #fbbf24;
+  --theme-glow: rgba(34, 211, 238, 0.26);
+  --success: #5eead4;
+  --success-text: #ccfbf1;
+  --success-rgb: 94, 234, 212;
   --danger: #fb7185;
   --danger-text: #ffe4e9;
   --danger-rgb: 251, 113, 133;
-  --chart-bg: #010513;
-  --chart-panel: #061025;
-  --surface-strong: #020817;
-  --surface-soft: #0c172e;
+  --chart-bg: #020214;
+  --chart-panel: #090d28;
+  --surface-strong: #05051a;
+  --surface-soft: #151b45;
 }
 
 .terminal-grid[data-theme="luxury"] {
@@ -1058,10 +1058,10 @@ textarea::placeholder {
 
 .terminal-grid[data-theme="space"] {
   background:
-    radial-gradient(circle at 12% -8%, rgba(56, 189, 248, 0.24), transparent 34rem),
-    radial-gradient(circle at 86% 8%, rgba(248, 250, 252, 0.11), transparent 24rem),
-    radial-gradient(circle at 70% 34%, rgba(245, 158, 11, 0.08), transparent 18rem),
-    linear-gradient(180deg, #030b1d 0%, #020817 54%, #00030b 100%);
+    radial-gradient(circle at 10% -8%, rgba(34, 211, 238, 0.24), transparent 34rem),
+    radial-gradient(circle at 86% 8%, rgba(167, 139, 250, 0.18), transparent 26rem),
+    radial-gradient(circle at 70% 34%, rgba(251, 191, 36, 0.09), transparent 18rem),
+    linear-gradient(180deg, #08082a 0%, #05051a 54%, #020214 100%);
 }
 
 .terminal-grid[data-theme="luxury"] {
@@ -1113,9 +1113,9 @@ textarea::placeholder {
   opacity: 0.52;
   background:
     radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.65) 0 1px, transparent 2px),
-    radial-gradient(circle at 68% 22%, rgba(255, 255, 255, 0.5) 0 1px, transparent 2px),
-    radial-gradient(circle at 82% 66%, rgba(245, 158, 11, 0.35) 0 1px, transparent 2px),
-    linear-gradient(115deg, transparent 0 40%, rgba(56, 189, 248, 0.1) 50%, transparent 62%);
+    radial-gradient(circle at 68% 22%, rgba(167, 139, 250, 0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 66%, rgba(251, 191, 36, 0.38) 0 1px, transparent 2px),
+    linear-gradient(115deg, transparent 0 40%, rgba(34, 211, 238, 0.12) 50%, transparent 62%);
   background-size: auto;
   mix-blend-mode: screen;
 }
