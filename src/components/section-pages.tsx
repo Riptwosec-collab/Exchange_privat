@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { BarChart3, Bell, Bookmark, CalendarDays, ExternalLink, LineChart, RefreshCw, Save, Search, Settings, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
@@ -32,6 +33,62 @@ const themeSwatches: Record<AppTheme, string[]> = {
   Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
   Obsidian: ["#000000", "#facc15", "#00ff88", "#ffffff"],
   Pearl: ["#fff7e8", "#c27a19", "#047857", "#dc8a3d"]
+};
+
+const settingsAlertThemeStyles: Record<AppTheme, {
+  enabled: CSSProperties;
+  disabled: CSSProperties;
+  iconEnabled: CSSProperties;
+  iconDisabled: CSSProperties;
+  title: CSSProperties;
+  statusEnabled: CSSProperties;
+  statusDisabled: CSSProperties;
+}> = {
+  Technology: {
+    enabled: { background: "linear-gradient(135deg, rgba(45,248,200,.16), rgba(0,184,255,.08)), #101d33", borderColor: "rgba(45,248,200,.42)", boxShadow: "0 14px 32px rgba(0,184,255,.12)" },
+    disabled: { background: "linear-gradient(135deg, rgba(251,113,133,.1), rgba(0,184,255,.04)), #0b1424", borderColor: "rgba(251,113,133,.24)" },
+    iconEnabled: { color: "#b8eeff" },
+    iconDisabled: { color: "#ffc0ca" },
+    title: { color: "#effaff" },
+    statusEnabled: { color: "#b8eeff" },
+    statusDisabled: { color: "#ffc0ca" }
+  },
+  Space: {
+    enabled: { background: "linear-gradient(135deg, rgba(56,189,248,.16), rgba(248,250,252,.07)), #0d1b35", borderColor: "rgba(56,189,248,.4)", boxShadow: "0 14px 34px rgba(56,189,248,.12)" },
+    disabled: { background: "linear-gradient(135deg, rgba(251,113,133,.1), rgba(245,158,11,.05)), #071225", borderColor: "rgba(245,158,11,.22)" },
+    iconEnabled: { color: "#d9f4ff" },
+    iconDisabled: { color: "#f59e0b" },
+    title: { color: "#eef6ff" },
+    statusEnabled: { color: "#d9f4ff" },
+    statusDisabled: { color: "#f59e0b" }
+  },
+  Luxury: {
+    enabled: { background: "linear-gradient(135deg, rgba(214,168,79,.18), rgba(127,29,29,.12)), #27190d", borderColor: "rgba(214,168,79,.44)", boxShadow: "0 16px 36px rgba(214,168,79,.12)" },
+    disabled: { background: "linear-gradient(135deg, rgba(127,29,29,.16), rgba(214,168,79,.05)), #1e140b", borderColor: "rgba(127,29,29,.34)" },
+    iconEnabled: { color: "#fff2c6" },
+    iconDisabled: { color: "#fca5a5" },
+    title: { color: "#fff7df" },
+    statusEnabled: { color: "#fff2c6" },
+    statusDisabled: { color: "#fca5a5" }
+  },
+  Obsidian: {
+    enabled: { background: "linear-gradient(135deg, rgba(0,255,136,.14), rgba(250,204,21,.08)), #0d0d0d", borderColor: "rgba(0,255,136,.38)", boxShadow: "0 16px 38px rgba(0,255,136,.1)" },
+    disabled: { background: "linear-gradient(135deg, rgba(255,45,85,.12), rgba(250,204,21,.04)), #070707", borderColor: "rgba(255,45,85,.26)" },
+    iconEnabled: { color: "#c8ffdf" },
+    iconDisabled: { color: "#ffc2cc" },
+    title: { color: "#f8fafc" },
+    statusEnabled: { color: "#c8ffdf" },
+    statusDisabled: { color: "#ffc2cc" }
+  },
+  Pearl: {
+    enabled: { background: "linear-gradient(135deg, rgba(4,120,87,.12), rgba(194,122,25,.08)), #fff7e8", borderColor: "rgba(4,120,87,.3)", boxShadow: "0 14px 32px rgba(117,89,50,.12)" },
+    disabled: { background: "linear-gradient(135deg, rgba(190,18,60,.08), rgba(117,89,50,.05)), #fffaf0", borderColor: "rgba(190,18,60,.18)" },
+    iconEnabled: { color: "#047857" },
+    iconDisabled: { color: "#be123c" },
+    title: { color: "#1f2933" },
+    statusEnabled: { color: "#07543f" },
+    statusDisabled: { color: "#8f1235" }
+  }
 };
 
 function sentimentThai(sentiment: NewsArticle["sentiment"]) {
@@ -745,10 +802,10 @@ export function SettingsPageFull() {
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {(Object.keys(toggles) as Array<keyof typeof toggles>).map((key) => (
-          <button key={key} onClick={() => setToggles((current) => ({ ...current, [key]: !current[key] }))} className={`settings-toggle-card rounded-md border p-4 text-left ${toggles[key] ? "is-enabled" : "is-disabled"}`}>
-            <Settings size={16} className="settings-toggle-icon" />
-            <p className="mt-2 font-semibold text-white">{key.toUpperCase()} Alerts</p>
-            <p className="text-sm text-slate-400">{toggles[key] ? "Enabled" : "Disabled"}</p>
+          <button key={key} onClick={() => setToggles((current) => ({ ...current, [key]: !current[key] }))} className={`settings-toggle-card rounded-md border p-4 text-left ${toggles[key] ? "is-enabled" : "is-disabled"}`} style={toggles[key] ? settingsAlertThemeStyles[appTheme].enabled : settingsAlertThemeStyles[appTheme].disabled}>
+            <Settings size={16} className="settings-toggle-icon" style={toggles[key] ? settingsAlertThemeStyles[appTheme].iconEnabled : settingsAlertThemeStyles[appTheme].iconDisabled} />
+            <p className="mt-2 font-semibold text-white" style={settingsAlertThemeStyles[appTheme].title}>{key.toUpperCase()} Alerts</p>
+            <p className="text-sm text-slate-400" style={toggles[key] ? settingsAlertThemeStyles[appTheme].statusEnabled : settingsAlertThemeStyles[appTheme].statusDisabled}>{toggles[key] ? "Enabled" : "Disabled"}</p>
           </button>
         ))}
       </div>
