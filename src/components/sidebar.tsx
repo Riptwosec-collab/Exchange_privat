@@ -45,11 +45,11 @@ const brandThemeStyles: Record<AppTheme, {
   notify: CSSProperties;
 }> = {
   Technology: {
-    card: { background: "linear-gradient(135deg, rgba(20,184,166,.24), rgba(163,230,53,.12)), #0e1916", borderColor: "rgba(20,184,166,.42)", color: "#bafdf3", boxShadow: "0 16px 38px rgba(20,184,166,.16)" },
-    mark: { background: "rgba(20,184,166,.16)", color: "#bafdf3" },
-    eyebrow: { color: "#bafdf3" },
-    title: { color: "#effffb" },
-    notify: { background: "rgba(20,184,166,.16)", borderColor: "rgba(20,184,166,.32)", color: "#bafdf3" }
+    card: { background: "linear-gradient(135deg, rgba(249,115,22,.28), rgba(217,249,157,.10)), #191713", borderColor: "rgba(249,115,22,.46)", color: "#fed7aa", boxShadow: "0 16px 40px rgba(249,115,22,.18)" },
+    mark: { background: "rgba(249,115,22,.16)", color: "#fed7aa" },
+    eyebrow: { color: "#fed7aa" },
+    title: { color: "#fff8ea" },
+    notify: { background: "rgba(249,115,22,.16)", borderColor: "rgba(249,115,22,.34)", color: "#fed7aa" }
   },
   Space: {
     card: { background: "linear-gradient(135deg, rgba(56,189,248,.22), rgba(245,158,11,.1)), #071225", borderColor: "rgba(56,189,248,.38)", color: "#d9f4ff", boxShadow: "0 16px 42px rgba(56,189,248,.14)" },

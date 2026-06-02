@@ -28,7 +28,7 @@ const settingsOptions = {
 };
 
 const themeSwatches: Record<AppTheme, string[]> = {
-  Technology: ["#08110f", "#14b8a6", "#a3e635", "#94a3b8"],
+  Technology: ["#11100d", "#f97316", "#d9f99d", "#a8a29e"],
   Space: ["#020817", "#38bdf8", "#f8fafc", "#f59e0b"],
   Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
   Obsidian: ["#000000", "#facc15", "#00ff88", "#ffffff"],
@@ -45,13 +45,13 @@ const settingsAlertThemeStyles: Record<AppTheme, {
   statusDisabled: CSSProperties;
 }> = {
   Technology: {
-    enabled: { background: "linear-gradient(135deg, rgba(163,230,53,.16), rgba(20,184,166,.10)), #13231e", borderColor: "rgba(163,230,53,.42)", boxShadow: "0 14px 32px rgba(20,184,166,.13)" },
-    disabled: { background: "linear-gradient(135deg, rgba(255,107,107,.10), rgba(20,184,166,.04)), #0e1916", borderColor: "rgba(255,107,107,.24)" },
-    iconEnabled: { color: "#ecfccb" },
-    iconDisabled: { color: "#ffd6d6" },
-    title: { color: "#effffb" },
-    statusEnabled: { color: "#bafdf3" },
-    statusDisabled: { color: "#ffd6d6" }
+    enabled: { background: "linear-gradient(135deg, rgba(249,115,22,.22), rgba(217,249,157,.10)), #252119", borderColor: "rgba(249,115,22,.48)", boxShadow: "0 14px 34px rgba(249,115,22,.15)" },
+    disabled: { background: "linear-gradient(135deg, rgba(255,77,77,.12), rgba(249,115,22,.05)), #191713", borderColor: "rgba(255,77,77,.26)" },
+    iconEnabled: { color: "#fed7aa" },
+    iconDisabled: { color: "#ffd1d1" },
+    title: { color: "#fff8ea" },
+    statusEnabled: { color: "#d9f99d" },
+    statusDisabled: { color: "#ffd1d1" }
   },
   Space: {
     enabled: { background: "linear-gradient(135deg, rgba(56,189,248,.16), rgba(248,250,252,.07)), #0d1b35", borderColor: "rgba(56,189,248,.4)", boxShadow: "0 14px 34px rgba(56,189,248,.12)" },
