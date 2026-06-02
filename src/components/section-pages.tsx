@@ -27,11 +27,11 @@ const settingsOptions = {
 };
 
 const themeSwatches: Record<AppTheme, string[]> = {
-  Blue: ["#080b10", "#2962ff", "#22c55e"],
-  Green: ["#04120d", "#00d084", "#5cff9f"],
-  Rose: ["#120712", "#ff4fd8", "#22e0c7"],
-  Black: ["#000000", "#facc15", "#00ff88"],
-  Cream: ["#fff7e8", "#c27a19", "#047857"]
+  Blue: ["#080b10", "#2962ff", "#22c55e", "#8b5cf6"],
+  Green: ["#04120d", "#00d084", "#8bff6a", "#19f7d0"],
+  Rose: ["#120712", "#ff4fd8", "#22e0c7", "#f97316"],
+  Black: ["#000000", "#facc15", "#00ff88", "#ffffff"],
+  Cream: ["#fff7e8", "#c27a19", "#047857", "#dc8a3d"]
 };
 
 function sentimentThai(sentiment: NewsArticle["sentiment"]) {
