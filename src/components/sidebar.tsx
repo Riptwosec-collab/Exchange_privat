@@ -39,6 +39,16 @@ const nav = [
 export function Sidebar() {
   const { activeSection, setActiveSection } = useMarketStore();
 
+  function openSection(section: string) {
+    setActiveSection(section);
+    if (typeof window === "undefined") return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("section", section);
+    url.searchParams.delete("menu");
+    window.history.replaceState(null, "", url);
+  }
+
   return (
     <aside className="glass fixed left-4 top-4 z-40 hidden h-[calc(100vh-32px)] w-[260px] rounded-2xl p-4 lg:flex lg:flex-col">
       <div className="flex items-center gap-3 rounded-2xl border border-violet-400/18 bg-violet-500/14 p-3 text-violet-200">
@@ -56,7 +66,7 @@ export function Sidebar() {
           return (
           <motion.button
             key={item.label}
-            onClick={() => setActiveSection(item.label)}
+            onClick={() => openSection(item.label)}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.03 }}
