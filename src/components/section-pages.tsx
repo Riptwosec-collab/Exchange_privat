@@ -18,12 +18,20 @@ const calendarGuide = {
   gdp: "บอกภาพเศรษฐกิจและ risk-on/risk-off"
 };
 const settingsOptions = {
-  theme: ["Blue", "Green", "Rose"],
+  theme: ["Blue", "Green", "Rose", "Black", "Cream"],
   currency: ["USD", "THB"],
   language: ["TH", "EN"],
   refresh: ["5s", "15s", "30s"],
   density: ["Compact", "Comfortable"],
   risk: ["Balanced", "Aggressive"]
+};
+
+const themeSwatches: Record<AppTheme, string[]> = {
+  Blue: ["#080b10", "#2962ff", "#22c55e"],
+  Green: ["#04120d", "#00d084", "#5cff9f"],
+  Rose: ["#120712", "#ff4fd8", "#22e0c7"],
+  Black: ["#000000", "#facc15", "#00ff88"],
+  Cream: ["#fff7e8", "#c27a19", "#047857"]
 };
 
 function sentimentThai(sentiment: NewsArticle["sentiment"]) {
@@ -689,7 +697,14 @@ export function SettingsPageFull() {
             <p className="text-xs uppercase tracking-[0.16em] text-slate-500">{key}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {settingsOptions[key].map((option) => (
-                <button key={option} onClick={() => chooseOption(key, option)} className={`rounded-md px-3 py-2 text-sm ${values[key] === option ? "bg-cyan-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>{option}</button>
+                <button key={option} onClick={() => chooseOption(key, option)} className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${values[key] === option ? "bg-cyan-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>
+                  {key === "theme" ? (
+                    <span className="flex overflow-hidden rounded-full border border-white/20">
+                      {themeSwatches[option as AppTheme].map((color) => <span key={color} className="h-3 w-3" style={{ backgroundColor: color }} />)}
+                    </span>
+                  ) : null}
+                  {option}
+                </button>
               ))}
             </div>
           </div>

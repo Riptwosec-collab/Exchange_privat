@@ -149,7 +149,7 @@ export function DashboardShell() {
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem("astraquant-theme");
-    if (savedTheme === "Blue" || savedTheme === "Green" || savedTheme === "Rose") {
+    if (savedTheme === "Blue" || savedTheme === "Green" || savedTheme === "Rose" || savedTheme === "Black" || savedTheme === "Cream") {
       setAppTheme(savedTheme);
     }
   }, [setAppTheme]);
