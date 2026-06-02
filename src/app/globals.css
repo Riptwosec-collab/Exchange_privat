@@ -37,29 +37,29 @@
 }
 
 .terminal-grid[data-theme="technology"] {
-  --background: #11100d;
-  --panel: #191713;
-  --panel-soft: #252119;
-  --border-soft: rgba(249, 115, 22, 0.24);
-  --foreground: #fff8ea;
-  --accent: #f97316;
-  --accent-text: #fed7aa;
-  --accent-rgb: 249, 115, 22;
-  --accent-soft: rgba(249, 115, 22, 0.2);
-  --accent-2: #d9f99d;
-  --accent-2-rgb: 217, 249, 157;
-  --accent-3: #a8a29e;
-  --theme-glow: rgba(249, 115, 22, 0.26);
-  --success: #d9f99d;
-  --success-text: #f7fee7;
-  --success-rgb: 217, 249, 157;
-  --danger: #ff4d4d;
-  --danger-text: #ffd1d1;
-  --danger-rgb: 255, 77, 77;
-  --chart-bg: #080705;
-  --chart-panel: #14120f;
-  --surface-strong: #11100d;
-  --surface-soft: #252119;
+  --background: #12080a;
+  --panel: #1d0d11;
+  --panel-soft: #2b1218;
+  --border-soft: rgba(239, 68, 68, 0.26);
+  --foreground: #fff1f2;
+  --accent: #ef4444;
+  --accent-text: #fecdd3;
+  --accent-rgb: 239, 68, 68;
+  --accent-soft: rgba(239, 68, 68, 0.2);
+  --accent-2: #f6c177;
+  --accent-2-rgb: 246, 193, 119;
+  --accent-3: #94a3b8;
+  --theme-glow: rgba(239, 68, 68, 0.3);
+  --success: #f6c177;
+  --success-text: #fff1cf;
+  --success-rgb: 246, 193, 119;
+  --danger: #fb7185;
+  --danger-text: #ffe4e9;
+  --danger-rgb: 251, 113, 133;
+  --chart-bg: #070305;
+  --chart-panel: #16080c;
+  --surface-strong: #12080a;
+  --surface-soft: #2b1218;
 }
 
 .terminal-grid[data-theme="space"] {
@@ -1050,10 +1050,10 @@ textarea::placeholder {
 
 .terminal-grid[data-theme="technology"] {
   background:
-    radial-gradient(circle at 12% -8%, rgba(249, 115, 22, 0.3), transparent 34rem),
-    radial-gradient(circle at 88% 12%, rgba(217, 249, 157, 0.13), transparent 28rem),
-    repeating-linear-gradient(90deg, rgba(249, 115, 22, 0.028) 0 1px, transparent 1px 88px),
-    linear-gradient(180deg, #1c1710 0%, #11100d 56%, #080705 100%);
+    radial-gradient(circle at 12% -8%, rgba(239, 68, 68, 0.32), transparent 34rem),
+    radial-gradient(circle at 88% 12%, rgba(246, 193, 119, 0.12), transparent 28rem),
+    repeating-linear-gradient(90deg, rgba(239, 68, 68, 0.032) 0 1px, transparent 1px 88px),
+    linear-gradient(180deg, #220c12 0%, #12080a 56%, #070305 100%);
 }
 
 .terminal-grid[data-theme="space"] {
@@ -1102,9 +1102,9 @@ textarea::placeholder {
 .terminal-grid[data-theme="technology"]::before {
   opacity: 0.48;
   background:
-    linear-gradient(90deg, rgba(249, 115, 22, 0.07) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(217, 249, 157, 0.04) 1px, transparent 1px),
-    linear-gradient(115deg, transparent 0 36%, rgba(249, 115, 22, 0.16) 48%, transparent 62%);
+    linear-gradient(90deg, rgba(239, 68, 68, 0.075) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(246, 193, 119, 0.04) 1px, transparent 1px),
+    linear-gradient(115deg, transparent 0 36%, rgba(239, 68, 68, 0.17) 48%, transparent 62%);
   background-size: 56px 56px, 56px 56px, auto;
   mix-blend-mode: screen;
 }
