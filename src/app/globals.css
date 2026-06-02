@@ -244,11 +244,11 @@ textarea::placeholder {
   color: #858592;
 }
 
-.terminal-grid :where(.text-emerald-300, .text-emerald-200, .text-\[\#18e08a\]) {
+.terminal-grid :where(.text-emerald-300, .text-emerald-200, .text-\[\#22c55e\]) {
   color: #37e47b;
 }
 
-.terminal-grid :where(.text-rose-300, .text-rose-200, .text-\[\#ff2f55\]) {
+.terminal-grid :where(.text-rose-300, .text-rose-200, .text-\[\#fb7185\]) {
   color: #ff7a92;
 }
 

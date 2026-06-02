@@ -33,11 +33,11 @@ const indicatorLabels: Array<{ key: IndicatorKey; label: string }> = [
   { key: "adx", label: "ADX" }
 ];
 const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
-const gridGreen = "#68df7c";
-const gridRed = "#f385ad";
-const afterHoursLine = "rgba(185, 140, 255, 0.96)";
-const afterHoursTop = "rgba(185, 140, 255, 0.22)";
-const afterHoursBottom = "rgba(185, 140, 255, 0.04)";
+const gridGreen = "#22c55e";
+const gridRed = "#fb7185";
+const afterHoursLine = "rgba(41, 98, 255, 0.96)";
+const afterHoursTop = "rgba(41, 98, 255, 0.22)";
+const afterHoursBottom = "rgba(41, 98, 255, 0.04)";
 
 function signed(value: number, digits = 2) {
   return `${value > 0 ? "+" : ""}${value.toFixed(digits)}`;
@@ -302,13 +302,13 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     };
     const chart = createChart(element, {
       layout: {
-        background: { type: ColorType.Solid, color: "#050507" },
-        textColor: "rgba(226, 232, 240, 0.86)",
+        background: { type: ColorType.Solid, color: "#03070c" },
+        textColor: "rgba(226, 232, 240, 0.9)",
         fontFamily: tradingThaiFont
       },
       grid: {
-        vertLines: { color: "rgba(255, 255, 255, 0.06)" },
-        horzLines: { color: "rgba(255, 255, 255, 0.06)" }
+        vertLines: { color: "rgba(148, 163, 184, 0.12)" },
+        horzLines: { color: "rgba(148, 163, 184, 0.12)" }
       },
       rightPriceScale: {
         borderVisible: false,
@@ -324,8 +324,8 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         minBarSpacing: 1
       },
       crosshair: {
-        vertLine: { color: "rgba(226, 232, 240, 0.36)", style: LineStyle.Dashed, labelBackgroundColor: "#2a173c" },
-        horzLine: { color: "rgba(243, 133, 173, 0.36)", style: LineStyle.Dotted, labelBackgroundColor: "#2a173c" }
+        vertLine: { color: "rgba(148, 163, 184, 0.38)", style: LineStyle.Dashed, labelBackgroundColor: "#111827" },
+        horzLine: { color: "rgba(41, 98, 255, 0.36)", style: LineStyle.Dotted, labelBackgroundColor: "#111827" }
       },
       width: Math.max(1, Math.floor(element.getBoundingClientRect().width)),
       height: Math.max(1, Math.floor(element.getBoundingClientRect().height))
@@ -336,11 +336,11 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     const baseline = chart.addSeries(BaselineSeries, {
       baseValue: { type: "price", price: firstClose },
       topLineColor: gridGreen,
-      topFillColor1: "rgba(104, 223, 124, 0.34)",
-      topFillColor2: "rgba(104, 223, 124, 0.08)",
+      topFillColor1: "rgba(34, 197, 94, 0.30)",
+      topFillColor2: "rgba(34, 197, 94, 0.08)",
       bottomLineColor: gridRed,
-      bottomFillColor1: "rgba(243, 133, 173, 0.08)",
-      bottomFillColor2: "rgba(243, 133, 173, 0.5)",
+      bottomFillColor1: "rgba(251, 113, 133, 0.08)",
+      bottomFillColor2: "rgba(251, 113, 133, 0.42)",
       lineWidth: 3
     });
     baseline.setData(normalized.map((candle) => ({ time: candle.time, value: candle.close })));
@@ -355,7 +355,7 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
         normalized.map((candle) => ({
           time: candle.time,
           value: candle.volume,
-          color: candle.close >= candle.open ? "rgba(104, 223, 124, 0.62)" : "rgba(243, 133, 173, 0.64)"
+          color: candle.close >= candle.open ? "rgba(34, 197, 94, 0.62)" : "rgba(251, 113, 133, 0.64)"
         }))
       );
     }
@@ -427,19 +427,19 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
     indicators.ema && analytics.ema20 !== null ? { label: "EMA20", title: "EMA20", value: analytics.ema20.toFixed(2), className: "border-yellow-300/55 bg-yellow-300/16 text-yellow-50" } : null,
     indicators.levels && analytics.support !== null ? { label: "S", title: "Support", value: analytics.support.toFixed(2), className: "border-cyan-300/55 bg-cyan-300/16 text-cyan-50" } : null,
     { label: "AH", title: "After-hours", value: afterHoursValue.toFixed(2), className: "border-slate-200/45 bg-slate-200/14 text-slate-50" },
-    indicators.volume ? { label: "Vol", title: "Volume", value: formatCompact(stats.volume), className: "border-[#18e08a]/50 bg-[#18e08a]/16 text-[#d5ffe7]" } : null
+    indicators.volume ? { label: "Vol", title: "Volume", value: formatCompact(stats.volume), className: "border-[#22c55e]/50 bg-[#22c55e]/16 text-[#d5ffe7]" } : null
   ].filter((item): item is { label: string; title: string; value: string; className: string } => Boolean(item));
 
   return (
     <article className="relative h-full overflow-hidden rounded-lg border border-cyan-300/20 bg-[#0b0d0f] shadow-[0_18px_46px_rgba(0,0,0,.34)] ring-1 ring-white/[0.06] transition hover:border-cyan-300/45 hover:ring-cyan-300/20">
       <div className="pointer-events-none absolute left-2 top-2 z-10 flex flex-wrap items-center gap-2 text-xs">
         <span className="font-mono font-semibold text-slate-100">{quote.ticker}</span>
-        <span className={up ? "font-mono text-[#18e08a]" : "font-mono text-[#ef3340]"}>{signed(stats.sessionPercent)}%</span>
+        <span className={up ? "font-mono text-[#22c55e]" : "font-mono text-[#fb7185]"}>{signed(stats.sessionPercent)}%</span>
         <span className="font-mono text-slate-400">{provider.toUpperCase()}</span>
       </div>
       <div className="pointer-events-none absolute right-2 top-2 z-10 text-right font-mono text-xs">
         <p className="text-slate-100">${(stats.latest?.close ?? quote.price).toFixed(2)}</p>
-        <p className={stats.change >= 0 ? "text-[#18e08a]" : "text-[#ef3340]"}>{signed(stats.change)} · {signed(stats.changePercent)}%</p>
+        <p className={stats.change >= 0 ? "text-[#22c55e]" : "text-[#fb7185]"}>{signed(stats.change)} · {signed(stats.changePercent)}%</p>
       </div>
       <div className="pointer-events-none absolute left-2 top-7 z-10 flex max-w-[88%] flex-wrap items-center gap-1 rounded border border-white/10 bg-black/35 px-1.5 py-0.5 backdrop-blur-sm">
         {levelBadges.map((badge) => (
@@ -505,8 +505,8 @@ function MiniYahooStyleChart({ quote, timeframe, refreshNonce, indicators }: { q
           <div className="mb-2 border-b border-white/10 pb-2 font-mono text-[11px] text-slate-100">{hoverQuote.dateTime}</div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1">
             <span className="text-slate-400">Open</span><strong className="text-right font-mono text-slate-100">${hoverQuote.open.toFixed(2)}</strong>
-            <span className="text-slate-400">High</span><strong className="text-right font-mono text-[#18e08a]">${hoverQuote.high.toFixed(2)}</strong>
-            <span className="text-slate-400">Low</span><strong className="text-right font-mono text-[#ef3340]">${hoverQuote.low.toFixed(2)}</strong>
+            <span className="text-slate-400">High</span><strong className="text-right font-mono text-[#22c55e]">${hoverQuote.high.toFixed(2)}</strong>
+            <span className="text-slate-400">Low</span><strong className="text-right font-mono text-[#fb7185]">${hoverQuote.low.toFixed(2)}</strong>
             <span className="text-slate-400">Close</span><strong className="text-right font-mono text-slate-100">${hoverQuote.close.toFixed(2)}</strong>
             <span className="text-slate-400">Volume</span><strong className="text-right font-mono text-slate-100">{formatCompact(hoverQuote.volume)}</strong>
           </div>
@@ -542,7 +542,7 @@ export function NineChartGridPage() {
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           {["1D", "5D", "1M", "6M", "YTD", "1Y", "5Y"].map((item) => (
-            <button key={item} onClick={() => setTimeframe(item)} className={`rounded-md px-3 py-2 text-sm ${timeframe === item ? "bg-[#18e08a] text-slate-950" : "border border-white/10 text-slate-300"}`}>{item}</button>
+            <button key={item} onClick={() => setTimeframe(item)} className={`rounded-md px-3 py-2 text-sm ${timeframe === item ? "bg-[#2962ff] text-white" : "border border-white/10 text-slate-300"}`}>{item}</button>
           ))}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -559,7 +559,7 @@ export function NineChartGridPage() {
           <button
             key={item.key}
             onClick={() => setIndicatorVisibility((current) => ({ ...current, [item.key]: !current[item.key] }))}
-            className={`rounded-md border px-2.5 py-1.5 text-xs transition ${indicatorVisibility[item.key] ? "border-[#18e08a]/45 bg-[#18e08a]/12 text-[#b6ffd8]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
+            className={`rounded-md border px-2.5 py-1.5 text-xs transition ${indicatorVisibility[item.key] ? "border-[#2962ff]/45 bg-[#2962ff]/14 text-[#b9c8ff]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
           >
             {indicatorVisibility[item.key] ? "ON" : "OFF"} {item.label}
           </button>

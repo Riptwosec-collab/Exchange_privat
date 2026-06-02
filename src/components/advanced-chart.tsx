@@ -607,8 +607,8 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
         <line x1="0" x2={width} y1="35" y2="35" stroke="rgba(226,232,240,.34)" strokeDasharray="4 5" />
         <line x1="0" x2={width} y1="75" y2="75" stroke="rgba(226,232,240,.18)" strokeDasharray="4 5" />
         <line x1="0" x2={width} y1="115" y2="115" stroke="rgba(226,232,240,.34)" strokeDasharray="4 5" />
-        <path d={buildPolyline(rsi, width, height, 0, 100)} fill="none" stroke="#9b7cff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-        <path d={buildPolyline(rsiMa, width, height, 0, 100)} fill="none" stroke="#ffd400" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <path d={buildPolyline(rsi, width, height, 0, 100)} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <path d={buildPolyline(rsiMa, width, height, 0, 100)} fill="none" stroke="#facc15" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         <EndValueLabel values={rsi} label="RSI" color="#7c5ac7" min={0} max={100} />
         <EndValueLabel values={rsiMa} label="MA" color="#facc15" min={0} max={100} />
       </IndicatorPane> : null}
@@ -627,11 +627,11 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
           const y = value >= 0 ? 75 - barHeight : 75;
           return <rect key={index} x={x} y={y} width={Math.max(1.5, width / macd.histogram.length - 1)} height={barHeight} fill={value >= 0 ? "rgba(0,150,136,.45)" : "rgba(239,51,64,.45)"} />;
         })}
-        <path d={buildPolyline(macd.macd, width, height, -macdMax, macdMax)} fill="none" stroke="#2f7bff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-        <path d={buildPolyline(macd.signal, width, height, -macdMax, macdMax)} fill="none" stroke="#ff8a1f" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-        <EndValueLabel values={macd.macd} label="MACD" color="#2563eb" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
-        <EndValueLabel values={macd.signal} label="SIG" color="#f97316" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
-        <EndValueLabel values={macd.histogram} label="HIST" color={(latestMacd ?? 0) >= (latestSignal ?? 0) ? "#18e08a" : "#ef3340"} min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
+        <path d={buildPolyline(macd.macd, width, height, -macdMax, macdMax)} fill="none" stroke="#2962ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <path d={buildPolyline(macd.signal, width, height, -macdMax, macdMax)} fill="none" stroke="#ff9800" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <EndValueLabel values={macd.macd} label="MACD" color="#2962ff" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
+        <EndValueLabel values={macd.signal} label="SIG" color="#ff9800" min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
+        <EndValueLabel values={macd.histogram} label="HIST" color={(latestMacd ?? 0) >= (latestSignal ?? 0) ? "#22c55e" : "#fb7185"} min={-macdMax} max={macdMax} formatter={(value) => formatIndicator(value, 3)} />
       </IndicatorPane> : null}
 
       {visible.ad || visible.atr || visible.adx ? <div className="grid border-t border-white/10 md:grid-cols-3">
@@ -640,8 +640,8 @@ function AdvancedIndicatorVisuals({ candles, metrics, visible }: { candles: Cand
           rightLabels={[{ label: "A/D", className: (metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "bg-emerald-500 text-slate-950" : "bg-rose-500 text-white" }]}
           height={108}
         >
-          <path d={buildPolyline(ad, width, height)} fill="none" stroke={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#00e889" : "#ff2f55"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-          <EndValueLabel values={ad} label="A/D" color={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#18e08a" : "#ef3340"} height={height} formatter={(value) => formatCompact(value)} />
+          <path d={buildPolyline(ad, width, height)} fill="none" stroke={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#22c55e" : "#fb7185"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          <EndValueLabel values={ad} label="A/D" color={(metrics.ad.value ?? 0) >= (metrics.ad.previous ?? 0) ? "#22c55e" : "#fb7185"} height={height} formatter={(value) => formatCompact(value)} />
         </IndicatorPane> : null}
         {visible.atr ? <IndicatorPane
           title={`ATR 14  ${formatIndicator(latestAtr)}`}
@@ -715,28 +715,28 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         title: "Accumulation/Distribution (A/D)",
         value: formatCompact(marketMetrics.ad.value),
         detail: adChange >= 0 ? "เส้นขึ้น: มีการสะสมหุ้น" : "เส้นลง: มีแรงขายออก",
-        tone: adChange >= 0 ? "text-[#18e08a]" : "text-[#ff3366]"
+        tone: adChange >= 0 ? "text-[#22c55e]" : "text-[#fb7185]"
       },
       {
         key: "rsi",
         title: "RSI",
         value: formatIndicator(technicals.rsi, 1),
         detail: technicals.rsi === null ? "รอข้อมูล" : technicals.rsi >= 70 ? "หุ้นร้อนเกินไป / Overbought" : technicals.rsi <= 30 ? "ลงแรงเกินไป / Oversold" : "แรงซื้อขายยังสมดุล",
-        tone: technicals.rsi !== null && technicals.rsi >= 70 ? "text-[#ff3366]" : technicals.rsi !== null && technicals.rsi <= 30 ? "text-[#18e08a]" : "text-slate-100"
+        tone: technicals.rsi !== null && technicals.rsi >= 70 ? "text-[#fb7185]" : technicals.rsi !== null && technicals.rsi <= 30 ? "text-[#22c55e]" : "text-slate-100"
       },
       {
         key: "macd",
         title: "MACD",
         value: `${formatIndicator(technicals.macd, 2)} / ${formatIndicator(technicals.macdSignal, 2)}`,
         detail: `MACD Line · Signal Line · Histogram ${formatIndicator(technicals.macdHistogram, 2)}`,
-        tone: (technicals.macdHistogram ?? 0) >= 0 ? "text-[#18e08a]" : "text-[#ff3366]"
+        tone: (technicals.macdHistogram ?? 0) >= 0 ? "text-[#22c55e]" : "text-[#fb7185]"
       },
       {
         key: "ema",
         title: "EMA",
         value: `${formatIndicator(marketMetrics.ema20)} / ${formatIndicator(marketMetrics.ema50)}`,
         detail: emaTrend >= 0 ? "ราคาอยู่เหนือ EMA20: แนวโน้มบวก" : "ราคาอยู่ใต้ EMA20: แนวโน้มอ่อน",
-        tone: emaTrend >= 0 ? "text-[#18e08a]" : "text-[#ff3366]"
+        tone: emaTrend >= 0 ? "text-[#22c55e]" : "text-[#fb7185]"
       },
       {
         key: "volume",
@@ -757,7 +757,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
         title: "ADX",
         value: formatIndicator(marketMetrics.adx, 1),
         detail: `${describeAdx(marketMetrics.adx)} · ADX บอกความแรงของ trend ไม่บอกทิศทาง`,
-        tone: marketMetrics.adx !== null && marketMetrics.adx >= 25 ? "text-[#18e08a]" : "text-slate-100"
+        tone: marketMetrics.adx !== null && marketMetrics.adx >= 25 ? "text-[#22c55e]" : "text-slate-100"
       }
     ];
   }, [marketMetrics, technicals]);
@@ -860,7 +860,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     const lineColor = isUpTrend ? freshGreen : chartRed;
     const softLineColor = isUpTrend ? "#8df0a0" : "#ff9ab9";
     const upFill = freshGreenSoft;
-    const downFill = "rgba(243, 133, 173, 0.38)";
+    const downFill = "rgba(251, 113, 133, 0.38)";
     const transparentFill = "rgba(15, 16, 20, 0)";
 
     const addLineSeries = (lineType: LineType, color = lineColor, width: 2 | 3 | 4 = 4) => {
@@ -897,11 +897,11 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       const series = chart.addSeries(BaselineSeries, {
         baseValue: { type: "price", price: firstClose },
         topLineColor: freshGreen,
-        topFillColor1: "rgba(104, 223, 124, 0.34)",
+        topFillColor1: "rgba(34, 197, 94, 0.34)",
         topFillColor2: freshGreenFaint,
         bottomLineColor: chartRed,
-        bottomFillColor1: "rgba(243, 133, 173, 0.08)",
-        bottomFillColor2: "rgba(243, 133, 173, 0.5)",
+        bottomFillColor1: "rgba(251, 113, 133, 0.08)",
+        bottomFillColor2: "rgba(251, 113, 133, 0.5)",
         lineWidth: 3
       });
       series.setData(closeSeriesData);
@@ -917,7 +917,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     } else if (chartMode === "Trend") {
       primarySeries = addAreaSeries(lineColor, isUpTrend ? "rgba(0, 232, 137, 0.3)" : "rgba(255, 47, 85, 0.3)");
       if (indicatorVisibility.ema) {
-        const trendSeries = chart.addSeries(LineSeries, { color: "#ffd400", lineWidth: 3, lineStyle: LineStyle.Dashed, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
+        const trendSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 3, lineStyle: LineStyle.Dashed, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
         trendSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
       }
     } else if (chartMode === "Volume") {
@@ -938,7 +938,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     }
 
     if (indicatorVisibility.volume) {
-      const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(104, 223, 124, 0.24)", priceFormat: { type: "volume" }, priceScaleId: "", priceLineVisible: false, lastValueVisible: false });
+      const volumeSeries = chart.addSeries(HistogramSeries, { color: "rgba(34, 197, 94, 0.24)", priceFormat: { type: "volume" }, priceScaleId: "", priceLineVisible: false, lastValueVisible: false });
       volumeSeries.setData(
         chartData.map((candle) => ({
           time: candle.time as Time,
@@ -949,7 +949,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
     }
 
     if (indicatorVisibility.ema && !["Trend", "Volume"].includes(chartMode)) {
-      const maSeries = chart.addSeries(LineSeries, { color: "#ffd400", lineWidth: 3, lineStyle: LineStyle.Dotted, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
+      const maSeries = chart.addSeries(LineSeries, { color: "#facc15", lineWidth: 3, lineStyle: LineStyle.Dotted, lineType: LineType.Curved, priceLineVisible: false, lastValueVisible: false });
       maSeries.setData(ma20.map((point) => ({ ...point, time: point.time as Time })));
     }
 
@@ -1042,7 +1042,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       : null,
     { label: "After-hours", value: formatIndicator(marketMetrics.afterHours.price), className: "border-slate-200/45 bg-slate-200/14 text-slate-50", dot: "#cbd5e1" },
     indicatorVisibility.volume
-      ? { label: "Volume", value: formatCompact(marketMetrics.currentVolume), className: "border-[#18e08a]/50 bg-[#18e08a]/16 text-[#d5ffe7]", dot: freshGreen }
+      ? { label: "Volume", value: formatCompact(marketMetrics.currentVolume), className: "border-[#22c55e]/50 bg-[#22c55e]/16 text-[#d5ffe7]", dot: freshGreen }
       : null
   ].filter((item): item is { label: string; value: string; className: string; dot: string } => Boolean(item));
   const aiSummary =
@@ -1094,7 +1094,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       </div>
       {showTools ? (
         <div className="mt-3 grid gap-2 text-xs text-slate-300 sm:grid-cols-4">
-          {["Trendline ready", "Fibonacci ready", "Support/Resistance", `Compare: ${compare}`].map((item) => <button key={item} className="rounded-md border border-[#18e08a]/20 bg-[#18e08a]/10 px-3 py-2 text-left">{item}</button>)}
+          {["Trendline ready", "Fibonacci ready", "Support/Resistance", `Compare: ${compare}`].map((item) => <button key={item} className="rounded-md border border-[#22c55e]/20 bg-[#22c55e]/10 px-3 py-2 text-left">{item}</button>)}
         </div>
       ) : null}
       <div className="mt-2 flex min-h-7 flex-wrap items-center gap-1 rounded-md border border-white/10 bg-black/20 px-2 py-1">
@@ -1118,8 +1118,8 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
             <div className="mb-2 border-b border-white/10 pb-2 font-mono text-[11px] text-slate-100">{hoverQuote.dateTime}</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1">
               <span className="text-slate-400">Open</span><strong className="text-right font-mono text-slate-100">${hoverQuote.open.toFixed(2)}</strong>
-              <span className="text-slate-400">High</span><strong className="text-right font-mono text-[#18e08a]">${hoverQuote.high.toFixed(2)}</strong>
-              <span className="text-slate-400">Low</span><strong className="text-right font-mono text-[#ff3366]">${hoverQuote.low.toFixed(2)}</strong>
+              <span className="text-slate-400">High</span><strong className="text-right font-mono text-[#22c55e]">${hoverQuote.high.toFixed(2)}</strong>
+              <span className="text-slate-400">Low</span><strong className="text-right font-mono text-[#fb7185]">${hoverQuote.low.toFixed(2)}</strong>
               <span className="text-slate-400">Close</span><strong className="text-right font-mono text-slate-100">${hoverQuote.close.toFixed(2)}</strong>
               <span className="text-slate-400">Volume</span><strong className="text-right font-mono text-slate-100">{formatCompact(hoverQuote.volume)}</strong>
             </div>
@@ -1142,7 +1142,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
           className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left"
         >
           <span className="flex min-w-0 items-center gap-2">
-            <Activity size={16} className="shrink-0 text-[#18e08a]" />
+            <Activity size={16} className="shrink-0 text-[#22c55e]" />
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-white">Advanced Chart · YAHOO Indicators</span>
               <span className="block truncate text-xs text-slate-500">Auto Key Levels, A/D, RSI, MACD, EMA, Volume, ATR, ADX</span>
@@ -1162,7 +1162,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
                     key={item.key}
                     type="button"
                     onClick={() => setIndicatorVisibility((current) => ({ ...current, [item.key as IndicatorKey]: !current[item.key as IndicatorKey] }))}
-                    className={`rounded-md border px-2.5 py-1.5 text-xs transition ${active ? "border-[#18e08a]/45 bg-[#18e08a]/12 text-[#b6ffd8]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
+                    className={`rounded-md border px-2.5 py-1.5 text-xs transition ${active ? "border-[#22c55e]/45 bg-[#22c55e]/12 text-[#b6ffd8]" : "border-white/10 bg-white/[0.035] text-slate-500"}`}
                     title={`${active ? "ซ่อน" : "แสดง"} ${item.title}`}
                   >
                     {active ? "ON" : "OFF"} {item.title}
@@ -1187,7 +1187,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
       </section>
       <div className={`mt-3 grid gap-3 ${compact ? "lg:grid-cols-1 2xl:grid-cols-3" : "xl:grid-cols-[1.05fr_1.2fr_1.15fr]"}`}>
         {indicatorVisibility.volume ? <section className="rounded-lg border border-cyan-300/18 bg-[#090d12] p-3 ring-1 ring-white/[0.04]">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white"><BarChart3 size={16} className="text-[#18e08a]" />Volume Panel</div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-white"><BarChart3 size={16} className="text-[#22c55e]" />Volume Panel</div>
           <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
             {[
               ["Volume รายวัน", formatCompact(marketMetrics.currentVolume)],
@@ -1203,7 +1203,7 @@ export function AdvancedChart({ fillViewport = false, symbolOverride, compact = 
           </div>
           <div className="mt-3 space-y-2 text-xs">
             <div className="flex items-center justify-between text-slate-400"><span>Buy/Sell Pressure</span><span className="font-mono text-[#8ef7ad]">{marketMetrics.buyPressure.toFixed(0)}% / {marketMetrics.sellPressure.toFixed(0)}%</span></div>
-            <div className="h-2 overflow-hidden rounded-full bg-[#ff3366]/20"><div className="h-full bg-[#18e08a]" style={{ width: `${marketMetrics.buyPressure}%` }} /></div>
+            <div className="h-2 overflow-hidden rounded-full bg-[#fb7185]/20"><div className="h-full bg-[#22c55e]" style={{ width: `${marketMetrics.buyPressure}%` }} /></div>
             <div className="flex flex-wrap gap-2">
               <span className={`rounded-md border px-2 py-1 ${marketMetrics.volumeSpike ? "border-amber-300/35 bg-amber-300/12 text-amber-100" : "border-white/10 bg-white/[0.035] text-slate-400"}`}>Volume Spike Detection</span>
               <span className={`rounded-md border px-2 py-1 ${marketMetrics.unusualVolume ? "border-fuchsia-300/35 bg-fuchsia-300/12 text-fuchsia-100" : "border-white/10 bg-white/[0.035] text-slate-400"}`}>Unusual Volume</span>

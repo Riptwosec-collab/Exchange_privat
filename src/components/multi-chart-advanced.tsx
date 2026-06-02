@@ -32,26 +32,26 @@ export function MultiChartAdvancedPage() {
           {quotes.map((quote, index) => <option key={quote.ticker} value={index}>Start {quote.ticker}</option>)}
         </select>
         {["1D", "5D", "1M", "6M", "YTD", "1Y", "5Y"].map((item) => (
-          <button key={item} onClick={() => setTimeframe(item)} className={`rounded-md px-3 py-2 text-sm ${timeframe === item ? "bg-[#00c853] text-slate-950" : "border border-white/10 text-slate-300"}`}>{item}</button>
+          <button key={item} onClick={() => setTimeframe(item)} className={`rounded-md px-3 py-2 text-sm ${timeframe === item ? "bg-[#2962ff] text-white" : "border border-white/10 text-slate-300"}`}>{item}</button>
         ))}
       </div>
 
-      <div className={`mt-4 grid gap-5 rounded-lg border border-cyan-300/15 bg-cyan-300/10 p-3 ${grid <= 2 ? "xl:grid-cols-2" : grid <= 4 ? "xl:grid-cols-2" : "xl:grid-cols-3"}`}>
+      <div className={`mt-4 grid gap-5 rounded-lg border border-[#2962ff]/20 bg-[#2962ff]/8 p-3 ${grid <= 2 ? "xl:grid-cols-2" : grid <= 4 ? "xl:grid-cols-2" : "xl:grid-cols-3"}`}>
         {rows.map((quote, index) => (
           <article
             key={quote.ticker}
             onClick={() => setSelectedTicker(quote.ticker)}
-            className="group min-w-0 overflow-hidden rounded-lg border border-cyan-300/25 bg-[#080b0f] p-2 shadow-[0_20px_48px_rgba(0,0,0,.34)] ring-1 ring-white/[0.06] transition hover:border-cyan-200/55 hover:ring-cyan-300/25"
+            className="group min-w-0 overflow-hidden rounded-lg border border-[#2962ff]/24 bg-[#070b12] p-2 shadow-[0_20px_48px_rgba(0,0,0,.42)] ring-1 ring-white/[0.06] transition hover:border-[#2962ff]/55 hover:ring-[#2962ff]/25"
           >
             <div className="mb-2 flex items-center justify-between gap-3 rounded-md border border-white/10 bg-black/35 px-3 py-2">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-cyan-300/25 bg-cyan-300/10 font-mono text-[11px] text-cyan-100">{index + 1}</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-[#2962ff]/30 bg-[#2962ff]/14 font-mono text-[11px] text-[#b9c8ff]">{index + 1}</span>
                 <span className="truncate font-mono text-sm font-bold text-white">{quote.ticker}</span>
                 <span className="truncate text-xs text-slate-500">{quote.name}</span>
               </div>
               <div className="shrink-0 text-right font-mono text-xs">
                 <p className="text-slate-100">${quote.price.toFixed(2)}</p>
-                <p className={quote.changePercent >= 0 ? "text-[#00c853]" : "text-[#ff3366]"}>{quote.changePercent >= 0 ? "+" : ""}{quote.changePercent.toFixed(2)}%</p>
+                <p className={quote.changePercent >= 0 ? "text-[#37e47b]" : "text-[#ff7a92]"}>{quote.changePercent >= 0 ? "+" : ""}{quote.changePercent.toFixed(2)}%</p>
               </div>
             </div>
             <div className="min-w-0 rounded-lg border border-white/10 bg-black/25 p-1">
