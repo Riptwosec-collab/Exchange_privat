@@ -524,8 +524,8 @@ export function NewsFeed() {
           return (
           <article
             key={article.id}
-            onClick={() => setSelectedArticle(article)}
-            className="cursor-pointer rounded-md border border-white/10 bg-white/[0.035] p-2.5 transition hover:border-cyan-300/35 hover:bg-white/[0.055]"
+            onClick={() => setSelectedArticle((current) => current?.id === article.id ? null : article)}
+            className={`cursor-pointer rounded-md border bg-white/[0.035] p-2.5 transition hover:border-cyan-300/35 hover:bg-white/[0.055] ${selectedArticle?.id === article.id ? "border-cyan-300/45 bg-cyan-300/[0.06]" : "border-white/10"}`}
           >
             <div className="flex flex-wrap items-center gap-2">
               {quote ? <StockLogo quote={quote} size="sm" /> : null}
@@ -539,10 +539,37 @@ export function NewsFeed() {
             <div className="mt-2 h-1 rounded-full bg-slate-800">
               <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} />
             </div>
+            {selectedArticle?.id === article.id ? (
+              <div className="mt-3 rounded-md border border-cyan-300/25 bg-cyan-300/[0.07] p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200">Expanded Reader</p>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedArticle(null);
+                    }}
+                    className="rounded border border-white/10 px-2 py-1 text-[11px] font-bold text-slate-300 hover:bg-white/[0.06]"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="mt-2 grid gap-2 text-xs sm:grid-cols-3">
+                  <span className="rounded border border-white/10 bg-black/20 p-2 text-slate-300">Impact <b className="block text-white">{article.impact}/100</b></span>
+                  <span className="rounded border border-white/10 bg-black/20 p-2 text-slate-300">Sentiment <b className={article.sentiment === "Bullish" ? "block text-emerald-300" : article.sentiment === "Bearish" ? "block text-rose-300" : "block text-slate-300"}>{article.sentiment}</b></span>
+                  <span className="rounded border border-white/10 bg-black/20 p-2 text-slate-300">Source <b className="block text-white">{article.source}</b></span>
+                </div>
+                <p className="mt-2 rounded border border-white/10 bg-black/20 p-3 text-xs leading-6 text-slate-300">{article.summaryTh}</p>
+                {article.url ? (
+                  <a onClick={(event) => event.stopPropagation()} href={article.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 rounded-md border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-semibold text-cyan-100 hover:bg-cyan-300/16">
+                    <ExternalLink size={14} /> Open source
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
           </article>
         );})}
       </div>
-      {selectedArticle ? <DashboardNewsDetailModal article={selectedArticle} onClose={() => setSelectedArticle(null)} /> : null}
     </Panel>
   );
 }

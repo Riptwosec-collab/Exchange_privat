@@ -389,8 +389,8 @@ export function NewsPage() {
             return (
               <article
                 key={article.id}
-                onClick={() => setSelectedArticle(article)}
-                className="cursor-pointer overflow-hidden rounded-lg border border-white/15 bg-[#080b0f] shadow-[0_18px_42px_rgba(0,0,0,.28)] ring-1 ring-white/[0.05] transition hover:border-cyan-300/45 hover:bg-[#0b1118] hover:ring-cyan-300/20"
+                onClick={() => setSelectedArticle((current) => current?.id === article.id ? null : article)}
+                className={`cursor-pointer overflow-hidden rounded-lg border bg-[#080b0f] shadow-[0_18px_42px_rgba(0,0,0,.28)] ring-1 ring-white/[0.05] transition hover:border-cyan-300/45 hover:bg-[#0b1118] hover:ring-cyan-300/20 ${selectedArticle?.id === article.id ? "border-cyan-300/55 ring-cyan-300/20" : "border-white/15"}`}
               >
                 <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-black/35 px-4 py-3">
                   <StockLogo quote={quote} size="sm" />
@@ -424,13 +424,46 @@ export function NewsPage() {
                   <div className="h-1.5 flex-1 rounded-full bg-slate-800"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-purple-400" style={{ width: `${article.impact}%` }} /></div>
                   <span className="font-mono text-xs text-slate-400">Impact {article.impact}</span>
                 </div>
+                {selectedArticle?.id === article.id ? (
+                  <div className="mt-4 rounded-lg border border-cyan-300/25 bg-cyan-300/[0.07] p-4 ring-1 ring-cyan-300/10">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Expanded Reader</p>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSelectedArticle(null);
+                        }}
+                        className="rounded-md border border-white/10 px-2.5 py-1 text-xs font-bold text-slate-300 hover:bg-white/[0.06]"
+                      >
+                        Close
+                      </button>
+                    </div>
+                    <div className="mt-3 grid gap-3 md:grid-cols-3">
+                      <div className="rounded-md border border-white/10 bg-black/20 p-3"><p className="text-xs text-slate-500">Impact</p><strong className="font-mono text-white">{article.impact}/100</strong></div>
+                      <div className="rounded-md border border-white/10 bg-black/20 p-3"><p className="text-xs text-slate-500">Sentiment</p><strong className={article.sentiment === "Bullish" ? "text-emerald-300" : article.sentiment === "Bearish" ? "text-rose-300" : "text-slate-300"}>{article.sentiment}</strong></div>
+                      <div className="rounded-md border border-white/10 bg-black/20 p-3"><p className="text-xs text-slate-500">Source</p><strong className="font-mono text-white">{article.source}</strong></div>
+                    </div>
+                    <div className="mt-3 rounded-md border border-white/10 bg-black/20 p-3 text-sm leading-7 text-slate-300">
+                      {insight.summaryParagraphs.map((paragraph) => <p key={paragraph} className="mb-2 last:mb-0">{paragraph}</p>)}
+                    </div>
+                    <div className="mt-3 grid gap-2 md:grid-cols-2">
+                      <div className="rounded-md border border-rose-300/20 bg-rose-300/10 p-3 text-sm leading-6 text-rose-50"><b>Risk:</b> {insight.risk}</div>
+                      <div className="rounded-md border border-emerald-300/20 bg-emerald-300/10 p-3 text-sm leading-6 text-emerald-50"><b>Action:</b> {insight.action}</div>
+                    </div>
+                    {article.url ? (
+                      <a onClick={(event) => event.stopPropagation()} href={article.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-md border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-300/16">
+                        <ExternalLink size={15} /> Open source
+                      </a>
+                    ) : null}
+                  </div>
+                ) : null}
                 </div>
               </article>
             );
           })}
         </div>
         </div>
-        {selectedArticle ? <NewsDetailModal article={selectedArticle} onClose={() => setSelectedArticle(null)} /> : null}
       </Panel>
       <Panel className="overflow-hidden p-0 ring-1 ring-purple-300/10">
         <div className="border-b border-purple-300/15 bg-purple-300/[0.04] p-4">
