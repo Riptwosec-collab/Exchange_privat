@@ -63,29 +63,29 @@
 }
 
 .terminal-grid[data-theme="space"] {
-  --background: #05051a;
-  --foreground: #eef2ff;
-  --panel: #0b102d;
-  --panel-soft: #151b45;
-  --border-soft: rgba(34, 211, 238, 0.22);
-  --accent: #22d3ee;
-  --accent-text: #cffafe;
-  --accent-rgb: 34, 211, 238;
-  --accent-soft: rgba(34, 211, 238, 0.2);
-  --accent-2: #a78bfa;
-  --accent-2-rgb: 167, 139, 250;
+  --background: #020617;
+  --foreground: #eff6ff;
+  --panel: #071326;
+  --panel-soft: #0f2340;
+  --border-soft: rgba(96, 165, 250, 0.24);
+  --accent: #2563eb;
+  --accent-text: #bfdbfe;
+  --accent-rgb: 37, 99, 235;
+  --accent-soft: rgba(37, 99, 235, 0.22);
+  --accent-2: #7dd3fc;
+  --accent-2-rgb: 125, 211, 252;
   --accent-3: #fbbf24;
-  --theme-glow: rgba(34, 211, 238, 0.26);
-  --success: #5eead4;
-  --success-text: #ccfbf1;
-  --success-rgb: 94, 234, 212;
+  --theme-glow: rgba(37, 99, 235, 0.3);
+  --success: #7dd3fc;
+  --success-text: #e0f2fe;
+  --success-rgb: 125, 211, 252;
   --danger: #fb7185;
   --danger-text: #ffe4e9;
   --danger-rgb: 251, 113, 133;
-  --chart-bg: #020214;
-  --chart-panel: #090d28;
-  --surface-strong: #05051a;
-  --surface-soft: #151b45;
+  --chart-bg: #01040f;
+  --chart-panel: #071326;
+  --surface-strong: #020617;
+  --surface-soft: #0f2340;
 }
 
 .terminal-grid[data-theme="luxury"] {
@@ -1096,10 +1096,10 @@ textarea::placeholder {
 
 .terminal-grid[data-theme="space"] {
   background:
-    radial-gradient(circle at 10% -8%, rgba(34, 211, 238, 0.24), transparent 34rem),
-    radial-gradient(circle at 86% 8%, rgba(167, 139, 250, 0.18), transparent 26rem),
+    radial-gradient(circle at 10% -8%, rgba(37, 99, 235, 0.3), transparent 34rem),
+    radial-gradient(circle at 86% 8%, rgba(125, 211, 252, 0.14), transparent 26rem),
     radial-gradient(circle at 70% 34%, rgba(251, 191, 36, 0.09), transparent 18rem),
-    linear-gradient(180deg, #08082a 0%, #05051a 54%, #020214 100%);
+    linear-gradient(180deg, #071a34 0%, #020617 54%, #01040f 100%);
 }
 
 .terminal-grid[data-theme="luxury"] {
@@ -1151,9 +1151,9 @@ textarea::placeholder {
   opacity: 0.52;
   background:
     radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.65) 0 1px, transparent 2px),
-    radial-gradient(circle at 68% 22%, rgba(167, 139, 250, 0.58) 0 1px, transparent 2px),
+    radial-gradient(circle at 68% 22%, rgba(125, 211, 252, 0.55) 0 1px, transparent 2px),
     radial-gradient(circle at 82% 66%, rgba(251, 191, 36, 0.38) 0 1px, transparent 2px),
-    linear-gradient(115deg, transparent 0 40%, rgba(34, 211, 238, 0.12) 50%, transparent 62%);
+    linear-gradient(115deg, transparent 0 40%, rgba(37, 99, 235, 0.16) 50%, transparent 62%);
   background-size: auto;
   mix-blend-mode: screen;
 }

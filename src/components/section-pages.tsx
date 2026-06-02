@@ -29,7 +29,7 @@ const settingsOptions = {
 
 const themeSwatches: Record<AppTheme, string[]> = {
   Technology: ["#12080a", "#ef4444", "#f6c177", "#94a3b8"],
-  Space: ["#05051a", "#22d3ee", "#a78bfa", "#fbbf24"],
+  Space: ["#020617", "#2563eb", "#7dd3fc", "#fbbf24"],
   Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
   Obsidian: ["#000000", "#f59e0b", "#fef3c7", "#92400e"],
   Pearl: ["#ead9bd", "#a86212", "#0f6b50", "#c6782f"]
@@ -54,12 +54,12 @@ const settingsAlertThemeStyles: Record<AppTheme, {
     statusDisabled: { color: "#ffe4e9" }
   },
   Space: {
-    enabled: { background: "linear-gradient(135deg, rgba(34,211,238,.17), rgba(167,139,250,.12)), #151b45", borderColor: "rgba(34,211,238,.42)", boxShadow: "0 14px 36px rgba(34,211,238,.13)" },
-    disabled: { background: "linear-gradient(135deg, rgba(251,113,133,.10), rgba(251,191,36,.06)), #0b102d", borderColor: "rgba(251,191,36,.24)" },
-    iconEnabled: { color: "#cffafe" },
+    enabled: { background: "linear-gradient(135deg, rgba(37,99,235,.22), rgba(125,211,252,.10)), #0f2340", borderColor: "rgba(96,165,250,.44)", boxShadow: "0 14px 36px rgba(37,99,235,.16)" },
+    disabled: { background: "linear-gradient(135deg, rgba(251,113,133,.10), rgba(251,191,36,.06)), #071326", borderColor: "rgba(251,191,36,.24)" },
+    iconEnabled: { color: "#bfdbfe" },
     iconDisabled: { color: "#fbbf24" },
-    title: { color: "#eef2ff" },
-    statusEnabled: { color: "#ddd6fe" },
+    title: { color: "#eff6ff" },
+    statusEnabled: { color: "#e0f2fe" },
     statusDisabled: { color: "#fbbf24" }
   },
   Luxury: {

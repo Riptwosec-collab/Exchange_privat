@@ -52,11 +52,11 @@ const brandThemeStyles: Record<AppTheme, {
     notify: { background: "rgba(239,68,68,.16)", borderColor: "rgba(239,68,68,.34)", color: "#fecdd3" }
   },
   Space: {
-    card: { background: "linear-gradient(135deg, rgba(34,211,238,.24), rgba(167,139,250,.15)), #0b102d", borderColor: "rgba(34,211,238,.42)", color: "#cffafe", boxShadow: "0 16px 44px rgba(34,211,238,.15)" },
-    mark: { background: "rgba(167,139,250,.16)", color: "#ddd6fe" },
-    eyebrow: { color: "#cffafe" },
-    title: { color: "#eef2ff" },
-    notify: { background: "rgba(34,211,238,.15)", borderColor: "rgba(34,211,238,.32)", color: "#cffafe" }
+    card: { background: "linear-gradient(135deg, rgba(37,99,235,.28), rgba(125,211,252,.10)), #071326", borderColor: "rgba(96,165,250,.44)", color: "#bfdbfe", boxShadow: "0 16px 44px rgba(37,99,235,.18)" },
+    mark: { background: "rgba(37,99,235,.18)", color: "#bfdbfe" },
+    eyebrow: { color: "#bfdbfe" },
+    title: { color: "#eff6ff" },
+    notify: { background: "rgba(37,99,235,.16)", borderColor: "rgba(96,165,250,.34)", color: "#bfdbfe" }
   },
   Luxury: {
     card: { background: "linear-gradient(135deg, rgba(214,168,79,.25), rgba(127,29,29,.18)), #1e140b", borderColor: "rgba(214,168,79,.45)", color: "#fff2c6", boxShadow: "0 18px 44px rgba(214,168,79,.16)" },
