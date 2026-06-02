@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bookmark, Bot, ChevronLeft, ChevronRight, ExternalLink, Filter, Gauge, Layers3, Newspaper, Radio, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sparkles, Volume2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -550,8 +551,8 @@ function DashboardNewsDetailModal({ article, onClose }: { article: NewsArticle; 
   const quote = useMarketStore((state) => state.quotes.find((item) => item.ticker === article.ticker));
   const sentimentTone = article.sentiment === "Bullish" ? "text-emerald-300" : article.sentiment === "Bearish" ? "text-rose-300" : "text-slate-300";
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-2xl rounded-xl border border-white/10 bg-[#101010] p-5 text-slate-100 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -589,7 +590,8 @@ function DashboardNewsDetailModal({ article, onClose }: { article: NewsArticle; 
           <button onClick={onClose} className="rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300 hover:bg-white/[0.06]">ปิด</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

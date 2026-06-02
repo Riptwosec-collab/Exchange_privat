@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Bot, Mic, RefreshCw, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { generatedNews, portfolio as starterPortfolio } from "@/lib/mock-data";
@@ -350,8 +351,8 @@ function HeatmapDeepDiveModal({
     ["news", "ข่าว + LINE"]
   ];
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/70 p-4">
       <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-white/10 bg-[#0f0f0f] p-5 text-slate-100 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -461,7 +462,8 @@ function HeatmapDeepDiveModal({
           ) : null}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -561,8 +563,8 @@ export function EnhancedHeatmapPage() {
           );
         })}
       </div>
-      {selected && detail ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4">
+      {selected && detail ? createPortal((
+        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/55 p-4">
           <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-white/10 bg-[#111111] p-5 text-slate-100 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
@@ -682,7 +684,7 @@ export function EnhancedHeatmapPage() {
             </div>
           </div>
         </div>
-      ) : null}
+      ), document.body) : null}
     </Panel>
   );
 }

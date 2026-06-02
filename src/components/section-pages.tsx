@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { BarChart3, Bell, Bookmark, CalendarDays, ExternalLink, LineChart, RefreshCw, Save, Search, Settings, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { economicEvents, generatedNews, news, watchlist } from "@/lib/mock-data";
 import { allStockSymbols, stockUniverse } from "@/lib/market-utils";
@@ -497,8 +498,8 @@ function NewsDetailModal({ article, onClose }: { article: NewsArticle; onClose: 
   const research = buildTickerResearch(quote);
   const relatedNews = [...news, ...generatedNews].filter((item) => item.id !== article.id && (item.ticker === article.ticker || item.category === article.category)).slice(0, 5);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/70 p-4">
       <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-xl border border-white/10 bg-[#101010] p-5 text-slate-100 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -619,7 +620,8 @@ function NewsDetailModal({ article, onClose }: { article: NewsArticle; onClose: 
           <button onClick={onClose} className="rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300 hover:bg-white/[0.06]">ปิด</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
