@@ -51,12 +51,12 @@ export function Sidebar() {
 
   return (
     <aside className="glass fixed left-4 top-4 z-40 hidden h-[calc(100vh-32px)] w-[260px] rounded-2xl p-4 lg:flex lg:flex-col">
-      <div className="flex items-center gap-3 rounded-2xl border border-violet-400/18 bg-violet-500/14 p-3 text-violet-200">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-black/20">
+      <div className="brand-card flex items-center gap-3 rounded-2xl border p-3">
+        <div className="brand-mark flex h-11 w-11 items-center justify-center rounded-xl">
           <Globe2 size={23} />
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-300">AstraQuant</p>
+          <p className="brand-eyebrow text-xs font-black uppercase tracking-[0.14em]">AstraQuant</p>
           <p className="truncate text-sm font-extrabold text-white">Market App</p>
         </div>
       </div>

@@ -745,8 +745,8 @@ export function SettingsPageFull() {
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {(Object.keys(toggles) as Array<keyof typeof toggles>).map((key) => (
-          <button key={key} onClick={() => setToggles((current) => ({ ...current, [key]: !current[key] }))} className={`rounded-md border p-4 text-left ${toggles[key] ? "border-emerald-300/30 bg-emerald-300/10" : "border-white/10 bg-white/[0.03]"}`}>
-            <Settings size={16} className="text-cyan-300" />
+          <button key={key} onClick={() => setToggles((current) => ({ ...current, [key]: !current[key] }))} className={`settings-toggle-card rounded-md border p-4 text-left ${toggles[key] ? "is-enabled" : "is-disabled"}`}>
+            <Settings size={16} className="settings-toggle-icon" />
             <p className="mt-2 font-semibold text-white">{key.toUpperCase()} Alerts</p>
             <p className="text-sm text-slate-400">{toggles[key] ? "Enabled" : "Disabled"}</p>
           </button>

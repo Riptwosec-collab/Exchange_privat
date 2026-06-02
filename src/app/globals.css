@@ -332,6 +332,94 @@ textarea::placeholder {
   box-shadow: 0 10px 26px rgba(var(--accent-rgb), 0.22);
 }
 
+.brand-card {
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.22), rgba(var(--accent-2-rgb), 0.1)),
+    color-mix(in srgb, var(--panel-soft) 86%, transparent);
+  border-color: rgba(var(--accent-rgb), 0.34);
+  color: var(--accent-text);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 14px 34px rgba(var(--accent-rgb), 0.13);
+}
+
+.brand-mark {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(var(--accent-2-rgb), 0.28), transparent 58%),
+    rgba(0, 0, 0, 0.22);
+  color: var(--accent-text);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.18);
+}
+
+.brand-eyebrow {
+  color: var(--accent-text);
+}
+
+.settings-toggle-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 86px;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.settings-toggle-card::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(var(--accent-2-rgb), 0.18), transparent 14rem),
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.1), transparent 62%);
+  transition: opacity 180ms ease;
+}
+
+.settings-toggle-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.settings-toggle-card.is-enabled {
+  background:
+    linear-gradient(135deg, rgba(var(--success-rgb), 0.16), rgba(var(--accent-rgb), 0.08)),
+    color-mix(in srgb, var(--panel-soft) 88%, transparent);
+  border-color: rgba(var(--success-rgb), 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 16px 34px rgba(var(--success-rgb), 0.09);
+}
+
+.settings-toggle-card.is-disabled {
+  background:
+    linear-gradient(135deg, rgba(var(--danger-rgb), 0.1), rgba(148, 163, 184, 0.045)),
+    color-mix(in srgb, var(--panel) 90%, transparent);
+  border-color: rgba(var(--danger-rgb), 0.18);
+}
+
+.settings-toggle-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(var(--accent-rgb), 0.5);
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.22),
+    0 0 26px rgba(var(--accent-rgb), 0.12);
+}
+
+.settings-toggle-card:hover::before {
+  opacity: 1;
+}
+
+.settings-toggle-icon {
+  color: var(--accent-text);
+}
+
+.settings-toggle-card.is-enabled .settings-toggle-icon {
+  color: var(--success-text);
+}
+
+.settings-toggle-card.is-disabled .settings-toggle-icon {
+  color: var(--danger-text);
+}
+
 .glass table {
   table-layout: auto;
   border-collapse: separate;
@@ -1382,6 +1470,31 @@ textarea::placeholder {
 
 .terminal-grid[data-theme="pearl"] :where(.text-rose-300, .text-rose-200, .text-\[\#fb7185\], .text-\[\#ff7a92\]) {
   color: #be123c !important;
+}
+
+.terminal-grid[data-theme="pearl"] .brand-card {
+  background:
+    linear-gradient(135deg, rgba(194, 122, 25, 0.16), rgba(4, 120, 87, 0.08)),
+    #fff7e8;
+  border-color: rgba(117, 89, 50, 0.24);
+  box-shadow: 0 16px 38px rgba(117, 89, 50, 0.16);
+}
+
+.terminal-grid[data-theme="pearl"] .brand-mark {
+  background: rgba(117, 89, 50, 0.08);
+  color: #7a4310;
+}
+
+.terminal-grid[data-theme="pearl"] .settings-toggle-card.is-enabled {
+  background:
+    linear-gradient(135deg, rgba(4, 120, 87, 0.12), rgba(194, 122, 25, 0.08)),
+    #fff7e8;
+}
+
+.terminal-grid[data-theme="pearl"] .settings-toggle-card.is-disabled {
+  background:
+    linear-gradient(135deg, rgba(190, 18, 60, 0.08), rgba(117, 89, 50, 0.05)),
+    #fffaf0;
 }
 
 .aq-watchlist-panel > .mt-2 {
