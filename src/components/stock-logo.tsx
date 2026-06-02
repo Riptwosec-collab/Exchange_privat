@@ -129,6 +129,7 @@ export function StockLogo({ quote, size = "md" }: StockLogoProps) {
   const candidates = logoCandidates(quote);
   const activeSource = candidates[sourceIndex];
   const showImage = Boolean(activeSource);
+  const showFallback = !showImage || !loaded;
 
   useEffect(() => {
     setSourceIndex(0);
@@ -159,16 +160,14 @@ export function StockLogo({ quote, size = "md" }: StockLogoProps) {
     <span
       className={`${sizes[size]} relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 font-bold text-white shadow-sm`}
       style={{
-        background: showImage
-          ? quote.brandColor
-          : `radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), transparent 28%), linear-gradient(135deg, ${quote.brandColor}, #020617)`
+        background: `radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), transparent 28%), linear-gradient(135deg, ${quote.brandColor}, #020617)`
       }}
       title={`${quote.ticker} logo`}
     >
       <>
         <span className="absolute inset-x-1 top-1 h-px bg-white/35" />
         <span className="absolute -bottom-2 -right-2 h-6 w-6 rounded-full bg-white/10" />
-        <span className={`relative px-1 text-center leading-none text-white drop-shadow ${showImage ? "opacity-0" : "opacity-100"}`}>{quote.logoFallback}</span>
+        <span className={`relative px-1 text-center leading-none text-white drop-shadow transition-opacity ${showFallback ? "opacity-100" : "opacity-0"}`}>{quote.logoFallback}</span>
       </>
       {showImage ? (
         <img
