@@ -8,18 +8,18 @@
 
 :root {
   color-scheme: dark;
-  --background: #0f1014;
-  --foreground: #f7f7fb;
-  --panel: #18191f;
-  --panel-soft: #202129;
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --muted: #9b9ba6;
-  --muted-strong: #e8e8ef;
-  --accent: #8f4dff;
-  --accent-soft: rgba(143, 77, 255, 0.18);
-  --success: #68df7c;
-  --danger: #f385ad;
-  --warning: #f7c85f;
+  --background: #080b10;
+  --foreground: #f2f5fb;
+  --panel: #11161f;
+  --panel-soft: #171d27;
+  --border-soft: rgba(148, 163, 184, 0.16);
+  --muted: #8f98a8;
+  --muted-strong: #e6edf7;
+  --accent: #2962ff;
+  --accent-soft: rgba(41, 98, 255, 0.18);
+  --success: #22c55e;
+  --danger: #fb7185;
+  --warning: #facc15;
 }
 
 * {
@@ -40,7 +40,10 @@ body {
   margin: 0;
   max-width: 100%;
   overflow-x: hidden;
-  background: var(--background);
+  background:
+    radial-gradient(circle at 18% -16%, rgba(41, 98, 255, 0.16), transparent 30rem),
+    radial-gradient(circle at 88% 0%, rgba(34, 197, 94, 0.08), transparent 24rem),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   font-size: 16.5px;
@@ -93,19 +96,19 @@ textarea::placeholder {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(168, 85, 247, 0.82);
+  outline: 2px solid rgba(41, 98, 255, 0.86);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: rgba(143, 77, 255, 0.32);
+  background: rgba(41, 98, 255, 0.34);
   color: #ffffff;
 }
 
 .glass {
   border: 1px solid var(--border-soft);
-  background: rgba(26, 27, 33, 0.92);
-  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.24);
+  background: rgba(17, 22, 31, 0.94);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(16px);
 }
 
@@ -145,8 +148,8 @@ textarea::placeholder {
 }
 
 .metric-card {
-  background: #202127;
-  border-color: rgba(255, 255, 255, 0.075);
+  background: #151b25;
+  border-color: rgba(148, 163, 184, 0.16);
   box-shadow: none;
 }
 
@@ -215,14 +218,14 @@ textarea::placeholder {
 }
 
 .glass :where(input, select, textarea) {
-  background-color: #15161b;
-  border-color: rgba(255, 255, 255, 0.1);
+  background-color: #0d121a;
+  border-color: rgba(148, 163, 184, 0.18);
   color: #f7f7fb;
 }
 
 .glass :where(input, select, textarea):focus {
-  border-color: rgba(168, 85, 247, 0.58);
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  border-color: rgba(41, 98, 255, 0.68);
+  box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.16);
 }
 
 .terminal-grid :where(.text-white, .text-slate-100, .text-slate-200) {
@@ -242,19 +245,19 @@ textarea::placeholder {
 }
 
 .terminal-grid :where(.text-emerald-300, .text-emerald-200, .text-\[\#18e08a\]) {
-  color: #68df7c;
+  color: #37e47b;
 }
 
 .terminal-grid :where(.text-rose-300, .text-rose-200, .text-\[\#ff2f55\]) {
-  color: #f385ad;
+  color: #ff7a92;
 }
 
 .terminal-grid :where(.text-amber-300, .text-amber-200) {
-  color: #f7c85f;
+  color: #facc15;
 }
 
 .terminal-grid :where(.text-cyan-100, .text-cyan-200, .text-cyan-300, .text-violet-100, .text-violet-200, .text-purple-300) {
-  color: #b98cff;
+  color: #9db7ff;
 }
 
 .glass :where(.text-xs) {
@@ -327,8 +330,8 @@ textarea::placeholder {
     font-size: 15.5px;
     line-height: 1.52;
     background:
-      radial-gradient(circle at 50% -20%, rgba(143, 77, 255, 0.16), transparent 34rem),
-      #0f1014;
+      radial-gradient(circle at 50% -18%, rgba(41, 98, 255, 0.2), transparent 34rem),
+      #080b10;
   }
 
   .mobile-app-shell {
@@ -372,14 +375,14 @@ textarea::placeholder {
     order: 5;
     height: 48px;
     border-radius: 16px;
-    background: #18191f;
+    background: #11161f;
   }
 
   .mobile-workspace-card {
     margin-top: 0.15rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
-    background: linear-gradient(145deg, rgba(143, 77, 255, 0.18), rgba(28, 29, 36, 0.94));
+    background: linear-gradient(145deg, rgba(41, 98, 255, 0.18), rgba(17, 22, 31, 0.96));
     padding: 14px;
   }
 
@@ -456,7 +459,7 @@ textarea::placeholder {
     max-width: 100%;
     border-color: rgba(255, 255, 255, 0.08);
     border-radius: 20px;
-    background: rgba(26, 27, 33, 0.94);
+    background: rgba(17, 22, 31, 0.95);
     overflow-wrap: anywhere;
   }
 
@@ -771,9 +774,9 @@ textarea::placeholder {
 
 .terminal-grid {
   background:
-    radial-gradient(circle at 18% 0%, rgba(143, 77, 255, 0.24), transparent 30rem),
-    radial-gradient(circle at 88% 12%, rgba(104, 223, 124, 0.08), transparent 26rem),
-    linear-gradient(180deg, #111217 0%, #0f1014 58%, #0d0e12 100%);
+    radial-gradient(circle at 18% 0%, rgba(41, 98, 255, 0.18), transparent 30rem),
+    radial-gradient(circle at 88% 12%, rgba(34, 197, 94, 0.09), transparent 26rem),
+    linear-gradient(180deg, #0b0f16 0%, #080b10 58%, #06080c 100%);
 }
 
 .neon-text {
@@ -787,7 +790,7 @@ textarea::placeholder {
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(143, 77, 255, 0.54);
+  background: rgba(41, 98, 255, 0.58);
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -795,28 +798,28 @@ textarea::placeholder {
 }
 
 .glass :where(.border-white\/10) {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(148, 163, 184, 0.15);
 }
 
 .glass :where(.bg-white\/\[0\.035\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\]) {
-  background-color: rgba(255, 255, 255, 0.045);
+  background-color: rgba(148, 163, 184, 0.055);
 }
 
 .market-heatmap-surface,
 .market-heatmap-surface :where(.bg-white, .bg-slate-50, .bg-slate-100) {
-  background-color: #111217 !important;
+  background-color: #0d121a !important;
   color: #f7f7fb !important;
 }
 
 .market-heatmap-surface :where(article, .market-heatmap-card) {
-  background: #191a20 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: #151b25 !important;
+  border-color: rgba(148, 163, 184, 0.16) !important;
   color: #f7f7fb !important;
 }
 
 .market-heatmap-surface :where(article, .market-heatmap-card):hover {
-  background: #202129 !important;
-  border-color: rgba(185, 140, 255, 0.34) !important;
+  background: #1b2430 !important;
+  border-color: rgba(41, 98, 255, 0.38) !important;
 }
 
 .market-heatmap-surface :where(h3, h4, strong, .text-slate-950, .text-slate-900) {
@@ -832,22 +835,22 @@ textarea::placeholder {
 }
 
 .market-heatmap-surface :where(.bg-sky-100) {
-  background-color: rgba(143, 77, 255, 0.18) !important;
-  color: #d8c5ff !important;
+  background-color: rgba(41, 98, 255, 0.18) !important;
+  color: #b9c8ff !important;
 }
 
 .market-heatmap-surface :where(.bg-emerald-50) {
-  background-color: rgba(104, 223, 124, 0.14) !important;
-  color: #a7f3b5 !important;
+  background-color: rgba(34, 197, 94, 0.14) !important;
+  color: #9cf5bd !important;
 }
 
 .market-heatmap-surface :where(.bg-rose-50) {
-  background-color: rgba(243, 133, 173, 0.16) !important;
-  color: #ffb0c9 !important;
+  background-color: rgba(251, 113, 133, 0.16) !important;
+  color: #ffb3c0 !important;
 }
 
 .glass :where(.bg-black\/20, .bg-black\/25, .bg-black\/30) {
-  background-color: rgba(0, 0, 0, 0.18);
+  background-color: rgba(3, 7, 12, 0.42);
 }
 
 .glass :where(.rounded-lg) {
@@ -905,10 +908,10 @@ textarea::placeholder {
 .aq-chart-card .advanced-chart-host {
   min-height: 520px;
   background:
-    linear-gradient(180deg, rgba(243, 133, 173, 0.055), rgba(243, 133, 173, 0.025) 42%, rgba(15, 16, 20, 0) 82%),
-    linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px),
-    #050507;
+    linear-gradient(180deg, rgba(41, 98, 255, 0.055), rgba(34, 197, 94, 0.026) 42%, rgba(8, 11, 16, 0) 82%),
+    linear-gradient(rgba(148,163,184,.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,.075) 1px, transparent 1px),
+    #05070b;
   background-size: auto, 100% 44px, 64px 100%, auto;
 }
 

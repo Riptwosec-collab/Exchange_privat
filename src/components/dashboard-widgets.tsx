@@ -142,14 +142,14 @@ function signed(value: number, digits = 2) {
 }
 
 function directionTone(value: number) {
-  if (value > 0) return "text-emerald-300";
-  if (value < 0) return "text-rose-300";
+  if (value > 0) return "text-[#37e47b]";
+  if (value < 0) return "text-[#ff7a92]";
   return "text-slate-300";
 }
 
 function directionBadge(value: number) {
-  if (value > 0) return "bg-emerald-400/16 text-emerald-200";
-  if (value < 0) return "bg-rose-400/16 text-rose-200";
+  if (value > 0) return "bg-[#22c55e]/16 text-[#b5ffd2]";
+  if (value < 0) return "bg-[#fb7185]/16 text-[#ffc0ca]";
   return "bg-slate-400/14 text-slate-200";
 }
 
@@ -252,8 +252,8 @@ function buildWatchlistIntel(quote: StockQuote, universe: StockQuote[]): Watchli
 function scoreTone(score: number, inverse = false) {
   const good = inverse ? score <= 35 : score >= 65;
   const weak = inverse ? score >= 65 : score <= 35;
-  if (good) return "text-emerald-300";
-  if (weak) return "text-rose-300";
+  if (good) return "text-[#37e47b]";
+  if (weak) return "text-[#ff7a92]";
   return "text-amber-200";
 }
 
@@ -271,21 +271,21 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
   const points = buildMiniSeries(ticker, up);
   const afterPoints = buildMiniSeries(`${ticker}-after`, afterHoursChange >= 0, 34);
   const areaPath = `${points} L 132 58 L 0 58 Z`;
-  const stroke = up ? "#00e889" : "#ff2f55";
-  const glow = up ? "#20ff9c" : "#ff5c7a";
-  const fill = up ? "rgba(0,232,137,.42)" : "rgba(255,47,85,.42)";
+  const stroke = up ? "#22c55e" : "#fb7185";
+  const glow = up ? "#37e47b" : "#ff7a92";
+  const fill = up ? "rgba(34,197,94,.26)" : "rgba(251,113,133,.24)";
   const afterStroke = "rgba(245,248,255,.98)";
 
   return (
-    <svg viewBox="0 0 132 60" preserveAspectRatio="xMidYMid meet" className="h-[70px] w-full min-w-[118px] rounded-xl bg-[#050507]" aria-label={`${ticker} intraday chart`}>
+    <svg viewBox="0 0 132 60" preserveAspectRatio="xMidYMid meet" shapeRendering="geometricPrecision" className="h-[70px] w-full min-w-[118px] rounded-xl bg-[#03070c]" aria-label={`${ticker} intraday chart`}>
       <defs>
         <linearGradient id={`spark-${ticker}`} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor={fill} />
           <stop offset="55%" stopColor={fill} />
           <stop offset="100%" stopColor="rgba(16,16,16,0)" />
         </linearGradient>
-        <filter id={`spark-glow-${ticker}`} x="-10%" y="-40%" width="120%" height="180%">
-          <feGaussianBlur stdDeviation="1.6" result="blur" />
+        <filter id={`spark-glow-${ticker}`} x="-8%" y="-32%" width="116%" height="164%">
+          <feGaussianBlur stdDeviation="0.95" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -297,8 +297,8 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
           <stop offset="100%" stopColor="rgba(16,16,16,0)" />
         </linearGradient>
       </defs>
-      {[22, 44, 66, 88, 110].map((x) => <line key={`v-${x}`} x1={x} x2={x} y1="0" y2="60" stroke="rgba(255,255,255,.055)" strokeWidth="0.8" />)}
-      {[15, 30, 45].map((y) => <line key={`h-${y}`} x1="0" x2="132" y1={y} y2={y} stroke="rgba(255,255,255,.055)" strokeWidth="0.8" />)}
+      {[22, 44, 66, 88, 110].map((x) => <line key={`v-${x}`} x1={x} x2={x} y1="0" y2="60" stroke="rgba(148,163,184,.10)" strokeWidth="0.7" vectorEffect="non-scaling-stroke" />)}
+      {[15, 30, 45].map((y) => <line key={`h-${y}`} x1="0" x2="132" y1={y} y2={y} stroke="rgba(148,163,184,.10)" strokeWidth="0.7" vectorEffect="non-scaling-stroke" />)}
       {Array.from({ length: 36 }, (_, index) => (
         <rect
           key={index}
@@ -306,14 +306,14 @@ function MiniMarketChart({ ticker, intradayChange, afterHoursChange }: { ticker:
           y={57 - (3 + Math.abs(Math.sin(index + seed)) * 15)}
           width="1.7"
           height={3 + Math.abs(Math.sin(index + seed)) * 15}
-          fill={up ? "rgba(104,223,124,.20)" : "rgba(243,133,173,.24)"}
+          fill={up ? "rgba(34,197,94,.16)" : "rgba(251,113,133,.18)"}
         />
       ))}
       <path d={areaPath} fill={`url(#spark-${ticker})`} stroke="none" opacity="0.95" />
-      <path d={points} fill="none" stroke={glow} strokeOpacity="0.22" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} />
-      <path d={points} fill="none" stroke={stroke} strokeWidth="2.15" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={points} fill="none" stroke={glow} strokeOpacity="0.16" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" filter={`url(#spark-glow-${ticker})`} vectorEffect="non-scaling-stroke" />
+      <path d={points} fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       <path d={`${afterPoints} L 132 58 L 0 58 Z`} fill={`url(#after-spark-${ticker})`} stroke="none" transform="translate(82 0) scale(.38 1)" />
-      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.9" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" />
+      <path d={afterPoints} fill="none" stroke={afterStroke} strokeOpacity="0.92" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" transform="translate(82 0) scale(.38 1)" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

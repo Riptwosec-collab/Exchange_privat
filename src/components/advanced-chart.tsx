@@ -27,13 +27,13 @@ type ChartMode = (typeof chartModes)[number]["key"];
 type IndicatorKey = "levels" | "ad" | "rsi" | "macd" | "ema" | "volume" | "atr" | "adx";
 type IndicatorVisibility = Record<IndicatorKey, boolean>;
 const tradingThaiFont = "\"Noto Sans Thai\", \"IBM Plex Sans Thai\", \"LINE Seed Sans TH\", Inter, \"Segoe UI\", Arial, sans-serif";
-const freshGreen = "#68df7c";
-const chartRed = "#f385ad";
-const freshGreenSoft = "rgba(104, 223, 124, 0.28)";
-const freshGreenFaint = "rgba(104, 223, 124, 0.08)";
-const afterHoursLine = "rgba(185, 140, 255, 0.96)";
-const afterHoursTop = "rgba(185, 140, 255, 0.22)";
-const afterHoursBottom = "rgba(185, 140, 255, 0.04)";
+const freshGreen = "#22c55e";
+const chartRed = "#fb7185";
+const freshGreenSoft = "rgba(34, 197, 94, 0.26)";
+const freshGreenFaint = "rgba(34, 197, 94, 0.08)";
+const afterHoursLine = "rgba(41, 98, 255, 0.96)";
+const afterHoursTop = "rgba(41, 98, 255, 0.22)";
+const afterHoursBottom = "rgba(41, 98, 255, 0.04)";
 
 const defaultIndicatorVisibility: IndicatorVisibility = {
   levels: true,
@@ -62,22 +62,22 @@ function signed(value: number, digits = 2) {
 }
 
 function toneClass(value: number) {
-  if (value > 0) return "text-[#18e08a]";
-  if (value < 0) return "text-[#ff2f55]";
+  if (value > 0) return "text-[#37e47b]";
+  if (value < 0) return "text-[#ff7a92]";
   return "text-slate-300";
 }
 
 function badgeClass(value: number) {
-  if (value > 0) return "border-[#18e08a]/35 bg-[#18e08a]/12 text-[#9ff7c9]";
-  if (value < 0) return "border-[#ff2f55]/35 bg-[#ff2f55]/12 text-[#ff9db6]";
+  if (value > 0) return "border-[#22c55e]/40 bg-[#22c55e]/14 text-[#b5ffd2]";
+  if (value < 0) return "border-[#fb7185]/40 bg-[#fb7185]/14 text-[#ffc0ca]";
   return "border-white/10 bg-white/[0.045] text-slate-300";
 }
 
 function statusTone(score: number, inverse = false) {
   const high = inverse ? score <= 35 : score >= 65;
   const low = inverse ? score >= 65 : score <= 35;
-  if (high) return "text-[#18e08a]";
-  if (low) return "text-[#ff2f55]";
+  if (high) return "text-[#37e47b]";
+  if (low) return "text-[#ff7a92]";
   return "text-amber-200";
 }
 
@@ -455,8 +455,8 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
   const previous = candles.at(-2) ?? latest;
   const change = latest && previous ? latest.close - previous.close : 0;
   const up = change >= 0;
-  const lineColor = up ? "#56c7a4" : "#f08aad";
-  const areaColor = up ? "rgba(86,199,164,.18)" : "rgba(240,138,173,.20)";
+  const lineColor = up ? "#22c55e" : "#fb7185";
+  const areaColor = up ? "rgba(34,197,94,.18)" : "rgba(251,113,133,.18)";
   const linePath = buildPolyline(values, width, mainHeight, low, high);
   const areaPath = `${linePath} L ${width} ${mainHeight} L 0 ${mainHeight} Z`;
   const volumeMax = Math.max(1, ...candles.map((candle) => candle.volume));
@@ -470,28 +470,28 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
   const latestSignal = pmo.signal.at(-1) ?? 0;
   const yForPrice = (value: number) => `${Math.max(4, Math.min(90, ((high - value) / Math.max(0.01, high - low)) * 100))}%`;
   const priceLabels = [
-    { label: "High", value: latest?.high ?? high, top: "7%", className: "bg-blue-600/85 text-white" },
-    { label: "Last", value: latest?.close ?? max, top: "17%", className: "bg-teal-500/85 text-white" }
+    { label: "High", value: latest?.high ?? high, top: "7%", className: "bg-[#2962ff]/90 text-white" },
+    { label: "Last", value: latest?.close ?? max, top: "17%", className: up ? "bg-[#089981]/92 text-white" : "bg-[#f23645]/92 text-white" }
   ];
 
   return (
-    <div className="exact-trading-graph overflow-hidden rounded-[22px] border border-white/8 bg-[#050507]">
+    <div className="exact-trading-graph overflow-hidden rounded-[22px] border border-slate-700/35 bg-[#05070b]">
       <div className="flex items-start justify-between gap-3 px-3 pb-1.5 pt-3 sm:px-4 sm:pt-4">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white sm:h-6 sm:w-6 sm:text-[9px]">{symbol.slice(0, 1)}</span>
             <h3 className="truncate text-sm font-black leading-5 text-slate-200 sm:text-lg">{stockUniverse.find((item) => item.ticker === symbol)?.name ?? symbol}</h3>
           </div>
-          <p className="mt-0.5 font-mono text-xs text-teal-300 sm:text-sm">
+          <p className={`mt-0.5 font-mono text-xs sm:text-sm ${up ? "text-[#37e47b]" : "text-[#ff7a92]"}`}>
             {latest ? `${latest.close.toFixed(2)} ${change >= 0 ? "+" : ""}${change.toFixed(2)} (${((change / Math.max(0.01, previous?.close ?? latest.close)) * 100).toFixed(2)}%)` : "-"}
           </p>
         </div>
-        <div className="shrink-0 rounded-full border border-teal-300/20 bg-teal-300/10 px-2 py-1 text-[10px] font-bold text-teal-100 sm:text-[11px]">
+        <div className="shrink-0 rounded-full border border-[#22c55e]/24 bg-[#22c55e]/10 px-2 py-1 text-[10px] font-bold text-[#b5ffd2] sm:text-[11px]">
           Real-time
         </div>
       </div>
       <div className="px-1.5 pb-2 sm:px-2">
-        <div className="relative overflow-hidden rounded-t-2xl bg-black">
+        <div className="relative overflow-hidden rounded-t-2xl bg-[#03070c]">
           <svg viewBox={`0 0 ${width} ${mainHeight}`} preserveAspectRatio="none" className={compact ? "h-[255px] w-full sm:h-[282px]" : "h-[315px] w-full sm:h-[350px]"}>
             <defs>
               <linearGradient id={`exact-fill-${symbol}`} x1="0" x2="0" y1="0" y2="1">
@@ -500,14 +500,14 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
                 <stop offset="100%" stopColor="rgba(0,0,0,0)" />
               </linearGradient>
             </defs>
-            {Array.from({ length: 6 }, (_, index) => <line key={`v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={mainHeight} stroke="rgba(255,255,255,.052)" strokeWidth="1" />)}
-            {Array.from({ length: 5 }, (_, index) => <line key={`h-${index}`} x1="0" x2={width} y1={index * (mainHeight / 4)} y2={index * (mainHeight / 4)} stroke="rgba(255,255,255,.052)" strokeWidth="1" />)}
+            {Array.from({ length: 6 }, (_, index) => <line key={`v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={mainHeight} stroke="rgba(148,163,184,.12)" strokeWidth="1" />)}
+            {Array.from({ length: 5 }, (_, index) => <line key={`h-${index}`} x1="0" x2={width} y1={index * (mainHeight / 4)} y2={index * (mainHeight / 4)} stroke="rgba(148,163,184,.12)" strokeWidth="1" />)}
             <path d={areaPath} fill={`url(#exact-fill-${symbol})`} />
             <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
             {candles.map((candle, index) => {
               const x = (index / Math.max(1, candles.length - 1)) * width;
               const height = Math.max(2, (candle.volume / volumeMax) * 44);
-              return <rect key={index} x={x} y={mainHeight - height} width={Math.max(1.2, width / candles.length - 3)} height={height} fill={candle.close >= candle.open ? "rgba(86,199,164,.14)" : "rgba(240,138,173,.14)"} />;
+              return <rect key={index} x={x} y={mainHeight - height} width={Math.max(1.2, width / candles.length - 3)} height={height} fill={candle.close >= candle.open ? "rgba(34,197,94,.16)" : "rgba(251,113,133,.16)"} />;
             })}
           </svg>
           <div className="pointer-events-none absolute inset-y-2 right-1.5 w-20 font-mono text-[10px] sm:text-[11px]">
@@ -522,7 +522,7 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
             ))}
           </div>
           {!compact ? (
-            <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-teal-500/82 px-2 py-0.5 font-mono text-[10px] font-bold text-white sm:text-[11px]">
+            <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-[#089981]/86 px-2 py-0.5 font-mono text-[10px] font-bold text-white sm:text-[11px]">
               Volume {formatCompact(latest?.volume ?? 0)}
             </div>
           ) : null}
@@ -533,34 +533,34 @@ function ExactTradingGraph({ candles, symbol, compact = false }: { candles: Cand
           ) : null}
         </div>
         {!compact ? (
-          <div className="relative overflow-hidden border-t border-white/8 bg-[#09070f]">
+          <div className="relative overflow-hidden border-t border-slate-700/35 bg-[#080812]">
             <div className="absolute left-3 top-2 z-10 text-xs font-bold text-slate-300">RSI 14 close</div>
             <div className="pointer-events-none absolute right-2 top-2 z-10 grid gap-1 font-mono text-[10px] font-bold sm:text-[11px]">
-              <span className="rounded bg-violet-500 px-2 py-0.5 text-white">RSI {latestRsi.toFixed(2)}</span>
-              <span className="rounded bg-yellow-300 px-2 py-0.5 text-slate-950">RSI-based MA {latestRsiMa.toFixed(2)}</span>
+              <span className="rounded bg-[#7c3aed] px-2 py-0.5 text-white">RSI {latestRsi.toFixed(2)}</span>
+              <span className="rounded bg-[#facc15] px-2 py-0.5 text-slate-950">RSI-based MA {latestRsiMa.toFixed(2)}</span>
             </div>
             <svg viewBox={`0 0 ${width} ${rsiHeight}`} preserveAspectRatio="none" className="h-[118px] w-full sm:h-[130px]">
-              <rect x="0" y="0" width={width} height={rsiHeight} fill="rgba(20,16,35,.36)" />
-              {Array.from({ length: 6 }, (_, index) => <line key={`rsi-v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={rsiHeight} stroke="rgba(255,255,255,.045)" strokeWidth="1" />)}
-              <line x1="0" x2={width} y1={rsiHeight * 0.3} y2={rsiHeight * 0.3} stroke="rgba(255,255,255,.24)" strokeDasharray="8 8" />
-              <line x1="0" x2={width} y1={rsiHeight * 0.7} y2={rsiHeight * 0.7} stroke="rgba(255,255,255,.24)" strokeDasharray="8 8" />
-              <path d={buildPolyline(rsi, width, rsiHeight, 0, 100)} fill="none" stroke="#9b7cf8" strokeWidth="1.45" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <path d={buildPolyline(rsiMa, width, rsiHeight, 0, 100)} fill="none" stroke="#f3db57" strokeWidth="1.15" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <rect x="0" y="0" width={width} height={rsiHeight} fill="rgba(124,58,237,.10)" />
+              {Array.from({ length: 6 }, (_, index) => <line key={`rsi-v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={rsiHeight} stroke="rgba(148,163,184,.10)" strokeWidth="1" />)}
+              <line x1="0" x2={width} y1={rsiHeight * 0.3} y2={rsiHeight * 0.3} stroke="rgba(148,163,184,.32)" strokeDasharray="8 8" />
+              <line x1="0" x2={width} y1={rsiHeight * 0.7} y2={rsiHeight * 0.7} stroke="rgba(148,163,184,.32)" strokeDasharray="8 8" />
+              <path d={buildPolyline(rsi, width, rsiHeight, 0, 100)} fill="none" stroke="#8b5cf6" strokeWidth="1.45" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={buildPolyline(rsiMa, width, rsiHeight, 0, 100)} fill="none" stroke="#facc15" strokeWidth="1.15" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
             </svg>
           </div>
         ) : null}
         {!compact ? (
-          <div className="relative overflow-hidden rounded-b-2xl border-t border-white/8 bg-black">
+          <div className="relative overflow-hidden rounded-b-2xl border-t border-slate-700/35 bg-[#03070c]">
             <div className="absolute left-3 top-2 z-10 text-xs font-bold text-slate-300">PMO close 35 20 10</div>
             <div className="pointer-events-none absolute right-2 top-2 z-10 grid gap-1 font-mono text-[10px] font-bold sm:text-[11px]">
-              <span className="rounded bg-blue-600 px-2 py-0.5 text-white">PMO {latestPmo.toFixed(2)}</span>
-              <span className="rounded bg-orange-500 px-2 py-0.5 text-white">Signal {latestSignal.toFixed(2)}</span>
+              <span className="rounded bg-[#2962ff] px-2 py-0.5 text-white">PMO {latestPmo.toFixed(2)}</span>
+              <span className="rounded bg-[#ff9800] px-2 py-0.5 text-white">Signal {latestSignal.toFixed(2)}</span>
             </div>
             <svg viewBox={`0 0 ${width} ${pmoHeight}`} preserveAspectRatio="none" className="h-[110px] w-full sm:h-[122px]">
-              {Array.from({ length: 6 }, (_, index) => <line key={`pmo-v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={pmoHeight} stroke="rgba(255,255,255,.045)" strokeWidth="1" />)}
-              <line x1="0" x2={width} y1={pmoHeight / 2} y2={pmoHeight / 2} stroke="rgba(255,255,255,.24)" strokeDasharray="8 8" />
-              <path d={buildPolyline(pmo.macd, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#3b73ff" strokeWidth="1.45" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-              <path d={buildPolyline(pmo.signal, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#ff8a1f" strokeWidth="1.15" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              {Array.from({ length: 6 }, (_, index) => <line key={`pmo-v-${index}`} x1={index * (width / 5)} x2={index * (width / 5)} y1="0" y2={pmoHeight} stroke="rgba(148,163,184,.10)" strokeWidth="1" />)}
+              <line x1="0" x2={width} y1={pmoHeight / 2} y2={pmoHeight / 2} stroke="rgba(148,163,184,.32)" strokeDasharray="8 8" />
+              <path d={buildPolyline(pmo.macd, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#2962ff" strokeWidth="1.45" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={buildPolyline(pmo.signal, width, pmoHeight, -pmoMax, pmoMax)} fill="none" stroke="#ff9800" strokeWidth="1.15" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
             </svg>
             <div className="flex justify-between px-3 pb-2 font-mono text-[10px] font-bold text-slate-500 sm:text-[11px]">
               <span>Jul</span>
