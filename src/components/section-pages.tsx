@@ -32,7 +32,7 @@ const themeSwatches: Record<AppTheme, string[]> = {
   Space: ["#020817", "#38bdf8", "#f8fafc", "#f59e0b"],
   Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
   Obsidian: ["#000000", "#f59e0b", "#fef3c7", "#92400e"],
-  Pearl: ["#fff7e8", "#c27a19", "#047857", "#dc8a3d"]
+  Pearl: ["#ead9bd", "#a86212", "#0f6b50", "#c6782f"]
 };
 
 const settingsAlertThemeStyles: Record<AppTheme, {
@@ -81,13 +81,13 @@ const settingsAlertThemeStyles: Record<AppTheme, {
     statusDisabled: { color: "#fecaca" }
   },
   Pearl: {
-    enabled: { background: "linear-gradient(135deg, rgba(4,120,87,.12), rgba(194,122,25,.08)), #fff7e8", borderColor: "rgba(4,120,87,.3)", boxShadow: "0 14px 32px rgba(117,89,50,.12)" },
-    disabled: { background: "linear-gradient(135deg, rgba(190,18,60,.08), rgba(117,89,50,.05)), #fffaf0", borderColor: "rgba(190,18,60,.18)" },
-    iconEnabled: { color: "#047857" },
-    iconDisabled: { color: "#be123c" },
+    enabled: { background: "linear-gradient(135deg, rgba(15,107,80,.10), rgba(168,98,18,.07)), #ead9bd", borderColor: "rgba(15,107,80,.28)", boxShadow: "0 14px 32px rgba(93,72,45,.14)" },
+    disabled: { background: "linear-gradient(135deg, rgba(161,18,53,.07), rgba(93,72,45,.06)), #ead8b8", borderColor: "rgba(161,18,53,.18)" },
+    iconEnabled: { color: "#0f6b50" },
+    iconDisabled: { color: "#a11235" },
     title: { color: "#1f2933" },
-    statusEnabled: { color: "#07543f" },
-    statusDisabled: { color: "#8f1235" }
+    statusEnabled: { color: "#064937" },
+    statusDisabled: { color: "#741027" }
   }
 };
 

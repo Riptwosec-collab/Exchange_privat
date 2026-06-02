@@ -73,11 +73,11 @@ const brandThemeStyles: Record<AppTheme, {
     notify: { background: "rgba(245,158,11,.14)", borderColor: "rgba(245,158,11,.32)", color: "#fde68a" }
   },
   Pearl: {
-    card: { background: "linear-gradient(135deg, rgba(194,122,25,.16), rgba(4,120,87,.08)), #fff7e8", borderColor: "rgba(117,89,50,.28)", color: "#7a4310", boxShadow: "0 16px 38px rgba(117,89,50,.16)" },
-    mark: { background: "rgba(117,89,50,.08)", color: "#7a4310" },
-    eyebrow: { color: "#7a4310" },
+    card: { background: "linear-gradient(135deg, rgba(168,98,18,.14), rgba(15,107,80,.07)), #ead9bd", borderColor: "rgba(93,72,45,.28)", color: "#5f3410", boxShadow: "0 16px 38px rgba(93,72,45,.18)" },
+    mark: { background: "rgba(93,72,45,.1)", color: "#5f3410" },
+    eyebrow: { color: "#5f3410" },
     title: { color: "#1f2933" },
-    notify: { background: "rgba(194,122,25,.12)", borderColor: "rgba(117,89,50,.24)", color: "#7a4310" }
+    notify: { background: "rgba(168,98,18,.1)", borderColor: "rgba(93,72,45,.24)", color: "#5f3410" }
   }
 };
 
