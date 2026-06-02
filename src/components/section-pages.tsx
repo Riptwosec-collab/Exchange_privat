@@ -5,6 +5,7 @@ import { BarChart3, Bell, Bookmark, CalendarDays, ExternalLink, LineChart, Refre
 import { economicEvents, generatedNews, news, watchlist } from "@/lib/mock-data";
 import { allStockSymbols, stockUniverse } from "@/lib/market-utils";
 import type { NewsArticle } from "@/lib/types";
+import { useMarketStore, type AppTheme } from "@/store/market-store";
 import { StockLogo } from "./stock-logo";
 import { Metric, Panel, StatusPill } from "./ui";
 
@@ -16,7 +17,7 @@ const calendarGuide = {
   gdp: "บอกภาพเศรษฐกิจและ risk-on/risk-off"
 };
 const settingsOptions = {
-  theme: ["Calm Dark", "Cyan", "Emerald"],
+  theme: ["Blue", "Green", "Rose"],
   currency: ["USD", "THB"],
   language: ["TH", "EN"],
   refresh: ["5s", "15s", "30s"],
@@ -661,8 +662,19 @@ export function CalendarPage() {
 }
 
 export function SettingsPageFull() {
-  const [values, setValues] = useState({ theme: "Calm Dark", currency: "USD", language: "TH", refresh: "15s", density: "Compact", risk: "Balanced" });
+  const { appTheme, setAppTheme } = useMarketStore();
+  const [values, setValues] = useState({ theme: appTheme, currency: "USD", language: "TH", refresh: "15s", density: "Compact", risk: "Balanced" });
   const [toggles, setToggles] = useState({ price: true, rsi: true, earnings: true, news: true, pwa: true, api: false });
+
+  useEffect(() => {
+    setValues((current) => ({ ...current, theme: appTheme }));
+  }, [appTheme]);
+
+  function chooseOption(key: keyof typeof settingsOptions, option: string) {
+    setValues((current) => ({ ...current, [key]: option }));
+    if (key === "theme") setAppTheme(option as AppTheme);
+  }
+
   return (
     <Panel className="p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -675,7 +687,7 @@ export function SettingsPageFull() {
             <p className="text-xs uppercase tracking-[0.16em] text-slate-500">{key}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {settingsOptions[key].map((option) => (
-                <button key={option} onClick={() => setValues((current) => ({ ...current, [key]: option }))} className={`rounded-md px-3 py-2 text-sm ${values[key] === option ? "bg-cyan-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>{option}</button>
+                <button key={option} onClick={() => chooseOption(key, option)} className={`rounded-md px-3 py-2 text-sm ${values[key] === option ? "bg-cyan-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>{option}</button>
               ))}
             </div>
           </div>

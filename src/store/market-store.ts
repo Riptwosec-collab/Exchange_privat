@@ -4,8 +4,11 @@ import { create } from "zustand";
 import { watchlist } from "@/lib/mock-data";
 import type { StockQuote } from "@/lib/types";
 
+export type AppTheme = "Blue" | "Green" | "Rose";
+
 type MarketStore = {
   activeSection: string;
+  appTheme: AppTheme;
   quotes: StockQuote[];
   selectedTicker: string;
   timeframe: string;
@@ -13,6 +16,7 @@ type MarketStore = {
   lastUpdated: string | null;
   refreshNonce: number;
   setActiveSection: (section: string) => void;
+  setAppTheme: (theme: AppTheme) => void;
   setSelectedTicker: (ticker: string) => void;
   setTimeframe: (timeframe: string) => void;
   setQuotes: (quotes: StockQuote[], liveMode?: "mock" | "provider") => void;
@@ -22,6 +26,7 @@ type MarketStore = {
 
 export const useMarketStore = create<MarketStore>((set) => ({
   activeSection: "Dashboard",
+  appTheme: "Blue",
   quotes: watchlist,
   selectedTicker: "NVDA",
   timeframe: "1D",
@@ -29,6 +34,7 @@ export const useMarketStore = create<MarketStore>((set) => ({
   lastUpdated: null,
   refreshNonce: 0,
   setActiveSection: (activeSection) => set({ activeSection }),
+  setAppTheme: (appTheme) => set({ appTheme }),
   setSelectedTicker: (selectedTicker) => set({ selectedTicker }),
   setTimeframe: (timeframe) => set({ timeframe }),
   requestRefresh: () => set((state) => ({ refreshNonce: state.refreshNonce + 1 })),

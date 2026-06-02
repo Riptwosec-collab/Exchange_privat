@@ -143,9 +143,20 @@ function SectionView() {
 }
 
 export function DashboardShell() {
-  const { activeSection, setActiveSection, liveMode, lastUpdated } = useMarketStore();
+  const { activeSection, appTheme, setActiveSection, setAppTheme, liveMode, lastUpdated } = useMarketStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("astraquant-theme");
+    if (savedTheme === "Blue" || savedTheme === "Green" || savedTheme === "Rose") {
+      setAppTheme(savedTheme);
+    }
+  }, [setAppTheme]);
+
+  useEffect(() => {
+    window.localStorage.setItem("astraquant-theme", appTheme);
+  }, [appTheme]);
 
   useEffect(() => {
     const section = searchParams.get("section");
@@ -201,7 +212,7 @@ export function DashboardShell() {
   }
 
   return (
-    <main className="terminal-grid min-h-screen pb-[calc(92px+env(safe-area-inset-bottom))] lg:pb-8">
+    <main data-theme={appTheme.toLowerCase()} className="terminal-grid min-h-screen pb-[calc(92px+env(safe-area-inset-bottom))] lg:pb-8">
       <Sidebar />
       <Header />
       <MarketTicker />
