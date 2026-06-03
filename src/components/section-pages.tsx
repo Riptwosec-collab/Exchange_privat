@@ -35,6 +35,39 @@ const themeSwatches: Record<AppTheme, string[]> = {
   Pearl: ["#ead9bd", "#a86212", "#0f6b50", "#c6782f"]
 };
 
+const themeOptionStyles: Record<AppTheme, CSSProperties> = {
+  Technology: {
+    background: "linear-gradient(135deg, #ef4444, #7f1d1d 52%, #2b1218)",
+    borderColor: "rgba(239,68,68,.52)",
+    boxShadow: "0 12px 28px rgba(239,68,68,.22), inset 0 1px 0 rgba(255,255,255,.16)",
+    color: "#fff1f2"
+  },
+  Space: {
+    background: "linear-gradient(135deg, #2563eb, #0f2340 58%, #020617)",
+    borderColor: "rgba(125,211,252,.48)",
+    boxShadow: "0 12px 30px rgba(37,99,235,.24), inset 0 1px 0 rgba(255,255,255,.14)",
+    color: "#eff6ff"
+  },
+  Luxury: {
+    background: "linear-gradient(135deg, #d6a84f, #7f1d1d 55%, #120b05)",
+    borderColor: "rgba(214,168,79,.56)",
+    boxShadow: "0 14px 34px rgba(214,168,79,.2), inset 0 1px 0 rgba(255,242,198,.18)",
+    color: "#fff7df"
+  },
+  Obsidian: {
+    background: "linear-gradient(135deg, #000000, #15110a 55%, #f59e0b)",
+    borderColor: "rgba(245,158,11,.54)",
+    boxShadow: "0 14px 34px rgba(245,158,11,.17), inset 0 1px 0 rgba(254,243,199,.14)",
+    color: "#fff7df"
+  },
+  Pearl: {
+    background: "linear-gradient(135deg, #8a5a1e, #0f6b50 62%, #2f6f3f)",
+    borderColor: "rgba(15,107,80,.48)",
+    boxShadow: "0 14px 30px rgba(93,72,45,.18), inset 0 1px 0 rgba(255,247,223,.24)",
+    color: "#fff7df"
+  }
+};
+
 const settingsAlertThemeStyles: Record<AppTheme, {
   enabled: CSSProperties;
   disabled: CSSProperties;
@@ -787,9 +820,14 @@ export function SettingsPageFull() {
             <p className="text-xs uppercase tracking-[0.16em] text-slate-500">{key}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {settingsOptions[key].map((option) => (
-                <button key={option} onClick={() => chooseOption(key, option)} className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${values[key] === option ? "bg-cyan-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>
+                <button
+                  key={option}
+                  onClick={() => chooseOption(key, option)}
+                  className={`settings-option-button inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-black transition ${values[key] === option ? "is-selected" : "border-white/10 text-slate-300"}`}
+                  style={key === "theme" && values[key] === option ? themeOptionStyles[option as AppTheme] : undefined}
+                >
                   {key === "theme" ? (
-                    <span className="flex overflow-hidden rounded-full border border-white/20">
+                    <span className="theme-swatch flex overflow-hidden rounded-full border">
                       {themeSwatches[option as AppTheme].map((color) => <span key={color} className="h-3 w-3" style={{ backgroundColor: color }} />)}
                     </span>
                   ) : null}

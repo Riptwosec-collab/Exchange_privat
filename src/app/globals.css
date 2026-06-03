@@ -374,6 +374,36 @@ textarea::placeholder {
   border-color: rgba(var(--accent-rgb), 0.18);
 }
 
+.settings-option-button {
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), rgba(var(--accent-2-rgb), 0.04)),
+    color-mix(in srgb, var(--panel) 86%, var(--chart-bg) 14%);
+  border-color: rgba(var(--accent-rgb), 0.18);
+  color: color-mix(in srgb, var(--foreground) 84%, var(--muted, #94a3b8) 16%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+.settings-option-button:hover {
+  border-color: rgba(var(--accent-rgb), 0.36);
+  color: var(--foreground);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px rgba(var(--accent-rgb), 0.12);
+}
+
+.settings-option-button.is-selected {
+  border-width: 1px;
+  transform: translateY(-1px);
+}
+
+.settings-option-button .theme-swatch {
+  border-color: rgba(255, 255, 255, 0.36);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.18),
+    0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
 .terminal-grid :where(header, .mobile-market-ticker, .mobile-bottom-nav, .mobile-workspace-card) {
   background:
     linear-gradient(135deg, rgba(var(--accent-rgb), 0.13), rgba(var(--accent-2-rgb), 0.07)),
