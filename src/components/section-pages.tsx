@@ -28,7 +28,7 @@ const settingsOptions = {
 };
 
 const themeSwatches: Record<AppTheme, string[]> = {
-  Technology: ["#12080a", "#ef4444", "#f6c177", "#94a3b8"],
+  Technology: ["#100609", "#c1121f", "#d8b46a", "#b8a88f"],
   Space: ["#020617", "#2563eb", "#7dd3fc", "#fbbf24"],
   Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
   Obsidian: ["#000000", "#f59e0b", "#fef3c7", "#92400e"],
@@ -37,10 +37,10 @@ const themeSwatches: Record<AppTheme, string[]> = {
 
 const themeOptionStyles: Record<AppTheme, CSSProperties> = {
   Technology: {
-    background: "linear-gradient(135deg, #ef4444, #7f1d1d 52%, #2b1218)",
-    borderColor: "rgba(239,68,68,.52)",
-    boxShadow: "0 12px 28px rgba(239,68,68,.22), inset 0 1px 0 rgba(255,255,255,.16)",
-    color: "#fff1f2"
+    background: "linear-gradient(135deg, #c1121f, #5c0b16 52%, #100609)",
+    borderColor: "rgba(216,180,106,.52)",
+    boxShadow: "0 14px 32px rgba(193,18,31,.2), inset 0 1px 0 rgba(255,240,194,.18)",
+    color: "#fff3f0"
   },
   Space: {
     background: "linear-gradient(135deg, #2563eb, #0f2340 58%, #020617)",
@@ -78,13 +78,13 @@ const settingsAlertThemeStyles: Record<AppTheme, {
   statusDisabled: CSSProperties;
 }> = {
   Technology: {
-    enabled: { background: "linear-gradient(135deg, rgba(239,68,68,.24), rgba(246,193,119,.10)), #2b1218", borderColor: "rgba(239,68,68,.5)", boxShadow: "0 14px 34px rgba(239,68,68,.17)" },
-    disabled: { background: "linear-gradient(135deg, rgba(251,113,133,.13), rgba(239,68,68,.05)), #1d0d11", borderColor: "rgba(251,113,133,.28)" },
-    iconEnabled: { color: "#fecdd3" },
-    iconDisabled: { color: "#ffe4e9" },
-    title: { color: "#fff1f2" },
-    statusEnabled: { color: "#f6c177" },
-    statusDisabled: { color: "#ffe4e9" }
+    enabled: { background: "linear-gradient(135deg, rgba(193,18,31,.24), rgba(216,180,106,.12)), #281018", borderColor: "rgba(216,180,106,.42)", boxShadow: "0 14px 34px rgba(193,18,31,.16)" },
+    disabled: { background: "linear-gradient(135deg, rgba(232,93,117,.12), rgba(193,18,31,.05)), #1a0b10", borderColor: "rgba(232,93,117,.26)" },
+    iconEnabled: { color: "#ffd6d3" },
+    iconDisabled: { color: "#ffe1e7" },
+    title: { color: "#fff3f0" },
+    statusEnabled: { color: "#fff0c2" },
+    statusDisabled: { color: "#ffe1e7" }
   },
   Space: {
     enabled: { background: "linear-gradient(135deg, rgba(37,99,235,.22), rgba(125,211,252,.10)), #0f2340", borderColor: "rgba(96,165,250,.44)", boxShadow: "0 14px 36px rgba(37,99,235,.16)" },
