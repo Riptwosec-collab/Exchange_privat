@@ -48,5 +48,5 @@ export function StatusPill({
     info: "border-[#2962ff]/28 bg-[#2962ff]/18 text-[#b9c8ff]"
   };
 
-  return <span className={`inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-extrabold leading-tight ${styles[tone]}`}>{children}</span>;
+  return <span className={`status-pill inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-extrabold leading-tight ${styles[tone]}`}>{children}</span>;
 }
