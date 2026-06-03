@@ -307,6 +307,21 @@ textarea::placeholder {
     0 10px 24px rgba(var(--accent-rgb), 0.045);
 }
 
+.portfolio-hero {
+  background:
+    radial-gradient(circle at 12% -12%, rgba(var(--accent-rgb), 0.3), transparent 26rem),
+    radial-gradient(circle at 90% 4%, rgba(var(--accent-2-rgb), 0.16), transparent 22rem),
+    linear-gradient(135deg, var(--panel-soft), var(--panel) 58%, var(--chart-bg));
+  border-color: rgba(var(--accent-rgb), 0.22);
+}
+
+.portfolio-hero .metric-card {
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.12), rgba(var(--accent-2-rgb), 0.06)),
+    color-mix(in srgb, var(--chart-bg) 72%, var(--panel) 28%);
+  border-color: rgba(var(--accent-rgb), 0.18);
+}
+
 .terminal-grid :where(header, .mobile-market-ticker, .mobile-bottom-nav, .mobile-workspace-card) {
   background:
     linear-gradient(135deg, rgba(var(--accent-rgb), 0.13), rgba(var(--accent-2-rgb), 0.07)),

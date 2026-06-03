@@ -361,7 +361,7 @@ function HeatmapDeepDiveModal({
               <h3 className="truncate text-xl font-semibold">{selected.ticker} · {selected.name}</h3>
               <div className="mt-1 flex flex-wrap gap-2">
                 <span className="rounded-full bg-white/10 px-2 py-1 text-[11px] text-slate-200">{selected.changePercent >= 0 ? "Buy" : "Watch"}</span>
-                <span className="rounded-full bg-violet-500/24 px-2 py-1 text-[11px] text-violet-100">{selected.sector}</span>
+                <span className="rounded-full bg-[rgba(var(--accent-rgb),0.18)] px-2 py-1 text-[11px] text-[var(--accent-text)]">{selected.sector}</span>
               </div>
             </div>
           </div>
@@ -573,7 +573,7 @@ export function EnhancedHeatmapPage() {
                   <h3 className="truncate text-xl font-semibold">{selected.ticker} · {selected.name}</h3>
                   <div className="mt-1 flex gap-2">
                     <span className="rounded-full bg-white/10 px-2 py-1 text-[11px] text-slate-200">Hold</span>
-                    <span className="rounded-full bg-violet-500/24 px-2 py-1 text-[11px] text-violet-100">{selected.sector}</span>
+                    <span className="rounded-full bg-[rgba(var(--accent-rgb),0.18)] px-2 py-1 text-[11px] text-[var(--accent-text)]">{selected.sector}</span>
                   </div>
                 </div>
               </div>
@@ -624,7 +624,7 @@ export function EnhancedHeatmapPage() {
 
             <div className="mt-5 flex flex-wrap gap-2">
               {[selected.sector, selected.isAiStock ? "AI" : "Core", selected.dividendYield > 0 ? "Dividend" : "Growth"].map((tag) => (
-                <span key={tag} className="rounded-full bg-violet-500/24 px-2 py-1 text-xs text-violet-100">{tag}</span>
+                <span key={tag} className="rounded-full bg-[rgba(var(--accent-rgb),0.18)] px-2 py-1 text-xs text-[var(--accent-text)]">{tag}</span>
               ))}
             </div>
 
@@ -705,7 +705,7 @@ export function EnhancedMultiChartPage() {
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <select value={start} onChange={(event) => setStart(Number(event.target.value))} className="h-9 rounded-md border border-white/10 bg-slate-950 px-3 text-slate-100">{quotes.map((quote, index) => <option key={quote.ticker} value={index}>Start {quote.ticker}</option>)}</select>
-        {["1D", "5D", "1M", "6M", "YTD", "1Y", "5Y"].map((item) => <button key={item} onClick={() => setTimeframe(item)} className={`rounded-md px-3 py-2 text-sm ${timeframe === item ? "bg-purple-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>{item}</button>)}
+        {["1D", "5D", "1M", "6M", "YTD", "1Y", "5Y"].map((item) => <button key={item} onClick={() => setTimeframe(item)} className={`rounded-md px-3 py-2 text-sm ${timeframe === item ? "bg-[var(--accent)] text-white" : "border border-white/10 text-slate-300"}`}>{item}</button>)}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {chartModes.map((item) => <button key={item} onClick={() => setMode(item)} className={`rounded-md px-3 py-2 text-sm ${mode === item ? "bg-emerald-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>{item}</button>)}
@@ -769,7 +769,7 @@ export function EnhancedCopilotPageFull() {
     <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
       <Panel className="p-5">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs uppercase tracking-[0.2em] text-cyan-300">AI Stock Copilot</p><h2 className="mt-1 text-xl font-semibold text-white">วิเคราะห์พร้อม context ราคา ข่าว sector และ peer</h2></div><div className="flex gap-2"><button onClick={requestRefresh} className="flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm text-slate-300"><RefreshCw size={15} />Refresh</button><StatusPill tone="info">{mode}</StatusPill></div></div>
-        <div className="mt-4 grid gap-2 md:grid-cols-[1fr_auto_auto]"><select value={ticker} onChange={(event) => setTicker(event.target.value)} className="h-10 rounded-md border border-white/10 bg-slate-950 px-3 text-slate-100">{quotes.map((item) => <option key={item.ticker}>{item.ticker}</option>)}</select>{(["beginner", "advanced"] as const).map((item) => <button key={item} onClick={() => setMode(item)} className={`rounded-md px-3 py-2 text-sm ${mode === item ? "bg-purple-300 text-slate-950" : "border border-white/10 text-slate-300"}`}>{item}</button>)}</div>
+        <div className="mt-4 grid gap-2 md:grid-cols-[1fr_auto_auto]"><select value={ticker} onChange={(event) => setTicker(event.target.value)} className="h-10 rounded-md border border-white/10 bg-slate-950 px-3 text-slate-100">{quotes.map((item) => <option key={item.ticker}>{item.ticker}</option>)}</select>{(["beginner", "advanced"] as const).map((item) => <button key={item} onClick={() => setMode(item)} className={`rounded-md px-3 py-2 text-sm ${mode === item ? "bg-[var(--accent)] text-white" : "border border-white/10 text-slate-300"}`}>{item}</button>)}</div>
         <div className="mt-4 grid gap-2 sm:grid-cols-4"><Metric label="Price" value={`$${quote.price.toFixed(2)}`} delta={`${quote.changePercent.toFixed(2)}%`} tone={quote.changePercent >= 0 ? "up" : "down"} /><Metric label="Prev Close" value={`$${quote.previousClose.toFixed(2)}`} delta={`chg ${quote.change.toFixed(2)}`} tone="neutral" /><Metric label="RSI" value={`${quote.rsi}`} delta={quote.sector} tone={quote.rsi > 65 ? "up" : quote.rsi < 35 ? "down" : "neutral"} /><Metric label="Sector Avg" value={`${sectorAvg.toFixed(2)}%`} delta={`${sectorRows.length} names`} tone={sectorAvg >= 0 ? "up" : "down"} /></div>
         <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} className="mt-4 min-h-32 w-full resize-none rounded-md border border-white/10 bg-white/[0.03] p-3 text-slate-100 outline-none" />
         <button onClick={ask} disabled={loading} className="mt-3 flex items-center gap-2 rounded-md bg-cyan-300 px-4 py-2 font-medium text-slate-950"><Bot size={16} />{loading ? "Analyzing..." : "Ask Copilot"}</button>
@@ -809,7 +809,7 @@ export function EnhancedPortfolioPage() {
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-4">
         <Panel className="overflow-hidden p-0">
-          <div className="bg-gradient-to-br from-[#4b2367] via-[#3a214f] to-[#1f2026] p-5">
+          <div className="portfolio-hero p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-black text-slate-300">มูลค่าสินทรัพย์ทั้งหมด</p>
@@ -836,7 +836,7 @@ export function EnhancedPortfolioPage() {
         <Panel className="p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-300">Portfolio</p>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--accent-text)]">Portfolio</p>
               <h3 className="mt-1 text-xl font-black text-white">สินทรัพย์ของฉัน</h3>
             </div>
             <StatusPill tone={roi >= 0 ? "up" : "down"}>{roi >= 0 ? "กำไร" : "ขาดทุน"} {Math.abs(roi).toFixed(2)}%</StatusPill>
@@ -876,7 +876,7 @@ export function EnhancedPortfolioPage() {
           {(["quantity", "buyPrice", "targetPrice", "stopLoss"] as const).map((key) => (
             <input key={key} type="number" inputMode="decimal" step={key === "quantity" ? "0.000001" : "0.01"} min={key === "quantity" ? "0.000001" : "0"} value={form[key]} onChange={(event) => setForm({ ...form, [key]: event.target.value })} className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-3 text-slate-100 outline-none" placeholder={key} />
           ))}
-          <button disabled={!canSave} onClick={() => { if (!canSave) return; const quote = quotes.find((item) => item.ticker === form.ticker) ?? quotes[0]; setHoldings((current) => [...current.filter((item) => item.ticker !== form.ticker), { ticker: form.ticker, ...numericForm, currentPrice: quote.price, sector: quote.sector, currency: form.ticker.endsWith(".BK") ? "THB" : "USD" }]); }} className="w-full rounded-2xl bg-white px-3 py-3 font-black text-slate-950 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-45">
+          <button disabled={!canSave} onClick={() => { if (!canSave) return; const quote = quotes.find((item) => item.ticker === form.ticker) ?? quotes[0]; setHoldings((current) => [...current.filter((item) => item.ticker !== form.ticker), { ticker: form.ticker, ...numericForm, currentPrice: quote.price, sector: quote.sector, currency: form.ticker.endsWith(".BK") ? "THB" : "USD" }]); }} className="w-full rounded-2xl bg-[var(--accent)] px-3 py-3 font-black text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45">
             Save Position
           </button>
         </div>
