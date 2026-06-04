@@ -88,6 +88,32 @@
   --surface-soft: #0f2340;
 }
 
+.terminal-grid[data-theme="tradingview"] {
+  --background: #0b1220;
+  --foreground: #f8fafc;
+  --panel: #111827;
+  --panel-soft: #172033;
+  --border-soft: rgba(41, 98, 255, 0.24);
+  --accent: #2962ff;
+  --accent-text: #dbeafe;
+  --accent-rgb: 41, 98, 255;
+  --accent-soft: rgba(41, 98, 255, 0.2);
+  --accent-2: #089981;
+  --accent-2-rgb: 8, 153, 129;
+  --accent-3: #f23645;
+  --theme-glow: rgba(41, 98, 255, 0.22);
+  --success: #089981;
+  --success-text: #bbf7d0;
+  --success-rgb: 8, 153, 129;
+  --danger: #f23645;
+  --danger-text: #fecdd3;
+  --danger-rgb: 242, 54, 69;
+  --chart-bg: #050816;
+  --chart-panel: #0b1220;
+  --surface-strong: #0b1220;
+  --surface-soft: #172033;
+}
+
 .terminal-grid[data-theme="luxury"] {
   --background: #120b05;
   --foreground: #fff7df;
@@ -1199,6 +1225,16 @@ textarea::placeholder {
     linear-gradient(180deg, #071a34 0%, #020617 54%, #01040f 100%);
 }
 
+.terminal-grid[data-theme="tradingview"] {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    radial-gradient(circle at 12% -8%, rgba(41, 98, 255, 0.22), transparent 34rem),
+    radial-gradient(circle at 86% 10%, rgba(8, 153, 129, 0.12), transparent 26rem),
+    linear-gradient(180deg, #0b1220 0%, #050816 58%, #02040a 100%);
+  background-size: 48px 48px, 48px 48px, auto, auto, auto;
+}
+
 .terminal-grid[data-theme="luxury"] {
   background:
     radial-gradient(circle at 18% -10%, rgba(214, 168, 79, 0.26), transparent 34rem),
@@ -1252,6 +1288,16 @@ textarea::placeholder {
     radial-gradient(circle at 82% 66%, rgba(251, 191, 36, 0.38) 0 1px, transparent 2px),
     linear-gradient(115deg, transparent 0 40%, rgba(37, 99, 235, 0.16) 50%, transparent 62%);
   background-size: auto;
+  mix-blend-mode: screen;
+}
+
+.terminal-grid[data-theme="tradingview"]::before {
+  opacity: 0.26;
+  background:
+    linear-gradient(90deg, rgba(41, 98, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(115deg, transparent 0 40%, rgba(41, 98, 255, 0.11) 50%, transparent 62%);
+  background-size: 96px 96px, 24px 24px, auto;
   mix-blend-mode: screen;
 }
 

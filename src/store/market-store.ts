@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { watchlist } from "@/lib/mock-data";
 import type { StockQuote } from "@/lib/types";
 
-export type AppTheme = "Technology" | "Space" | "Luxury" | "Obsidian" | "Pearl";
+export type AppTheme = "Technology" | "Space" | "Luxury" | "Obsidian" | "Pearl" | "TradingView";
 
 type MarketStore = {
   activeSection: string;

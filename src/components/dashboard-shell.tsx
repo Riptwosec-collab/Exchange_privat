@@ -149,7 +149,7 @@ export function DashboardShell() {
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem("astraquant-theme");
-    if (savedTheme === "Technology" || savedTheme === "Space" || savedTheme === "Luxury" || savedTheme === "Obsidian" || savedTheme === "Pearl") {
+    if (savedTheme === "Technology" || savedTheme === "Space" || savedTheme === "TradingView" || savedTheme === "Luxury" || savedTheme === "Obsidian" || savedTheme === "Pearl") {
       setAppTheme(savedTheme);
     }
   }, [setAppTheme]);

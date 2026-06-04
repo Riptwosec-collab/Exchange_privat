@@ -58,6 +58,13 @@ const brandThemeStyles: Record<AppTheme, {
     title: { color: "#eff6ff" },
     notify: { background: "rgba(37,99,235,.16)", borderColor: "rgba(96,165,250,.34)", color: "#bfdbfe" }
   },
+  TradingView: {
+    card: { background: "linear-gradient(135deg, rgba(41,98,255,.26), rgba(8,153,129,.10)), #111827", borderColor: "rgba(41,98,255,.46)", color: "#dbeafe", boxShadow: "0 16px 44px rgba(41,98,255,.16)" },
+    mark: { background: "rgba(41,98,255,.18)", color: "#dbeafe" },
+    eyebrow: { color: "#dbeafe" },
+    title: { color: "#f8fafc" },
+    notify: { background: "rgba(41,98,255,.16)", borderColor: "rgba(41,98,255,.34)", color: "#dbeafe" }
+  },
   Luxury: {
     card: { background: "linear-gradient(135deg, rgba(214,168,79,.25), rgba(127,29,29,.18)), #1e140b", borderColor: "rgba(214,168,79,.45)", color: "#fff2c6", boxShadow: "0 18px 44px rgba(214,168,79,.16)" },
     mark: { background: "rgba(214,168,79,.16)", color: "#fff2c6" },

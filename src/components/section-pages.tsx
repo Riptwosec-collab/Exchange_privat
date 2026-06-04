@@ -19,7 +19,7 @@ const calendarGuide = {
   gdp: "บอกภาพเศรษฐกิจและ risk-on/risk-off"
 };
 const settingsOptions = {
-  theme: ["Technology", "Space", "Luxury", "Obsidian", "Pearl"],
+  theme: ["Technology", "Space", "Luxury", "Obsidian", "Pearl", "TradingView"],
   currency: ["USD", "THB"],
   language: ["TH", "EN"],
   refresh: ["5s", "15s", "30s"],
@@ -32,7 +32,8 @@ const themeSwatches: Record<AppTheme, string[]> = {
   Space: ["#020617", "#2563eb", "#7dd3fc", "#fbbf24"],
   Luxury: ["#120b05", "#d6a84f", "#7f1d1d", "#fff2c6"],
   Obsidian: ["#000000", "#f59e0b", "#fef3c7", "#92400e"],
-  Pearl: ["#ead9bd", "#a86212", "#0f6b50", "#c6782f"]
+  Pearl: ["#ead9bd", "#a86212", "#0f6b50", "#c6782f"],
+  TradingView: ["#0b1220", "#2962ff", "#089981", "#f23645"]
 };
 
 const themeOptionStyles: Record<AppTheme, CSSProperties> = {
@@ -65,6 +66,12 @@ const themeOptionStyles: Record<AppTheme, CSSProperties> = {
     borderColor: "rgba(15,107,80,.48)",
     boxShadow: "0 14px 30px rgba(93,72,45,.18), inset 0 1px 0 rgba(255,247,223,.24)",
     color: "#fff7df"
+  },
+  TradingView: {
+    background: "linear-gradient(135deg, #2962ff, #0f172a 56%, #050816)",
+    borderColor: "rgba(41,98,255,.58)",
+    boxShadow: "0 14px 34px rgba(41,98,255,.24), inset 0 1px 0 rgba(255,255,255,.16)",
+    color: "#f8fafc"
   }
 };
 
@@ -121,6 +128,15 @@ const settingsAlertThemeStyles: Record<AppTheme, {
     title: { color: "#1f2933" },
     statusEnabled: { color: "#064937" },
     statusDisabled: { color: "#741027" }
+  },
+  TradingView: {
+    enabled: { background: "linear-gradient(135deg, rgba(41,98,255,.20), rgba(8,153,129,.10)), #111827", borderColor: "rgba(41,98,255,.48)", boxShadow: "0 14px 36px rgba(41,98,255,.18)" },
+    disabled: { background: "linear-gradient(135deg, rgba(242,54,69,.12), rgba(41,98,255,.05)), #0b1220", borderColor: "rgba(242,54,69,.28)" },
+    iconEnabled: { color: "#dbeafe" },
+    iconDisabled: { color: "#fecdd3" },
+    title: { color: "#f8fafc" },
+    statusEnabled: { color: "#bbf7d0" },
+    statusDisabled: { color: "#fecdd3" }
   }
 };
 
